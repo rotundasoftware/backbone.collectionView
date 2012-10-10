@@ -2,6 +2,8 @@ Rotunda.Views.CollectionList = Backbone.View.extend({
 	/* Contructor should be passed options hash with following keys. All keys are optional unless otherwise noted
 	 * el (required) : An "ul" or "table" element that will serve as the dom element that contains this list
 	 * collection : The collection of models that will serve as the content for this list
+	 * modelView : A view class that will be used to render the models within this collection. 
+	 * renderFunction : Can be used to override the default render() function, in the case that you want to render the collection view yourself, for example to optimize efficiency for large collections. You should rarely need to use this option.
 	 * referenceModelsByCid : If true (default), models will be references by their "cid" (client side id) attribute, instead of their "id" attribute.
 	 * selectable : True if the collection view should behave as a selectable list. In this case the "selected" class will be automatically added to selected models.
 	 * selectMultiple : True if the collection should support multiple selected models at one time. Defaults to false.
@@ -12,6 +14,7 @@ Rotunda.Views.CollectionList = Backbone.View.extend({
 	 * EVENTS FIRED
 	 * selectionChanged( newSelectedItems, oldSelectedItems ) - Fired whenever the selection is chaged, either by the user or by a manual call to setSelectedItems
 	 * updateDependentControls( selectedItems ) - Fired whenever controls that are dependent on the selection should be updated (e.g. buttons that should be disabled on no selection). This event is always fired just after selectionChanged is fired. In addition, it is fired after rendering (even if the selection has not changed since the last render) and sorting.
+	 * doubleClick( clickedItemId, theEvent ) - Fired when a model view is double clicked. clickedItemId is either the cid or id of the model, depending on if referenceModelsByCidreferenceModelsByCid is true or false respectively
 	 * sortStart - Fired just as a model view is starting to be dragged (sortable collection lists only)
 	 * sortStop - Fired when a drag of a model view is finished, but before the models have been reordered within the collection (sortable collection lists only)
 	 * reorder - Fired after a drag of a model view is finished and after the models have been reordered within the collection (sortable collection lists only)
@@ -47,7 +50,6 @@ Rotunda.Views.CollectionList = Backbone.View.extend({
 		this.sortable = options.sortable;
 		this.sortableItemsSelector = options.sortableItemsSelector;
 		this.processKeyEvents = options.processKeyEvents;
-		this.emptyListDescriptionUpdateStateCallback = options.emptyListDescriptionUpdateStateCallback;
 		
 		if( options.renderFunction != null )
 			this.render = function() {
@@ -66,13 +68,6 @@ Rotunda.Views.CollectionList = Backbone.View.extend({
 		
 		this.listEl.addClass( "collection-list" );
 		if( this.processKeyEvents ) this.listEl.attr( "tabindex", 0 ); // so we get keyboard events
-		
-		if( this.listEl.next().is( "div.empty-list-description" ) && ! _.isUndefined( Rotunda.Views.EmptyListDescription ) )
-			this.emptyListDescriptionView = new Rotunda.Views.EmptyListDescription( {
-				el : this.listEl.next(),
-				collectionListView : this,
-				udpateStateCallback : this.emptyListDescriptionUpdateStateCallback
-			} );
 		
 		this.selectedItems = [];
 		this.itemTemplateHtml = this.$( ".item-template" ).html();
@@ -266,6 +261,8 @@ Rotunda.Views.CollectionList = Backbone.View.extend({
 	},
 	
 	saveSelection : function() {
+		// save the current selection. use restoreSelection() to restore the selection to the state it was in the last time saveSelection() was called.
+		
 		if( ! this.selectable ) throw "Attempt to save selection on non-selectable list";
 		
 		this.savedSelection = {
@@ -382,10 +379,6 @@ Rotunda.Views.CollectionList = Backbone.View.extend({
 		_.each( this.modelViewsByReferenceId, function( thisModelView ) {
 			thisModelView.trigger.apply( thisModelView, arguments );
 		} );
-	},
-	
-	getEmptyListDescriptionView : function() {
-		return this.emptyListDescriptionView;
 	},
 	
 	updateDependentControls : function() {
