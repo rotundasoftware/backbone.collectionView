@@ -1,4 +1,6 @@
 Rotunda.Views.CollectionList = Backbone.View.extend({
+	// By David Beck.
+
 	/* Contructor should be passed options hash with following keys. All keys are optional unless otherwise noted
 	 * el (required) : An "ul" or "table" element that will serve as the dom element that contains this list
 	 * collection : The collection of models that will serve as the content for this list
@@ -64,7 +66,7 @@ Rotunda.Views.CollectionList = Backbone.View.extend({
 		if( this.$el.is( "ul, table" ) )
 			this.listEl = this.$el;
 		else
-			this.listEl = this.$el.find( "ul, table" ).assertOne();
+			this.listEl = this.$el.find( "ul, table" );
 		
 		this.listEl.addClass( "collection-list" );
 		if( this.processKeyEvents ) this.listEl.attr( "tabindex", 0 ); // so we get keyboard events
