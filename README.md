@@ -2,7 +2,7 @@
 
 A Backbone view that provides a selectable and sortable visual representation of a Backbone collection by leveraging the jQueryUI sortable plugin.
 
-[Click here for a demo of the key features](http://go-oleg.github.com/backbone-collection-view/)
+[Click here for a demo of the key features](http://rotundasoftware.github.com/backbone-collection-view/)
 
 ##Benefits
 
@@ -47,10 +47,17 @@ Note, you can also have CollectionView render as a table.  To do this, the templ
 	}
 ```
 
-* __sortableModelsFilter__ When sortable is true, this can be used to determine which items are sotable and which ones are not.  The value should be a function that is passed a single parameters which is the model in question.  For example:
+* __sortableModelsFilter__ When sortable is true, this can be used to determine which items are sotable and which ones are not.  The value should be a function that is passed a single parameter which is the model in question.  For example:
 ```javascript
 	function( thisModel ){
 		return thisModel.get( "isSortable" );
+	}
+```
+
+* __visibleModelsFilter__ This can be used to determine which items are visible and which ones are not.  The value should be a function that is passed a single parameters which is the model in question.  Currently model changes do not cause the collection view to re-render.  Here is an example function:
+```javascript
+	function( thisModel ){
+		return thisModel.get( "isVisible" );
 	}
 ```
 
