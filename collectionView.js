@@ -138,7 +138,7 @@
 
 			if( _.isString( this.bubbleEvents ) ) this.bubbleEvents = this.bubbleEvents.split( " " );
 
-			//_.bindAll( this );
+			_.bindAll( this );
 			
 			// spawn these events in case parent views need to rerender or take other action after we are done rendering
 			this.listenTo( this.collection, "add", function() { 
