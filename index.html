@@ -1,0 +1,76 @@
+<html>
+
+<head>
+
+	<link href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" rel="stylesheet"/>
+	<link href="css/app.css" rel="stylesheet"/>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+  <script type="text/javascript" src="http://underscorejs.org/underscore.js"></script>
+  <script type="text/javascript" src="http://backbonejs.org/backbone.js"></script>
+  <script type="text/javascript" src="https://raw.github.com/rotundasoftware/backbone.courier/master/backbone.courier.js"></script>
+  <script type="text/javascript" src="https://raw.github.com/go-oleg/backbone-collection-view/master/collectionView.js"></script>
+  <script type="text/javascript" src="js/app.js"></script>
+
+</head>
+
+<body>
+
+<h1>Backbone.CollectionView</h1>
+
+<h2>This page is a demo of Backbone.CollectionView features</h2>
+<p>Feel free to take a look at the page source to find out how these demos are implemented.</p>
+
+<h3>Single Selection</h3>
+<p>Try clicking on a row, the background of the selected row will change.  There is now way to select multiple rows.</p>
+<ul id="demoSingleSelectionList"></ul>
+
+<h3>Multiple Selection</h3>
+<p>Select a row.  Then hold down command or shift and click on another row.  Multiple rows are selected.  If you held down shift, all the rows in between are selected.  Using command, only the two rows you clicked on are selected.</p>
+<ul id="demoMultipleSelectionList"></ul>
+
+<h3>Using arrow keys to change selection</h3>
+<p>Select a row.  Try using the up and down arrow keys.  The selected row will change.</p>
+<ul id="demoUpDownArrowSelection"></ul>
+
+<h3>Sorting</h3>
+<p>Click on a row and drag it to another location in the list.  The list re-arranges itself.  Click on the button below to see the contents of the backing collection.  You will see that that has been rearranged as well.</p>
+<input type="button" id="showModelSorting" value="See the collection contents"/><br/><br/>
+<ul id="demoSortable"></ul>
+
+<h3>Adding and Removing items from the List</h3>
+<p>Click on the buttons below to either add an item to the end of the collection, or remove the currently selected item.  The collection is automatically re-rendered for you.</p>
+<input type="button" id="demoAddToCollectionButton" value="Add an item to the collection"/><input type="button" id="demoRemoveFromCollectionButton" value="Remove the currently selected item"/><br/><br/>
+<ul id="demoAddAndRemoveFromList"></ul>
+
+<h3>Selected Event</h3>
+<p>Try selecting an element.  A popup will inform you of which item is the newly selected one and which one (if any was previously selected).</p>
+<ul id="demoSelectedEvent"></ul>
+
+<h3>Filtering which models are selectable</h3>
+<p>A function specifying that only models with a last name of 'Holmes' can be selectable was passed to the CollectionView.  John Watson is not selectable.</p>
+<ul id="demoSelectableFilter"></ul>
+
+<h3>Filtering which models are sortable</h3>
+<p>A function specifying that only models with a last name of 'Holmes' can be sorted (dragged and dropped) was passed to the CollectionView.  John Watson is not sortable.</p>
+<ul id="demoSortableFilter"></ul>
+
+
+	<!--Collection view table will be displayed here-->
+  <table id="tableForCollection"></table>
+
+	<!--Underscore template for an employee view.  Used in a collection view rendered as a list.-->
+  <script type="text/html" id="employee-template">
+    Full name: <%= firstName %> <%= lastName %>
+  </script>
+
+	<!--Underscore template for an employee view.  Used in a collection view rendered as a table.-->
+  <script type="text/html" id="employee-template-for-table-list">
+    <td>Full name: <%= firstName %></b> <%= lastName %></td>
+  </script>
+
+	<div id="popup"></div>
+
+</body>
+
+</html>

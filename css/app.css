@@ -1,0 +1,16 @@
+ul.collection-list, table.collection-list {
+    cursor: pointer;
+    list-style-type: none;
+    margin: 0;
+    outline: medium none;
+    overflow: hidden;
+    padding: 0;
+		width: 200px;
+		background: #EEE
+}
+
+ul.collection-list li.selected, table.collection-list tr.selected {
+    background: none repeat scroll 0 0 #9EADD0;
+    color: white;
+}
+
