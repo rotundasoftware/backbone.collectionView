@@ -575,7 +575,6 @@
 				}
 
 				this.listEl = this.listEl.sortable( sortableOptions );
-			  this.listEl.focus();
 			}
 			
 			this.trigger( "render" );
