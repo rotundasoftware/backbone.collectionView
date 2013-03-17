@@ -748,14 +748,13 @@
 
 		_sortStop : function( event, ui ) {
 			var modelBeingSorted = this.collection.get( ui.item.attr( "data-item-id" ) );
+			var newIndex = this.listEl.children().index( ui.item );
 
 			this._reorderCollectionBasedOnHTML();
 			this.updateDependentControls();
-			this.trigger( "sortStop", modelBeingSorted );
+			this.trigger( "sortStop", modelBeingSorted, newIndex );
 			if( this._isBackboneCourierAvailable() )
-				this.spawn( "sortStop", { modelBeingSorted : modelBeingSorted } );
-
-			this.listEl.focus();
+				this.spawn( "sortStop", { modelBeingSorted : modelBeingSorted, newIndex : newIndex } );
 		},
 		
 		_onKeydown : function( event ) {
