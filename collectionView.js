@@ -84,9 +84,11 @@
 			//If rendering a table, make sure that $el of modelView is a tr
 			if( _this._isRenderedAsTable() ) {
 					//need to make sure the el of the modelView is a tr.  is there a better way of doing this than creating an instance?
-					var view = new options.modelView();
-					if( view.$el.prop("tagName").toLowerCase() !== 'tr' ) {
-						throw "If creating a CollectionView with a 'table' $el, modelView needs to have a 'tr' $el";
+					if( this.modelView ) {
+						var view = new options.modelView();
+						if( view.$el.prop("tagName").toLowerCase() !== 'tr' ) {
+							throw "If creating a CollectionView with a 'table' $el, modelView needs to have a 'tr' $el";
+						}
 					}
 			}
 			
@@ -270,7 +272,7 @@
 			var selectedLines = [];
 			
 			var curLineNumber = 1;
-			this.listEl.find( "[data-item-id]:visible" ).each( function() {
+			this.listEl.find( "> [data-item-id]:visible" ).each( function() {
 				var thisItemEl = $( this );
 				if( thisItemEl.is( ".selected" ) )
 					selectedLines.push( curLineNumber );
@@ -361,7 +363,7 @@
 			
 			var curLineNumber = 1;
 			var selectedItems = [];
-			this.listEl.find( "[data-item-id]:visible" ).each( function() {
+			this.listEl.find( "> [data-item-id]:visible" ).each( function() {
 				var thisItemEl = $( this );
 				if( _.contains( selectedLines, curLineNumber ) )
 					selectedItems.push( thisItemEl.attr( "data-item-id" ) );
@@ -898,7 +900,8 @@
 
   
 	_isRenderedAsList : function() {
-		return this.$el.prop('tagName').toLowerCase() === 'ul';
+		return !this._isRenderedAsTable();
+		//this.$el.prop('tagName').toLowerCase() === 'ul';
 	},
 
   _charCodes : { 
