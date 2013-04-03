@@ -45,7 +45,6 @@ Note: you can also pass a `table` element for the CollectionView's `el` property
 		return thisModel.get( "isSelectable" );
 	}
 ```
-
 * `sortableModelsFilter` (default: _all models_) This can be used to determine which items are sortable. The value should be a function that expects a single parameter which is the model in question, just like the value of the `selectableModelsFilter` option.
 * `visibleModelsFilter` (default: _all models_) This can be used to determine which items are visible. The value should be a function that expects a single parameters which is the model in question, just like the value of the `selectableModelsFilter` option.
 * `clickToSelect` (default: _true_) Determines whether or not mouse clicks should select models as would be appropriate in a standard HTML mutli-select element. Only applies to selectable collection lists.
