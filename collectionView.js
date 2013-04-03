@@ -1,5 +1,14 @@
+/*!
+ * Backbone.CollectionView, v0.4.0
+ * Copyright (c)2013 Rotunda Software, LLC.
+ * Distributed under MIT license
+ * http://github.com/rotundasoftware/backbone-collection-view
+*/
+
 (function(){
 	var mDefaultModelViewConstructor = Backbone.View;
+
+	var DEFAULT_REFERENCE_BY = "cid";
 
 	Backbone.CollectionView = Backbone.View.extend({
 		/* Contructor should be passed options hash with following keys. All keys are optional unless otherwise noted
@@ -7,7 +16,6 @@
 		 * modelView : A view constructor that will be used to render the models within this collection.
 		 * renderFunction : Can be used to override the default render() function, in the case that you want to render the collection view yourself, for example to optimize efficiency for large collections. You should rarely need to use this option.
 		 * collection : The collection of models that will serve as the content for this list
-		 * referenceModelsByCid : If true (default), models will be references by their "cid" (client side id) attribute, instead of their "id" attribute.
 		 * selectable : True if model views within the collection should be selectable. In this case the "selected" class will be automatically added to selected models. Default true
 		 * clickToSelect : True if mouse clicks should select models as would be appropriate in standard HTML mutli-select element. Only applies to selectable collection lists. Default to true.
 		 * selectableModelsFilter : in the case that selectable is true, this can be used to determine which items are selectable and which items are not. value should be a function that is passed a single parmeter which is the model in question. for example function( thisModel ){ return thisModel.get( "isSelectable" ); }.
@@ -49,7 +57,6 @@
 			var _this = this;
 			
 			if( _.isUndefined( options.collection ) ) options.collection = new Backbone.Collection();
-			if( _.isUndefined( options.referenceModelsByCid ) ) options.referenceModelsByCid = true; // determines whether we use id or cid for referencing selected models
 			if( _.isUndefined( options.modelView ) ) options.modelView = null;
 			if( _.isUndefined( options.modelViewOptions ) ) options.modelViewOptions = {};
 			if( _.isUndefined( options.itemTemplate ) ) options.itemTemplate = null;
@@ -65,7 +72,6 @@
 			//if( _.isUndefined( options.allowedMessages ) ) options.allowedMessages = [];
 
 			this.collection = options.collection;
-			this.referenceModelsByCid = options.referenceModelsByCid;
 			this.modelView = options.modelView || this.modelView;
 			this.modelViewOptions = options.modelViewOptions;
 			this.itemTemplate = options.itemTemplate;
@@ -183,62 +189,77 @@
 			this.render();
 		},
 		
-		getCollection : function() {
-			return this.collection;
-		},
-		
 		getListElement : function() {
 			return this.listEl;
-		},
-
-		getModelViewsByReferenceId : function() {
-			return this.modelViewsByReferenceId;
-		},
-		
-		getModelViewByReferenceId : function( modelReferenceId ) {
-			return this.modelViewsByReferenceId[ modelReferenceId ];
 		},
 
 		getSelectedItem : function() {
 			return this.selectedItems[0];
 		},
+
+		getSelectedItem : function(options) {
+			return _.first( this.getSelectedItems( options ) );
+		},
+
 		
 		getSelectedItems : function() {
 			return this.selectedItems;
+		},
+
+		getSelectedItems : function ( options ) {
+
+			var _this = this;
+
+			var referenceBy;
+
+			options = _.extend( {}, {
+				by : DEFAULT_REFERENCE_BY
+			}, options );
+
+			var referenceBy = options.by;
+
+			var items = [];
+
+			switch( referenceBy ) {
+				case "id" :
+					_.each(this.selectedItems, function ( item ) {
+						items.push( _this.viewManager.findByModel( _this.collection.get( item ) ).model.id );
+					});
+					break;
+				case "cid" :
+					items = items.concat( this.selectedItems );
+					break;
+				case "line" :
+					var curLineNumber = 0;
+					this.listEl.find( "> [data-item-id]:visible" ).each( function() {
+						var thisItemEl = $( this );
+						if( thisItemEl.is( ".selected" ) )
+							items.push( curLineNumber );
+						curLineNumber++;
+					} );
+					break;
+				case "model" :
+					_.each(this.selectedItems, function ( item ) {
+						items.push( _this.viewManager.findByModel( _this.collection.get( item ) ).model );
+					});
+					break;
+				case "modelView" :
+					_.each(this.selectedItems, function ( item ) {
+						items.push( _this.viewManager.findByModel( _this.collection.get( item ) ) );
+					});
+					break;
+				default : 
+					throw "The referenceBy property was not properly set";
+			};
+
+			return items;
+				
 		},
 
 		isItemSelected : function( itemId ) {
 			if( _.isUndefined( itemId ) ) return this.selectedItems.length > 0;
 
 			return _.contains( this.selectedItems, itemId );
-		},
-		
-		getSelectedModel : function() {
-			// returns undefined if no model is selected
-			return this._getModelByReferenceId( this.getSelectedItem() );
-		},
-		
-		getSelectedModels : function() {
-			return _.map( this.getSelectedItems(), function( thisItemId ) {
-				return this._getModelByReferenceId( thisItemId );
-			}, this );
-		},
-		
-		getSelectedModelView : function() {
-			return _.first( this.getSelectedModelViews() );
-		},
-		
-		getSelectedModelViews : function() {
-			// return an array that contains all selected model views. if no
-			// model view is selected an empty array (NOT null!) is returned.
-
-			var viewsArray = [];
-			
-			_.each( this.selectedItems, function( thisItemId ) {
-				viewsArray.push( this.modelViewsByReferenceId[ thisItemId ] );
-			}, this );
-			
-			return viewsArray;
 		},
 		
 		getSelectedModelViewElement : function() {
@@ -260,43 +281,54 @@
 			return viewEls;
 		},
 		
-		getSelectedLines : function() {
-			// return the indexes of the selected items, 1 based, but only counting the
-			// visible items. So if we have an collection where item 1,2 and 4 are selected
-			// but only item 2 is visible, getSelectedLines would return [1]. Very useful
-			// for maintaining the selection of a list when the contents of the list changes,
-			// especially when an item is deleted. in this case, the desired behavor is
-			// usually to select the next line in the list. However this is non-trivial to
-			// calculate, because some lines may be hidden.
-			
-			var selectedLines = [];
-			
-			var curLineNumber = 1;
-			this.listEl.find( "> [data-item-id]:visible" ).each( function() {
-				var thisItemEl = $( this );
-				if( thisItemEl.is( ".selected" ) )
-					selectedLines.push( curLineNumber );
-				
-				curLineNumber++;
-			} );
-			
-			return selectedLines;
-		},
-
-		getSelectedLine : function() {
-			return _.first( this.getSelectedLines() );
-		},
-		
 		setSelectedItems : function( newSelectedItems, options ) {
 			if( ! this.selectable ) throw "Attempt to set selected items on non-selectable list";
 			if( ! _.isArray( newSelectedItems ) ) throw "Invalid parameter value";
 
 			options = _.extend( {}, {
-				silent : true
+				silent : true,
+				by : DEFAULT_REFERENCE_BY
 			}, options );
-			
+
+
+			var referenceBy = options.by;
+
+			var newSelectedItemsTemp = [];
+
+			switch( referenceBy ) {
+				case "cid" :
+					newSelectedItemsTemp = newSelectedItems;
+					break;
+				case "id" :
+					this.viewManager.each(function ( view ) {
+						if( _.contains( newSelectedItems, view.model.id ) ) newSelectedItemsTemp.push( view.model.cid );
+					});
+					break;
+				case "model" :
+					newSelectedItemsTemp = _.pluck( newSelectedItems, "cid" );
+					break;
+				case "modelView" :
+					_.each(newSelectedItems, function ( item ) {
+						newSelectedItemsTemp.push( item.model.cid );
+					});
+					break;
+				case "line" :
+					var curLineNumber = 0;
+					var selectedItems = [];
+					this.listEl.find( "> [data-item-id]:visible" ).each( function() {
+						var thisItemEl = $( this );
+						if( _.contains( newSelectedItems, curLineNumber ) )
+							newSelectedItemsTemp.push( thisItemEl.attr( "data-item-id" ) );
+						curLineNumber++;
+					} );
+					break;
+				default : 
+					throw "The referenceBy property was not properly set"
+			};
+
 			var oldSelectedItems = _.clone( this.selectedItems );
-			this.selectedItems = this._convertStringsToInts( newSelectedItems );
+			this.selectedItems = this._convertStringsToInts( newSelectedItemsTemp );
+			//this.selectedItems = this._convertStringsToInts( newSelectedItems );
 			this._validateSelection();
 			
 			if( ! this._containSameElements( this.selectedItems, oldSelectedItems ) )
@@ -321,91 +353,28 @@
 		},
 		
 		setSelectedItem : function( newSelectedItem, options ) {
-			this.setSelectedItems( [ newSelectedItem ], options );
-		},
-
-		toggleItemSelected : function( itemId, trueOrFalse, options ) {
-			if( _.isUndefined( trueOrFalse ) )
-				// if trueOrFalse is not supplied then we toggle it to the state
-				// that it is NOT right now.. that is, we unselect it if it is selected
-				// or select it if it is not currently selected.
-				trueOrFalse = ! this.isItemSelected( itemId );
-
-			var newSelectedItems = _.clone( this.selectedItems );
-
-			if( trueOrFalse )
-				newSelectedItems = _.union( newSelectedItems, itemId );
+			if( _.isUndefined( newSelectedItem ) || _.isNull( newSelectedItem) ) 
+				this.selectNone();
 			else
-				newSelectedItems = _.without( newSelectedItems, itemId );
-
-			this.setSelectedItems( newSelectedItems, options );
-		},
-		
-		setSelectedModel : function( theModel, options ) {
-			if( ! theModel ) this.selectNone();
-			else this.setSelectedItem( this._getModelReferenceId( theModel ), options );
-		},
-		
-		setSelectedModels : function( theModels, options ) {
-			if( ! _.isArray( theModels ) ) throw "Invalid parameter value";
-
-			var selectedItems = _.map( theModels, function( thisModel ) {
-				return this._getModelReferenceId( thisModel );
-			}, this );
-			
-			this.setSelectedItems( selectedItems, options );
-		},
-		
-		setSelectedLines : function( selectedLines, options ) {
-			// see geSelectedLines for an explanation of what selected lines means.
-			// selectedLines here is an array of selected lines.
-			if( ! _.isArray( selectedLines ) ) throw "Invalid parameter value";
-			
-			var curLineNumber = 1;
-			var selectedItems = [];
-			this.listEl.find( "> [data-item-id]:visible" ).each( function() {
-				var thisItemEl = $( this );
-				if( _.contains( selectedLines, curLineNumber ) )
-					selectedItems.push( thisItemEl.attr( "data-item-id" ) );
-				
-				curLineNumber++;
-			} );
-			
-			this.setSelectedItems( selectedItems, options );
+				this.setSelectedItems( [ newSelectedItem ], options );
 		},
 
-		setSelectedLine : function( selectedLine, autoContrainToList, options ) {
-			if( _.isUndefined( autoContrainToList ) ) autoContrainToList = true;
-			
-			if( autoContrainToList )
-			{
-				if( selectedLine < 1 ) selectedLine = 1;
-				else
-				{
-					var lineCount = this.listEl.find( "[data-item-id]:visible" ).length;
-					if( selectedLine > lineCount ) selectedLine = lineCount;
-				}
-			}
-			
-			this.setSelectedLines( [ selectedLine ], options );
-		},
-		
 		selectNone : function( options ) {
 			this.setSelectedItems( [], options );
 		},
 		
-		saveSelection : function() {
+		_saveSelection : function() {
 			// save the current selection. use restoreSelection() to restore the selection to the state it was in the last time saveSelection() was called.
 			
 			if( ! this.selectable ) throw "Attempt to save selection on non-selectable list";
 			
 			this.savedSelection = {
 				items : this.selectedItems,
-				lines : this.getSelectedLines()
+				lines : this.getSelectedItems( { by : "line" } )
 			};
 		},
 		
-		restoreSelection : function() {
+		_restoreSelection : function() {
 			if( ! this.savedSelection ) throw "Attempt to restore selection but no selection has been saved!";
 			
 			// reset selectedItems to empty so that we "redraw" all "selected" classes
@@ -423,7 +392,7 @@
 				// this is the expected behavior after a item is deleted from a list (i.e. select
 				// the line that immediately follows the deleted line).
 				if( this.selectedItems.length === 0 )
-					this.setSelectedLines( this.savedSelection.lines );
+					this.setSelectedItems( this.savedSelection.lines, { by : "line" } );
 			}
 			
 			delete this.savedSelection;
@@ -432,9 +401,11 @@
 		render : function(){
 			var _this = this;
 
-			if( this.selectable ) this.saveSelection();
+			if( this.selectable ) this._saveSelection();
+
+			this.viewManager = new Backbone.ChildViewContainer();
 			
-			this.modelViewsByReferenceId = {};
+			//this.modelViewsByReferenceId = {};
 
 			if( this.itemTemplateFunction != null )
 			{
@@ -453,7 +424,8 @@
 					thisListItemEl.attr( "data-item-id", thisModelReferenceId );
 					var thisModelView = new (mDefaultModelViewConstructor)( { el : thisListItemEl } );
 					thisModelView.model = thisModel;
-					_this.modelViewsByReferenceId[ thisModelReferenceId ] = thisModelView;
+					_this.viewManager.add( thisModelView );
+					//_this.modelViewsByReferenceId[ thisModelReferenceId ] = thisModelView;
 					curElNum++;
 				}, this );
 			}
@@ -539,7 +511,8 @@
 						}
 					}
 
-					this.modelViewsByReferenceId[ thisModelReferenceId ] = thisModelView;
+					this.viewManager.add( thisModelView );
+					//this.modelViewsByReferenceId[ thisModelReferenceId ] = thisModelView;
 				}, this );
 			}
 			
@@ -585,7 +558,7 @@
 
 			if( this.selectable )
 			{
-				this.restoreSelection();
+				this._restoreSelection();
 				this.updateDependentControls();
 			}
 
@@ -597,14 +570,7 @@
 			this._validateSelection();
 			this.render();
 		},
-		
-		triggerAllModelViews : function( eventName ) {
-			// trigger eventName for all modelViews
-			_.each( this.modelViewsByReferenceId, function( thisModelView ) {
-				thisModelView.trigger.apply( thisModelView, arguments );
-			} );
-		},
-		
+
 		getEmptyListDescriptionView : function() {
 			return this.emptyListDescriptionView;
 		},
@@ -635,8 +601,8 @@
 		// },
 
 		_getModelReferenceId : function( theModel ) {
-			if( this.referenceModelsByCid ) return theModel.cid;
-			else return theModel.id;
+
+			return theModel.cid;
 		},
 		
 		_getModelByReferenceId : function( referenceId ) {
@@ -668,9 +634,7 @@
 		_validateSelection : function() {
 			// note can't use the collection's proxy to underscore because "cid" and "id" are not attributes,
 			// but elements of the model object itself.
-			var modelReferenceIds = this.referenceModelsByCid
-				? _.pluck( this.collection.models, "cid" )
-				: _.pluck( this.collection.models, "id" );
+			var modelReferenceIds = _.pluck( this.collection.models, "cid" );
 				
 			this.selectedItems = _.intersection( modelReferenceIds, this.selectedItems );
 
@@ -724,6 +688,9 @@
 			} );
 			
 			this.collection.trigger( "reorder" );
+
+			if( this._isBackboneCourierAvailable() ) this.spawn( "reorder" );
+
 		},
 
 		_getModelViewConstructor : function( thisModel ) {
@@ -764,19 +731,19 @@
 			
 			var trap = false;
 			
-			if( this.getSelectedLines().length == 1 )
+			if( this.getSelectedItems( { by : "line" } ).length == 1 )
 			{
 				// need to trap down and up arrows or else the browser
 				// will end up scrolling a autoscroll div.
 				
 				if( event.which == this._charCodes.upArrow )
 				{
-					this.setSelectedLine( this.getSelectedLine() - 1 );
+					this.setSelectedItem( this.getSelectedItem( { by : "line" } ) - 1, { by : "line" } );
 					trap = true;
 				}
 				else if( event.which == this._charCodes.downArrow )
 				{
-					this.setSelectedLine( this.getSelectedLine() + 1 );
+					this.setSelectedItem( this.getSelectedItem( { by : "line" } ) + 1, { by : "line" } );
 					trap = true;
 				}
 			}
