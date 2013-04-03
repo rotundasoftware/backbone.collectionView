@@ -34,26 +34,21 @@ myCollectionView.render();
 
 Note: you can also pass a `table` element for the CollectionView's `el` property. Just make sure if you do so, your modelView has an el type of `tr`.
 
-##Options passed to constructor
+## Options accepted by the CollectionView constructor
 * `collection` The collection of models to be rendered.
 * `selectable` (default: _true_) Determines whether or not models are selectable. If true, clicks from the user will automatically change the selected models (by default), and the "selected" class will be added to the elements of the selected model views.
-* `selectMultiple` (default: _false_) Determines whether or not multiple models within the collection can be selected at the same time.
+* `selectMultiple` (default: _false_) Determines whether or not multiple models within the collection can be selected at once.
 * `sortable` (default: _false_) Determines whether or not list items can be rearranged by dragging and dropping.
-* `selectableModelsFilter` (default: _all models_) Determines which models are selectable. The value should be a function that expects a single parameter which is the model in question. For example:
-```javascript
-	function( thisModel ) {
-		return thisModel.get( "isSelectable" );
-	}
-```
-* `sortableModelsFilter` (default: _all models_) This can be used to determine which items are sortable. The value should be a function that expects a single parameter which is the model in question, just like the value of the `selectableModelsFilter` option.
-* `visibleModelsFilter` (default: _all models_) This can be used to determine which items are visible. The value should be a function that expects a single parameters which is the model in question, just like the value of the `selectableModelsFilter` option.
+* `selectableModelsFilter` (default: _all models_) Determines which models are selectable. The value should be a function that expects a single parameter which is the model in question. For example: `function( thisModel ) { return thisModel.get( "isSelectable" ); }`
+* `sortableModelsFilter` (default: _all models_) Determines which items are sortable. The value should be a function that expects a single parameter which is the model in question, just like the value of the `selectableModelsFilter` option.
+* `visibleModelsFilter` (default: _all models_) Determines which items are visible. The value should be a function that expects a single parameters which is the model in question, just like the value of the `selectableModelsFilter` option.
 * `clickToSelect` (default: _true_) Determines whether or not mouse clicks should select models as would be appropriate in a standard HTML mutli-select element. Only applies to selectable collection lists.
 * `clickToToggle` (default: _false_) Determines whether or not clicking an item in a list with selectMultiple == true should toggle its selected / unselected state. Only applies to lists with selectMultiple == true.
 * `processKeyEvents` (default: _true_) Determines whether or not the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-select element. Only applies to selectable collection lists.
 
-##Methods and Properties Reference
+## Methods and Properties Reference
 
-###Method and Property Index
+### Method and Property Index
 
 * __setSelectedItem(s)__ Sets which models are selected.
 * __getSelectedItem(s)]__ Returns references to the selected model or models.
