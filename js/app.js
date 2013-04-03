@@ -79,16 +79,16 @@ $(document).ready(function() {
 
 	$('#demoRemoveFromCollectionButton').click(function() {
 
-		var curSelectedModel = addRemoveItemView.getSelectedModel();
+		var curSelectedModel = addRemoveItemView.getSelectedItem( { by : "model" } );
 
 		if(curSelectedModel) {
-			addRemoveItemView.getCollection().remove(curSelectedModel);
+			addRemoveItemView.collection.remove(curSelectedModel);
 		}
 	});
 
 	$('#demoAddToCollectionButton').click(function() {
 
-		addRemoveItemView.getCollection().add({firstName : 'Super',lastName : 'Sleuth'});
+		addRemoveItemView.collection.add({firstName : 'Super',lastName : 'Sleuth'});
 
 	});
 
@@ -102,7 +102,7 @@ $(document).ready(function() {
 	selectedEventView.on("selectionChanged",function(newSelectedItems,oldSelectedItems) {
 
 		if(newSelectedItems.length === 1) {
-			var newSelectedModel = this.getModelViewByReferenceId(newSelectedItems[0]).model;
+			var newSelectedModel = this.viewManager.findByModel( this.collection.get( newSelectedItems[0] ) ).model;
 			alert('The newly selected model: ' + newSelectedModel.get('firstName') + ' ' + newSelectedModel.get('lastName'));
 		}
 		else {
