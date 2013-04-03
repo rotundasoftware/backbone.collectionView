@@ -13,15 +13,16 @@ Depends on jQuery and jQueryUI for event handling and sorting, respectively.
 * Allows a user to reorder the collection by dragging and dropping and automatically applies the new order to the collection.
 * Keeps track of selected model(s) and fires events when selection is changed.
 * Supports changing the currently selected model(s) through up and down arrow key presses.
-* Allows you to filter which items are selectable, sortable, and visible.
+* Allows you to filter which models are selectable, sortable, and visible.
 * Fires a variety of events allowing you to add your own behavior based on user actions.
 * Integrates with [Backboune.Courier](https://github.com/rotundasoftware/backbone.courier) out of the box.
 
 ## Sample Usage
 ```javascript
-// $( "#listForCollection" ) returns a ul element
-// EmployeeView is a Backbone view to be used for rendering each model in the collection
-// employeeCollection is a Backbone collection instance
+// In the below example,
+//   $( "#listForCollection" ) returns a ul element
+//   EmployeeView is a Backbone view to be used for rendering each model in the collection
+//   employeeCollection is a Backbone collection instance
 var myCollectionView = new Backbone.CollectionView({
 	el : $( "#listForCollection" ),
 	modelView : EmployeeView,
@@ -35,21 +36,21 @@ Note: you can also pass a `table` element for the CollectionView's `el` property
 
 ##Options passed to constructor
 * __collection__ The collection of models to be rendered.
-* __selectable__ (default: _true_) Determines whether or not models are selectable. If true, clicks from the user will automatically change the selected models (by default), and the "selected" class will be automatically added to the elements of the selected model views.
-* __selectMultiple__ (default: _false_) Determines whether or not multiple model views within the collection can be selected at the same time.
+* __selectable__ (default: _true_) Determines whether or not models are selectable. If true, clicks from the user will automatically change the selected models (by default), and the "selected" class will be added to the elements of the selected model views.
+* __selectMultiple__ (default: _false_) Determines whether or not multiple models within the collection can be selected at the same time.
 * __sortable__ (default: _false_) Determines whether or not list items can be rearranged by dragging and dropping.
-* __selectableModelsFilter__ (default: _all models_) Determines which items are selectable and which items are not. The value should be a function that expects a single parameter which is the model in question. For example:
+* __selectableModelsFilter__ (default: _all models_) Determines which models are selectable. The value should be a function that expects a single parameter which is the model in question. For example:
 ```javascript
 	function( thisModel ) {
 		return thisModel.get( "isSelectable" );
 	}
 ```
 
-* __sortableModelsFilter__ (default: _all models_) This can be used to determine which items are sortable and which ones are not. The value should be a function that expects a single parameter which is the model in question, just like the value of the `selectableModelsFilter` option.
-* __visibleModelsFilter__ (default: _all models_) This can be used to determine which items are visible and which ones are not. The value should be a function that expects a single parameters which is the model in question, just like the value of the `selectableModelsFilter` option.
+* __sortableModelsFilter__ (default: _all models_) This can be used to determine which items are sortable. The value should be a function that expects a single parameter which is the model in question, just like the value of the `selectableModelsFilter` option.
+* __visibleModelsFilter__ (default: _all models_) This can be used to determine which items are visible. The value should be a function that expects a single parameters which is the model in question, just like the value of the `selectableModelsFilter` option.
 * __clickToSelect__ (default: _true_) Determines whether or not mouse clicks should select models as would be appropriate in a standard HTML mutli-select element. Only applies to selectable collection lists.
-* __clickToToggle__ (default: _false_) Determines whether or not clicking any item in a list with selectMultiple == true should toggle its selected / unselected state.  Only applies to lists with selectMultiple == true.
-* __processKeyEvents__ (default: _true_) Determines whether or not the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-select element.  Only applies to selectable collection lists.
+* __clickToToggle__ (default: _false_) Determines whether or not clicking an item in a list with selectMultiple == true should toggle its selected / unselected state. Only applies to lists with selectMultiple == true.
+* __processKeyEvents__ (default: _true_) Determines whether or not the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-select element. Only applies to selectable collection lists.
 
 ##Methods and Properties Reference
 
@@ -60,7 +61,7 @@ Note: you can also pass a `table` element for the CollectionView's `el` property
 * __collection__ (property) The Backbone collection that this CollectionView represents.
 * __viewManager__ (property) A [Backbone.BabySitter](https://github.com/marionettejs/backbone.babysitter) instance that contains the model views that represent the models in the collection. (These model views are created when the CollectionView is rendered.)
 * __setCollection__ Changes the Backbone collection backing this CollectionView. Will automatically re-render the CollectionView.
-* __getListElement__ Get the 'el' of the collection view.  Will be either a `ul` or a `table`.
+* __getListElement__ Get the 'el' of the collection view. Will be either a `ul` or a `table`.
 
 
 
