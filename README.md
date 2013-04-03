@@ -11,7 +11,7 @@ Depends on jQuery and jQueryUI for event handling and sorting, respectively.
 * Supports single and multiple selection through meta-key and shift clicks, as you would expect from a SELECT element.
 * Adds "selected" css class to selected li or tr, allowing you to easily style selected items.
 * Allows a user to reorder the collection by dragging and dropping and automatically applies the new order to the collection.
-* Keeps track of selected model(s) and fires events when selection is changed.
+* Keeps track of selected model(s) and fires events when the selection is changed.
 * Supports changing the currently selected model(s) through up and down arrow key presses.
 * Allows you to filter which models are selectable, sortable, and visible.
 * Fires a variety of events allowing you to add your own behavior based on user actions.
@@ -32,38 +32,38 @@ var myCollectionView = new Backbone.CollectionView({
 myCollectionView.render();
 ```
 
-Note: you can also pass a `table` element for the CollectionView's `el` property. Just make sure if you do so, your modelView has an el type of `tr`.
+Note: you can also pass a `table` element for the CollectionView's `el` property. Just make sure if you do so, your modelView has an element type of `tr`.
 
 ## Options accepted by the CollectionView constructor
 * `collection` The collection of models to be rendered.
-* `selectable` (default: _true_) Determines whether or not models are selectable. If true, clicks from the user will automatically change the selected models (by default), and the "selected" class will be added to the elements of the selected model views.
-* `selectMultiple` (default: _false_) Determines whether or not multiple models within the collection can be selected at once.
-* `sortable` (default: _false_) Determines whether or not list items can be rearranged by dragging and dropping.
-* `selectableModelsFilter` (default: _all models_) Determines which models are selectable. The value should be a function that expects a single parameter which is the model in question and returns true or false.
-* `sortableModelsFilter` (default: _all models_) Determines which items are sortable. The value should be a function that expects a single parameter which is the model in question and returns true or false.
-* `visibleModelsFilter` (default: _all models_) Determines which items are visible. The value should be a function that expects a single parameters which is the model in question and returns true or false.
-* `clickToSelect` (default: _true_) Determines whether or not mouse clicks should select models as would be appropriate in a standard HTML mutli-select element. Only applies to selectable collection lists.
-* `clickToToggle` (default: _false_) Determines whether or not clicking an item in a list with selectMultiple == true should toggle its selected / unselected state. Only applies to lists with selectMultiple == true.
+* `selectable` (default: _true_) Determines whether or not models in the CollectionView are selectable.
+* `selectMultiple` (default: _false_) Determines whether or not multiple models can be selected at once.
+* `sortable` (default: _false_) Determines whether or not models can be rearranged by dragging and dropping.
+* `selectableModelsFilter` (default: _all models_) Determines which models are selectable. The value should be a function that expects a single parameter which is the model in question, and returns true or false.
+* `sortableModelsFilter` (default: _all models_) Determines which items are sortable. The value should be a function that expects a single parameter which is the model in question, and returns true or false.
+* `visibleModelsFilter` (default: _all models_) Determines which items are visible. The value should be a function that expects a single parameters which is the model in question, and returns true or false.
+* `clickToSelect` (default: _true_) Determines whether or not mouse clicks should select models as would be appropriate in a standard HTML mutli-SELECT element. Only applies to selectable collection lists.
 * `processKeyEvents` (default: _true_) Determines whether or not the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-SELECT element. Only applies to selectable collection lists.
+* `clickToToggle` (default: _false_) Determines whether or not clicking an item in a list with selectMultiple == true should toggle its selected / unselected state. Only applies to lists with selectMultiple == true.
 
 ## Methods and Properties Reference
 
 ### Method and Property Index
 
 * __setSelectedItem(s)__ Sets which model(s) are selected (see discussion below).
-* __getSelectedItem(s)]__ Returns references to the selected model(s) (see discussion below).
+* __getSelectedItem(s)__ Returns references to the selected model(s) (see discussion below).
 * __setCollection__ Changes the collection being rendered. Will automatically re-render the CollectionView.
 * __getListElement__ Get the 'el' of the collection view. Will be either a `ul` or a `table`.
 * __collection__ (property) The Backbone collection that this CollectionView represents.
-* __viewManager__ (property) A [Backbone.BabySitter](https://github.com/marionettejs/backbone.babysitter) instance that contains the model views that 
+* __viewManager__ (property) A [Backbone.BabySitter](https://github.com/marionettejs/backbone.babysitter) instance that contains the model views that are created to represent the individual models in the collection (when the CollectionView is rendered).
 
 
 ### <a name="setSelectedItem"></a>setSelectedItem(s) and getSelectedItem(s)
 
-The getSelectedItem(s) and setSelectedItem(s) functions are used to get or set the currently selected models. The functions are able to reference models in a variety of ways. For instance, it is possible to set the currently selected model using the model's `cid`, using the model's `id`, or using the model object itself. You specify which method you are using the reference the models using the `by` option accepted by these functions. Its not hard - let's see some examples:
+The getSelectedItem(s) and setSelectedItem(s) methods are used to get or set the currently selected models. The methods are able to reference models in a variety of ways. For instance, it is possible to set the currently selected model using the model's `cid`, using the model's `id`, or using the model object itself. You specify which method you are using to reference the models with the `by` option accepted by these methods. Its not complicated - let's see some examples:
 
 ```javascript
-// Select model ids 2 and 4
+// Select model id 2 and model id 4
 myCollectionView.setSelectedItems( [ 2, 4 ], { by : "id" } );
 
 // Return an array of the selected models
@@ -76,24 +76,26 @@ myCollectionView.setSelectedItem( "c21" );	// the "by" option defaults to "cid"
 myCollectionView.getSelectedItem( { by : "modelView" } );
 ```
 
-As you can see from the examples, the plural versions of the functions accept / return an array of model references, whereas the singular versions expect / return just a single model reference.
+As you can see from the examples, the plural versions of the methods accept / return an array of model references, whereas the singular versions expect / return just a single model reference.
 
-There are five permitted values for the `options.by` option:
-* `"cid"` : The `cid` of the model.
+There are five valid values for `by` option:
+* `"cid"` : The `cid` of the model. (This is the default value of the `by` option.)
 * `"id"` : The `id` of the model.
 * `"model"` : The model object itself.
-* `"modelView"` : The view that was created to represent the model.
-* `"line"` : The 0-based index of the model in the collection (only counting visible models).
+* `"modelView"` : The view that was created to represent the model when the CollectionView was rendered.
+* `"line"` : The 0-based index of the model in the collection, only counting visible models.
 
-In addition to the `by` option, the setSelectedItems(s) function accepts one additional option, `silent`, which, when true, will prevent the `selectionChanged` event from being fired.
+In addition to the `by` option, the `setSelectedItems(s)` function accepts one additional option, `silent`, which, when true, will prevent the `selectionChanged` event from being fired.
 
 ##Events Fired
+CollectionView objects `trigger` the following events on themselves. You can respond to these events from another view using Backbone's `listenTo` method. If [Backbone.Courier](https://github.com/rotundasoftware/backbone.courier)
+ is available, these events are also spawned using Courier to bubble up the view hierarchy. In all cases below, the selected models are referenced by their `cid`s.
 * __"selectionChanged"__ ( _newSelectedItems, oldSelectedItems_ )  Fired whenever the selection is changed, either by the user or by a programmatic call to setSelectedItems with `silent` set to `false`.
-* __"updateDependentControls"__ ( _selectedItems_ )  Fired whenever controls that are dependent on the selection should be updated (e.g. buttons that should be disabled on no selection). This event is always fired just after selectionChanged is fired. In addition, it is fired after rendering (even if the selection has not changed since the last render) and sorting.
+* __"updateDependentControls"__ ( _selectedItems_ )  Fired whenever controls that are dependent on the selection should be updated (e.g. buttons that should be disabled on no selection). This event is always fired just after selectionChanged is fired. In addition, it is fired after rendering and sorting.
 * __"doubleClick"__ ( _clickedItemId, theEvent_ )  Fired when a model view is double clicked. `clickedItemId` is the `cid`.
-* __"sortStart"__  Fired just as a model view is starting to be dragged (sortable collection lists only).
-* __"sortStop"__  Fired when a drag of a model view is finished, but before the models have been reordered within the collection (sortable collection lists only).
-* __"reorder"__  Fired after a drag of a model view is finished and after the models have been reordered within the collection (sortable collection lists only).
+* __"sortStart"__  Fired just as a model view is starting to be dragged. (Sortable collection lists only).
+* __"sortStop"__  Fired when a drag of a model view is finished, but before the collection has been reordered. (Sortable collection lists only).
+* __"reorder"__  Fired after a drag of a model view is finished and after the collection has been reordered. (Sortable collection lists only).
 
 ##Dependencies
 * Backbone.js (tested with v0.9.10)
