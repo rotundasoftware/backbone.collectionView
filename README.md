@@ -31,7 +31,7 @@ myCollectionView.setSelectedModel( employeeCollection.first() );
 ```
 
 ## Options accepted by the CollectionView constructor
-* `el`: A 'ul' or 'table' element. If you use a `table` element, make sure your modelView class render elements of type of `tr`. If not supplied, a new 'ul' element is created.
+* `el`: A `ul` or `table` element. If you use a `table` element, make sure your modelView class render elements of type of `tr`. If not supplied, a new 'ul' element is created.
 * `collection`: The collection of models to be rendered.
 * `selectable`: (default: _true_) Determines whether models in the CollectionView are selectable.
 * `clickToSelect`: (default: _true_) In a selectable CollectionView, determines whether mouse clicks should select models as would be appropriate in a standard HTML mutli-SELECT element.
