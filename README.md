@@ -21,27 +21,28 @@ Depends on jQuery and jQueryUI for event handling and sorting, respectively.
 ## Sample Usage
 ```javascript
 var myCollectionView = new Backbone.CollectionView({
-	el : $( "#listForCollection" ),		// must be a 'ul' (i.e. unordered list) element
+	el : $( "#listForCollection" ),		// must be a 'ul' (i.e. unordered list) or 'table' element
 	modelView : EmployeeView,			// a View class to be used for rendering each model in the collection
 	collection : employeeCollection
 }
 
 myCollectionView.render();
 ```
+If you use a `table` element for the CollectionView's `el` property, make sure your modelView class render elements of type of `tr`.
 
-Note: you can also pass a `table` element for the CollectionView's `el` property. Just make sure if you do so, your modelView has an element type of `tr`.
 
 ## Options accepted by the CollectionView constructor
-* `collection` The collection of models to be rendered.
-* `selectable` (default: _true_) Determines whether models in the CollectionView are selectable.
-* `clickToSelect` (default: _true_) In a selectable CollectionView, determines whether mouse clicks should select models as would be appropriate in a standard HTML mutli-SELECT element.
-* `processKeyEvents` (default: _true_) In a selectable CollectionView, determines whether the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-SELECT element.
-* `selectMultiple` (default: _false_) In a selectable CollectionView, determines whether multiple models can be selected at once.
-* `clickToToggle` (default: _false_) In a selectable CollectionView with selectMultiple == true, determines whether clicking an item should toggle its selected / unselected state.
-* `sortable` (default: _false_) Determines whether models can be rearranged by dragging and dropping. (jQueryUI required.)
-* `visibleModelsFilter` (default: _all models_) Determines which items are visible. The value should be a function that expects a single parameters which is the model in question, and returns true or false.
-* `selectableModelsFilter` (default: _all models_) In a selectable CollectionView, determines which models are selectable. The value should be a function that expects a single parameter which is the model in question, and returns true or false.
-* `sortableModelsFilter` (default: _all models_) In a sortable CollectionView, Determines which items are sortable. The value should be a function that expects a single parameter which is the model in question, and returns true or false.
+* `el`: A 'ul' or 'table' element. If you use a `table` element, make sure your modelView class render elements of type of `tr`. If not supplied, a new 'ul' element is created.
+* `collection`: The collection of models to be rendered.
+* `selectable`: (default: _true_) Determines whether models in the CollectionView are selectable.
+* `clickToSelect`: (default: _true_) In a selectable CollectionView, determines whether mouse clicks should select models as would be appropriate in a standard HTML mutli-SELECT element.
+* `processKeyEvents`: (default: _true_) In a selectable CollectionView, determines whether the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-SELECT element.
+* `selectMultiple`: (default: _false_) In a selectable CollectionView, determines whether multiple models can be selected at once.
+* `clickToToggle`: (default: _false_) In a selectable CollectionView with selectMultiple == true, determines whether clicking an item should toggle its selected / unselected state.
+* `sortable`: (default: _false_) Determines whether models can be rearranged by dragging and dropping. (jQueryUI required.)
+* `visibleModelsFilter`: (default: _all models_) Determines which items are visible. The value should be a function that expects a single parameters which is the model in question, and returns true or false.
+* `selectableModelsFilter`: (default: _all models_) In a selectable CollectionView, determines which models are selectable. The value should be a function that expects a single parameter which is the model in question, and returns true or false.
+* `sortableModelsFilter`: (default: _all models_) In a sortable CollectionView, Determines which items are sortable. The value should be a function that expects a single parameter which is the model in question, and returns true or false.
 
 ## Methods and Properties Reference
 
