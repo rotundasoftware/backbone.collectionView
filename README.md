@@ -48,8 +48,6 @@ Note: you can also pass a `table` element for the CollectionView's `el` property
 
 ## Methods and Properties Reference
 
-### Method and Property Index
-
 * __setSelectedItem(s)__ Sets which model(s) are selected (see discussion below).
 * __getSelectedItem(s)__ Returns references to the selected model(s) (see discussion below).
 * __setCollection__ Changes the collection being rendered. Will automatically re-render the CollectionView.
