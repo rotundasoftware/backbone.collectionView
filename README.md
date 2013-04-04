@@ -76,7 +76,7 @@ myCollectionView.getSelectedItem( { by : "modelView" } );
 
 As you can see from the examples, the plural versions of the methods expect / return an array of "model references", whereas the singular versions expect / return just a single "model reference".
 
-There are five valid values for `by` option, which determine the type of model reference expected / returned:
+There are five valid values for `by` option, which correspond to the type of model reference expected / returned:
 * `"cid"` : The `cid` of the model. (This is the default value of the `by` option.)
 * `"id"` : The `id` of the model.
 * `"model"` : The model object itself.
