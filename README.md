@@ -31,17 +31,17 @@ myCollectionView.setSelectedModel( employeeCollection.first() );
 ```
 
 ## Options accepted by the CollectionView constructor
-* `el`: A `ul` or `table` element. If you supply a `table` element, make sure your modelView has elements of type of `tr`. If this option is not supplied, a new `ul` element will be created and used.
-* `collection`: The collection of models to be rendered.
-* `selectable`: (default: _true_) Determines whether models in the CollectionView are selectable.
-* `clickToSelect`: (default: _true_) In a selectable CollectionView, determines whether mouse clicks should select models as would be appropriate in a standard HTML mutli-SELECT element.
-* `processKeyEvents`: (default: _true_) In a selectable CollectionView, determines whether the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-SELECT element.
-* `selectMultiple`: (default: _false_) In a selectable CollectionView, determines whether multiple models can be selected at once.
-* `clickToToggle`: (default: _false_) In a selectable CollectionView with selectMultiple == true, determines whether clicking an item should toggle its selected / unselected state.
-* `sortable`: (default: _false_) Determines whether models can be rearranged by dragging and dropping. (jQueryUI required.)
-* `visibleModelsFilter`: (default: _all models_) Determines which items are visible. The value should be a function that expects a single parameters which is the model in question, and returns true or false.
-* `selectableModelsFilter`: (default: _all models_) In a selectable CollectionView, determines which models are selectable. The value should be a function that expects a single parameter which is the model in question, and returns true or false.
-* `sortableModelsFilter`: (default: _all models_) In a sortable CollectionView, determines which items are sortable. The value should be a function that expects a single parameter which is the model in question, and returns true or false.
+* `el` : A `ul` or `table` element. If you supply a `table` element, make sure your modelView has elements of type of `tr`. If this option is not supplied, a new `ul` element will be created and used.
+* `collection` : The collection of models to be rendered.
+* `selectable` : (default: _true_) Determines whether models in the CollectionView are selectable.
+* `clickToSelect` : (default: _true_) In a selectable CollectionView, determines whether mouse clicks should select models as would be appropriate in a standard HTML mutli-SELECT element.
+* `processKeyEvents` : (default: _true_) In a selectable CollectionView, determines whether the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-SELECT element.
+* `selectMultiple` : (default: _false_) In a selectable CollectionView, determines whether multiple models can be selected at once.
+* `clickToToggle` : (default: _false_) In a selectable CollectionView with selectMultiple == true, determines whether clicking an item should toggle its selected / unselected state.
+* `sortable` : (default: _false_) Determines whether models can be rearranged by dragging and dropping. (jQueryUI required.)
+* `visibleModelsFilter` : (default: _all models_) Determines which items are visible. The value should be a function that expects a single parameters which is the model in question, and returns true or false.
+* `selectableModelsFilter` : (default: _all models_) In a selectable CollectionView, determines which models are selectable. The value should be a function that expects a single parameter which is the model in question, and returns true or false.
+* `sortableModelsFilter` : (default: _all models_) In a sortable CollectionView, determines which items are sortable. The value should be a function that expects a single parameter which is the model in question, and returns true or false.
 
 ## Methods and Properties Reference
 
