@@ -89,9 +89,9 @@ In addition to the `by` option, the `setSelectedItems(s)` function accepts one a
 
 ##Events Fired
 CollectionViews `trigger` the following events on themselves. You can respond to these events from another view using Backbone's `listenTo` method. If [Backbone.Courier](https://github.com/rotundasoftware/backbone.courier)
- is available, these events are also spawned using Courier. In all cases below, the selected models are referenced by their `cid`s.
-* __"selectionChanged"__ ( _newSelectedItems, oldSelectedItems_ )  Fired whenever the selection is changed, either by the user or by a programmatic call to `setSelectedItem(s)` with `silent` set to `false`.
-* __"updateDependentControls"__ ( _selectedItems_ ) Fired whenever controls that are dependent on the selection should be updated (e.g. buttons that should be disabled on no selection). This event is always fired just after `selectionChanged` is fired. In addition, it is fired after rendering and sorting.
+ is available, these events are also spawned using Courier.
+* __"selectionChanged"__ ( _newSelectedModelCids, oldSelectedModelCids_ )  Fired whenever the selection is changed, either by the user or by a programmatic call to `setSelectedItem(s)` with `silent` set to `false`.
+* __"updateDependentControls"__ ( _selectedModelCids_ ) Fired whenever controls that are dependent on the selection should be updated (e.g. buttons that should be disabled on no selection). This event is always fired just after `selectionChanged` is fired. In addition, it is fired after rendering and sorting.
 * __"doubleClick"__ ( _clickedModelCid, theEvent_ ) Fired when a model view is double clicked.
 * __"sortStart"__  Fired just as an item is starting to be dragged. (Sortable collection lists only.)
 * __"sortStop"__  Fired when a drag of an item is finished, but before the collection has been reordered. (Sortable collection lists only.)
