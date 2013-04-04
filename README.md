@@ -1,6 +1,6 @@
 # Backbone.CollectionView
 
-A backbone view class that renders a collection of models. This class is similar to the collection view classes found in Backbone.Marionette and other frameworks, with added features for automatic selection of models in response to clicks, and support for rearranging models (and reordering the underlying collection) through drag and drop.
+A backbone view class that renders a collection of models. This class is similar to the collection view classes found in [Backbone.Marionette](https://github.com/marionettejs/backbone.marionette) and other frameworks, with added features for automatic selection of models in response to clicks, and support for rearranging models (and reordering the underlying collection) through drag and drop.
 
 Depends on jQuery and jQueryUI for event handling and sorting, respectively.
 
