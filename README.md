@@ -48,8 +48,8 @@ Note: you can also pass a `table` element for the CollectionView's `el` property
 
 ## Methods and Properties Reference
 
-* __setSelectedItem( modelReference, [options] )__ Sets which model(s) are selected (see discussion below).
-* __getSelectedItem( options] )__ Returns references to the selected model(s) (see discussion below).
+* __setSelectedItem( modelReference, [options] )__ Sets which model(s) are selected. (See discussion below.)
+* __getSelectedItem( options] )__ Returns references to the selected model(s). (See discussion below.)
 * __setCollection( collection )__ Changes the collection being rendered. Will automatically re-render the CollectionView.
 * __getListElement()__ Get the 'el' of the collection view. Will be either a `ul` or a `table`.
 * __collection__ The Backbone collection instance that this CollectionView represents.
