@@ -37,14 +37,14 @@ Note: you can also pass a `table` element for the CollectionView's `el` property
 ## Options accepted by the CollectionView constructor
 * `collection` The collection of models to be rendered.
 * `selectable` (default: _true_) Determines whether or not models in the CollectionView are selectable.
-* `selectMultiple` (default: _false_) Determines whether or not multiple models can be selected at once.
-* `sortable` (default: _false_) Determines whether or not models can be rearranged by dragging and dropping.
-* `selectableModelsFilter` (default: _all models_) Determines which models are selectable. The value should be a function that expects a single parameter which is the model in question, and returns true or false.
-* `sortableModelsFilter` (default: _all models_) Determines which items are sortable. The value should be a function that expects a single parameter which is the model in question, and returns true or false.
+* `clickToSelect` (default: _true_) In a selectable CollectionView, determines whether or not mouse clicks should select models as would be appropriate in a standard HTML mutli-SELECT element.
+* `processKeyEvents` (default: _true_) In a selectable CollectionView, determines whether or not the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-SELECT element.
+* `selectMultiple` (default: _false_) In a selectable CollectionView, determines whether or not multiple models can be selected at once.
+* `clickToToggle` (default: _false_) In a selectable CollectionView with selectMultiple == true, determines whether or not clicking an item should toggle its selected / unselected state.
+* `sortable` (default: _false_) Determines whether or not models can be rearranged by dragging and dropping. (jQueryUI required.)
 * `visibleModelsFilter` (default: _all models_) Determines which items are visible. The value should be a function that expects a single parameters which is the model in question, and returns true or false.
-* `clickToSelect` (default: _true_) Determines whether or not mouse clicks should select models as would be appropriate in a standard HTML mutli-SELECT element. Only applies to selectable collection lists.
-* `processKeyEvents` (default: _true_) Determines whether or not the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-SELECT element. Only applies to selectable collection lists.
-* `clickToToggle` (default: _false_) Determines whether or not clicking an item in a list with selectMultiple == true should toggle its selected / unselected state. Only applies to lists with selectMultiple == true.
+* `selectableModelsFilter` (default: _all models_) In a selectable CollectionView, determines which models are selectable. The value should be a function that expects a single parameter which is the model in question, and returns true or false.
+* `sortableModelsFilter` (default: _all models_) In a sortable CollectionView, Determines which items are sortable. The value should be a function that expects a single parameter which is the model in question, and returns true or false.
 
 ## Methods and Properties Reference
 
