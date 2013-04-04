@@ -64,13 +64,13 @@ The `getSelectedItem(s)` and `setSelectedItem(s)` methods are used to get or set
 // Select model id 2 and model id 4
 myCollectionView.setSelectedItems( [ 2, 4 ], { by : "id" } );
 
-// Return an array of the selected models
+// Returns an array of the selected models
 myCollectionView.getSelectedItems( { by : "model" } );
 
 // Select the model with cid equal to "c21"
 myCollectionView.setSelectedItem( "c21" );	// the "by" option defaults to "cid"
 
-// Get the selected model view
+// Returns the view object that represents the selected model
 myCollectionView.getSelectedItem( { by : "modelView" } );
 ```
 
