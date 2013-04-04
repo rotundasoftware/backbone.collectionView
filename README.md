@@ -27,9 +27,8 @@ var myCollectionView = new Backbone.CollectionView({
 }
 
 myCollectionView.render();
+myCollectionView.setSelectedModel( employeeCollection.first() );
 ```
-If you use a `table` element for the CollectionView's `el` property, make sure your modelView class render elements of type of `tr`.
-
 
 ## Options accepted by the CollectionView constructor
 * `el`: A 'ul' or 'table' element. If you use a `table` element, make sure your modelView class render elements of type of `tr`. If not supplied, a new 'ul' element is created.
