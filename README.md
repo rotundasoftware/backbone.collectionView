@@ -81,7 +81,7 @@ There are five valid values for `by` option:
 * `"id"` : The `id` of the model.
 * `"model"` : The model object itself.
 * `"modelView"` : The view that was created to represent the model when the CollectionView was rendered.
-* `"line"` : The 0-based index of the model in the collection, only counting visible models.
+* `"line"` : The zero-based index of the model in the collection, only counting visible models.
 
 In addition to the `by` option, the `setSelectedItems(s)` function accepts one additional option, `silent`, which, when true, will prevent the `selectionChanged` event from being fired.
 
