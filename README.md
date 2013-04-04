@@ -14,19 +14,15 @@ Depends on jQuery and jQueryUI for event handling and sorting, respectively.
 * Allows a user to reorder the collection by dragging and dropping and automatically applies the new order to the collection.
 * Keeps track of selected model(s) and fires events when the selection is changed.
 * Supports changing the currently selected model(s) through up and down arrow key presses.
-* Allows you to filter which models are selectable, sortable, and visible.
+* Allows you to filter which models are visible, selectable, and sortable.
 * Fires a variety of events allowing you to add your own behavior based on user actions.
 * Integrates with [Backboune.Courier](https://github.com/rotundasoftware/backbone.courier) out of the box.
 
 ## Sample Usage
 ```javascript
-// In the below example,
-//   * $( "#listForCollection" ) returns a ul element
-//   * EmployeeView is a Backbone View class to be used for rendering each model in the collection
-//   * employeeCollection is a Backbone collection instance
 var myCollectionView = new Backbone.CollectionView({
-	el : $( "#listForCollection" ),
-	modelView : EmployeeView,
+	el : $( "#listForCollection" ),	// must be a 'ul' (i.e. unordered list) element
+	modelView : EmployeeView,	// a View class to be used for rendering each model in the collection
 	collection : employeeCollection
 }
 
