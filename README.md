@@ -58,7 +58,7 @@ Note: you can also pass a `table` element for the CollectionView's `el` property
 
 ### <a name="setSelectedItem"></a>setSelectedItem(s) and getSelectedItem(s)
 
-The getSelectedItem(s) and setSelectedItem(s) methods are used to get or set the currently selected models. The methods are able to reference models in a variety of ways. For instance, it is possible to set the currently selected model using the model's `cid`, using the model's `id`, or using the model object itself. You specify which method you are using to reference the models with the `by` option accepted by these methods. Its not complicated - let's see some examples:
+The getSelectedItem(s) and setSelectedItem(s) methods are used to get or set the currently selected models. The methods are able to reference models in a variety of ways. For instance, it is possible to set the currently selected model using the model's `cid`, using the model's `id`, or using the model object itself. The magic is in the `by` option. Its not complicated - let's see some examples:
 
 ```javascript
 // Select model id 2 and model id 4
@@ -74,7 +74,7 @@ myCollectionView.setSelectedItem( "c21" );	// the "by" option defaults to "cid"
 myCollectionView.getSelectedItem( { by : "modelView" } );
 ```
 
-As you can see from the examples, the plural versions of the methods accept / return an array of model references, whereas the singular versions expect / return just a single model reference.
+As you can see from the examples, the plural versions of the methods accept / return an array of "model references", whereas the singular versions expect / return just a single "model reference".
 
 There are five valid values for `by` option:
 * `"cid"` : The `cid` of the model. (This is the default value of the `by` option.)
