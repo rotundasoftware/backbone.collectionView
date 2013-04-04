@@ -6,8 +6,9 @@ Depends on jQuery and jQueryUI for event handling and sorting, respectively.
 
 [Click here for a demo of key features](http://rotundasoftware.github.com/backbone-collection-view/)
 
-##Benefits
+## Benefits
 
+* Provides a easy way to render a collection of models.
 * Supports single and multiple selection through meta-key and shift clicks, as you would expect from a SELECT element.
 * Adds "selected" css class to selected li or tr, allowing you to easily style selected items.
 * Allows a user to reorder the collection by dragging and dropping and automatically applies the new order to the collection.
