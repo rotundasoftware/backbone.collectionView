@@ -74,14 +74,14 @@ myCollectionView.setSelectedItem( "c21" );	// the "by" option defaults to "cid"
 myCollectionView.getSelectedItem( { by : "modelView" } );
 ```
 
-As you can see from the examples, the plural versions of the methods accept / return an array of "model references", whereas the singular versions expect / return just a single "model reference".
+As you can see from the examples, the plural versions of the methods expect / return an array of "model references", whereas the singular versions expect / return just a single "model reference".
 
-There are five valid values for `by` option:
+There are five valid values for `by` option, which determine the type of model reference expected / returned:
 * `"cid"` : The `cid` of the model. (This is the default value of the `by` option.)
 * `"id"` : The `id` of the model.
 * `"model"` : The model object itself.
 * `"modelView"` : The view that was created to represent the model when the CollectionView was rendered.
-* `"line"` : The zero-based index of the model in the collection, only counting visible models.
+* `"line"` : The zero-based index of the model in the collection, only models currently visible in the CollectionView.
 
 In addition to the `by` option, the `setSelectedItems(s)` function accepts one additional option, `silent`, which, when true, will prevent the `selectionChanged` event from being fired.
 
