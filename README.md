@@ -48,12 +48,12 @@ Note: you can also pass a `table` element for the CollectionView's `el` property
 
 ## Methods and Properties Reference
 
-* __setSelectedItem(s)__ Sets which model(s) are selected (see discussion below).
-* __getSelectedItem(s)__ Returns references to the selected model(s) (see discussion below).
-* __setCollection__ Changes the collection being rendered. Will automatically re-render the CollectionView.
-* __getListElement__ Get the 'el' of the collection view. Will be either a `ul` or a `table`.
-* __collection__ (property) The Backbone collection that this CollectionView represents.
-* __viewManager__ (property) A [Backbone.BabySitter](https://github.com/marionettejs/backbone.babysitter) instance that contains the model views that are created to represent the individual models in the collection (when the CollectionView is rendered).
+* __setSelectedItem( modelReference, [options] )__ Sets which model(s) are selected (see discussion below).
+* __getSelectedItem( options] )__ Returns references to the selected model(s) (see discussion below).
+* __setCollection( collection )__ Changes the collection being rendered. Will automatically re-render the CollectionView.
+* __getListElement()__ Get the 'el' of the collection view. Will be either a `ul` or a `table`.
+* __collection__ The Backbone collection instance that this CollectionView represents.
+* __viewManager__ A [Backbone.BabySitter](https://github.com/marionettejs/backbone.babysitter) instance that contains the model views that are created to represent the individual models in the collection (when the CollectionView is rendered).
 
 
 ### <a name="setSelectedItem"></a>setSelectedItem(s) and getSelectedItem(s)
