@@ -39,9 +39,11 @@ myCollectionView.setSelectedModel( employeeCollection.first() );
 * `selectMultiple` : (default: _false_) In a selectable CollectionView, determines whether multiple models can be selected at once.
 * `clickToToggle` : (default: _false_) In a selectable CollectionView, determines whether clicking an item should toggle its selected / unselected state. Only applies if selectMultiple == true.
 * `sortable` : (default: _false_) Determines whether models can be rearranged by dragging and dropping. (jQueryUI required.)
-* `visibleModelsFilter` : (default: _all models_) Determines which items are visible. The value should be a function that expects a single parameters which is the model in question, and returns true or false.
-* `selectableModelsFilter` : (default: _all models_) In a selectable CollectionView, determines which models are selectable. Callback has same format as that of visibleModelsFilter option.
-* `sortableModelsFilter` : (default: _all models_) In a sortable CollectionView, determines which items are sortable. Callback has same format as that of visibleModelsFilter option.
+
+The value of the following optional filter options should be a function that expects a single parameters which is the model in question, and returns true or false.
+* `visibleModelsFilter` : (default: _all models_) Determines which items are visible. 
+* `selectableModelsFilter` : (default: _all models_) In a selectable CollectionView, determines which models are selectable.
+* `sortableModelsFilter` : (default: _all models_) In a sortable CollectionView, determines which items are sortable.
 
 ## Methods and Properties Reference
 
