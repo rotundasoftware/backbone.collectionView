@@ -9,8 +9,8 @@ Depends on jQuery and jQueryUI for event handling and sorting, respectively.
 ## Benefits
 
 * Provides a easy way to render a collection of models.
-* Supports single and multiple selection through meta-key and shift clicks, as you would expect from a SELECT element.
-* Adds "selected" css class to selected li or tr, allowing you to easily style selected items.
+* Supports single and multiple selection through meta-key and shift clicks, as you would expect from a multi-SELECT element.
+* Adds "selected" css class to selected `<li>` or `<tr>`, allowing you to easily style selected items.
 * Allows a user to reorder the collection by dragging and dropping and automatically applies the new order to the collection.
 * Keeps track of selected model(s) and fires events when the selection is changed.
 * Supports changing the currently selected model(s) through up and down arrow key presses.
