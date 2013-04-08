@@ -20,11 +20,11 @@ Depends on jQuery and jQueryUI for event handling and sorting, respectively.
 
 ## Sample Usage
 ```javascript
-var myCollectionView = new Backbone.CollectionView({
+var myCollectionView = new Backbone.CollectionView( {
 	el : $( "#listForCollection" ),		// must be a 'ul' (i.e. unordered list) or 'table' element
 	modelView : EmployeeView,			// a View class to be used for rendering each model in the collection
 	collection : employeeCollection
-}
+} );
 
 myCollectionView.render();
 myCollectionView.setSelectedModel( employeeCollection.first() );
