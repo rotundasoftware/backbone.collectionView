@@ -8,7 +8,7 @@
 (function(){
 	var mDefaultModelViewConstructor = Backbone.View;
 
-	var DEFAULT_REFERENCE_BY = "cid";
+	var kDefaultReferenceBy = "cid";
 
 	var kAllowedOptions = [ "collection", "modelView", "modelViewOptions", "itemTemplate",
 														"selectable", "clickToSelect", "selectableModelsFilter", "visibleModelsFilter",
@@ -138,26 +138,32 @@
 			else {
 				if( _.contains( kAllowedOptions, name ) ) {
 
-					this[ name ] = value;
 					switch( name ) {
 						case "selectMultiple" : 
+							this[ name ] = value;
 							if( !value && this.selectedItems.length > 1 )
 								this.setSelectedItem( _.first( this.selectedItems ) );
 							break;
 						case "selectable" :
 							if( !value && this.selectedItems.length > 0 )
 								this.setSelectedItems( [] );
+							this[ name ] = value;
 							break;
 						case "selectableModelsFilter" :
+							this[ name ] = value;
 							if( value && _.isFunction( value ) )
-								this.validateSelection();
+								this._validateSelection();
 							break;
 						case "itemTemplate" :
+							this[ name ] = value;
 							this._updateItemTemplate();
 							break;
 						case "processKeyEvents" :
+							this[ name ] = value;
 							if( value )  this.$el.attr( "tabindex", 0 ); // so we get keyboard events
 							break;
+						default :
+							this[ name ] = value;
 					}	
 
 					if( _.contains( kOptionsRequiringRerendering, name ) )  this.render();
@@ -200,7 +206,7 @@
 			var referenceBy;
 
 			options = _.extend( {}, {
-				by : DEFAULT_REFERENCE_BY
+				by : kDefaultReferenceBy
 			}, options );
 
 			var referenceBy = options.by;
@@ -274,7 +280,7 @@
 
 			options = _.extend( {}, {
 				silent : true,
-				by : DEFAULT_REFERENCE_BY
+				by : kDefaultReferenceBy
 			}, options );
 
 
