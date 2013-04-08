@@ -1,5 +1,5 @@
 /*!
- * Backbone.CollectionView, v0.4.0
+ * Backbone.CollectionView, v0.4.1
  * Copyright (c)2013 Rotunda Software, LLC.
  * Distributed under MIT license
  * http://github.com/rotundasoftware/backbone-collection-view
@@ -9,6 +9,12 @@
 	var mDefaultModelViewConstructor = Backbone.View;
 
 	var DEFAULT_REFERENCE_BY = "cid";
+
+	var kAllowedOptions = [ "collection", "modelView", "modelViewOptions", "itemTemplate",
+														"selectable", "clickToSelect", "selectableModelsFilter", "visibleModelsFilter",
+														"selectMultiple", "clickToToggle", "processKeyEvents", "sortable", "sortableModelsFilter" ];
+
+	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "visibleModelsFilter" ];
 
 	Backbone.CollectionView = Backbone.View.extend({
 
@@ -33,53 +39,30 @@
 
 		initialize : function( options ){
 			var _this = this;
-			
-			if( _.isUndefined( options.collection ) ) options.collection = new Backbone.Collection();
-			if( _.isUndefined( options.modelView ) ) options.modelView = null;
-			if( _.isUndefined( options.modelViewOptions ) ) options.modelViewOptions = {};
-			if( _.isUndefined( options.itemTemplate ) ) options.itemTemplate = null;
-			if( _.isUndefined( options.renderFunction ) ) options.renderFunction = null;
-			if( _.isUndefined( options.selectable ) ) options.selectable = true;
-			if( _.isUndefined( options.clickToSelect ) ) options.clickToSelect = true;
-			if( _.isUndefined( options.selectableItemsFilter ) ) options.selectableItemsFilter = true;
-			if( _.isUndefined( options.selectMultiple ) ) options.selectMultiple = false;
-			if( _.isUndefined( options.clickToToggle ) ) options.clickToToggle = false;
-			if( _.isUndefined( options.processKeyEvents ) ) options.processKeyEvents = true;
-			if( _.isUndefined( options.sortable ) ) options.sortable = false;
-			if( _.isUndefined( options.sortableModelsFilter ) ) options.sortableModelsFilter = null;
+	
+			//apply the defaults
+			options = _.extend( {},{
+					collection : null,
+					modelView : this.modelView || null,
+					modelViewOptions : {},
+					itemTemplate : null,
+					selectable : true,
+					clickToSelect : true,
+					selectableModelsFilter : null,
+					visibleModelsFilter : null,
+					sortableModelsFilter : null,
+					selectMultiple : true,
+					clickToToggle : false,
+					processKeyEvents : true,
+					sortable : false
+				}, options );
 
-			this.collection = options.collection;
-			this.modelView = options.modelView || this.modelView;
-			this.modelViewOptions = options.modelViewOptions;
-			this.itemTemplate = options.itemTemplate;
-			this.selectable = options.selectable;
-			this.clickToSelect = options.clickToSelect;
-			this.selectableModelsFilter = options.selectableModelsFilter;
-			this.selectMultiple = options.selectMultiple;
-			this.clickToToggle = options.clickToToggle;
-			this.processKeyEvents = options.processKeyEvents;
-			this.sortable = options.sortable;
-			this.sortableModelsFilter = options.sortableModelsFilter;
-			this.visibleModelsFilter = options.visibleModelsFilter;
-			this.emptyListDescriptionUpdateStateCallback = options.emptyListDescriptionUpdateStateCallback;
+			//add each of the well known/allowed options to the CollectionView
+			_.each( kAllowedOptions, function( option ) {
+				_this[ option ] = options[option];
+			} );
 
-			//If rendering a table, make sure that $el of modelView is a tr
-			if( _this._isRenderedAsTable() ) {
-				//need to make sure the el of the modelView is a tr.  is there a better way of doing this than creating an instance?
-				if( this.modelView ) {
-					var view = new options.modelView();
-					if( view.$el.prop("tagName").toLowerCase() !== 'tr' ) {
-						throw "If creating a CollectionView with a 'table' $el, modelView needs to have a 'tr' $el";
-					}
-				}
-			}
-			
-			if( options.renderFunction !== null )
-				this.render = function() {
-					options.renderFunction.apply( _this.bindCallbacksTo ? _this.bindCallbacksTo : _this, arguments );
-				};
-			
-			delete this.options;
+			if( _.isNull( this.collection ) ) this.collection = new Backbone.Collection();
 
 			if(this._isBackboneCourierAvailable()) {
     		Backbone.Courier.add( this );
@@ -99,19 +82,7 @@
 			
 			this.selectedItems = [];
 
-			var itemTemplateHtml;
-			if( this.itemTemplate )
-			{
-				if( $( this.itemTemplate ).length == 0 ) throw "Could not find item template from selector: " + this.itemTemplate;
-
-				itemTemplateHtml = $( this.itemTemplate ).html();
-			}
-			else
-				itemTemplateHtml = this.$( ".item-template" ).html();
-
-			if( itemTemplateHtml ) this.itemTemplateFunction = _.template( itemTemplateHtml );
-
-			if( _.isString( this.bubbleEvents ) ) this.bubbleEvents = this.bubbleEvents.split( " " );
+			this._updateItemTemplate();
 
 			_.bindAll( this );
 			
@@ -141,8 +112,61 @@
 			// to be done already. so we have to make sure to not jump the gun and start rending at this point.
 			// this.render();
 		},
-		
-		setCollection : function( newCollection ) {
+
+
+		_updateItemTemplate : function() {
+
+			var itemTemplateHtml;
+			if( this.itemTemplate )
+			{
+				if( $( this.itemTemplate ).length == 0 ) throw "Could not find item template from selector: " + this.itemTemplate;
+
+				itemTemplateHtml = $( this.itemTemplate ).html();
+			}
+			else
+				itemTemplateHtml = this.$( ".item-template" ).html();
+
+			if( itemTemplateHtml ) this.itemTemplateFunction = _.template( itemTemplateHtml );
+
+		},
+
+		setOption : function( name, value ) {
+
+			if( name === "collection" ) {
+				this._setCollection( value );
+			}
+			else {
+				if( _.contains( kAllowedOptions, name ) ) {
+
+					this[ name ] = value;
+					switch( name ) {
+						case "selectMultiple" : 
+							if( !value && this.selectedItems.length > 1 )
+								this.setSelectedItem( _.first( this.selectedItems ) );
+							break;
+						case "selectable" :
+							if( !value && this.selectedItems.length > 0 )
+								this.setSelectedItems( [] );
+							break;
+						case "selectableModelsFilter" :
+							if( value && _.isFunction( value ) )
+								this.validateSelection();
+							break;
+						case "itemTemplate" :
+							this._updateItemTemplate();
+							break;
+						case "processKeyEvents" :
+							if( value )  this.$el.attr( "tabindex", 0 ); // so we get keyboard events
+							break;
+					}	
+
+					if( _.contains( kOptionsRequiringRerendering, name ) )  this.render();
+				}
+				else throw name + " is not an allowed option";
+			}
+		},
+
+		_setCollection : function( newCollection ) {
 			if( newCollection !== this.collection )
 			{
 				this.collection = newCollection;
@@ -160,7 +184,7 @@
 			return this.selectedItems[0];
 		},
 
-		getSelectedItem : function(options) {
+		getSelectedItem : function( options ) {
 			return _.first( this.getSelectedItems( options ) );
 		},
 
@@ -383,6 +407,13 @@
 					var thisListItemEl = $( listItemEls[ curElNum ] );
 					thisListItemEl.attr( "data-item-id", thisModelReferenceId );
 					var thisModelView = new (mDefaultModelViewConstructor)( { el : thisListItemEl } );
+
+					if( _this._isRenderedAsTable() ) {
+						if( thisModelView.$el.prop("tagName").toLowerCase() !== 'tr' ) {
+							throw "If creating a CollectionView with a 'table' $el, modelView needs to have a 'tr' $el";
+						}
+					}
+
 					thisModelView.model = thisModel;
 					_this.viewManager.add( thisModelView );
 					curElNum++;
