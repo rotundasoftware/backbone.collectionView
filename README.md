@@ -27,7 +27,7 @@ var myCollectionView = new Backbone.CollectionView( {
 } );
 
 myCollectionView.render();
-myCollectionView.setSelectedModel( employeeCollection.first() );
+myCollectionView.setSelectedItem( employeeCollection.first(), { by : "model" } );
 ```
 
 ## Options accepted by the CollectionView constructor
