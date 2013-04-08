@@ -1,5 +1,5 @@
 /*!
- * Backbone.CollectionView, v0.4.0
+ * Backbone.CollectionView, v0.4.1
  * Copyright (c)2013 Rotunda Software, LLC.
  * Distributed under MIT license
  * http://github.com/rotundasoftware/backbone-collection-view
@@ -10,29 +10,13 @@
 
 	var DEFAULT_REFERENCE_BY = "cid";
 
+	var kAllowedOptions = [ "collection", "modelView", "modelViewOptions", "itemTemplate",
+														"selectable", "clickToSelect", "selectableModelsFilter", "visibleModelsFilter",
+														"selectMultiple", "clickToToggle", "processKeyEvents", "sortable", "sortableModelsFilter" ];
+
+	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "visibleModelsFilter" ];
+
 	Backbone.CollectionView = Backbone.View.extend({
-		/* Contructor should be passed options hash with following keys. All keys are optional unless otherwise noted
-		 * el (required) : An "ul" or "table" element that will serve as the dom element that contains this list
-		 * modelView : A view constructor that will be used to render the models within this collection.
-		 * renderFunction : Can be used to override the default render() function, in the case that you want to render the collection view yourself, for example to optimize efficiency for large collections. You should rarely need to use this option.
-		 * collection : The collection of models that will serve as the content for this list
-		 * selectable : True if model views within the collection should be selectable. In this case the "selected" class will be automatically added to selected models. Default true
-		 * clickToSelect : True if mouse clicks should select models as would be appropriate in standard HTML mutli-select element. Only applies to selectable collection lists. Default to true.
-		 * selectableModelsFilter : in the case that selectable is true, this can be used to determine which items are selectable and which items are not. value should be a function that is passed a single parmeter which is the model in question. for example function( thisModel ){ return thisModel.get( "isSelectable" ); }.
-		 * clickToToggle : True if clicking any item in a list with selectMultiple = true should toggle its selected / unselected state. Default is false. Only applies to lists with selectMultiple = true
-		 * processKeyEvents : True iff the collection view should respond to arrow key events intuitively as if the collection list was a SELECT box. Note this option has no effect if selectable is false.
-		 * sortable : Determines whether or not list items can be rearranged by dragging and dropping. Defaults to false.
-		 * sortableModelsFilter : in the case that sortable is true, this can be used to determine which items are sortable and which items are not. value should be a function that is passed a single parmeter which is the model in question. for example function( thisModel ){ return thisModel.get( "isSortable" ); }.
-		 * // allowedMessages : A allowedMessages array as expected by Backbone.Courier
-		 *
-		 * EVENTS FIRED
-		 * selectionChanged( newSelectedItems, oldSelectedItems ) - Fired whenever the selection is chaged, either by the user or by a manual call to setSelectedItems
-		 * updateDependentControls( selectedItems ) - Fired whenever controls that are dependent on the selection should be updated (e.g. buttons that should be disabled on no selection). This event is always fired just after selectionChanged is fired. In addition, it is fired after rendering (even if the selection has not changed since the last render) and sorting.
-		 * doubleClick( clickedItemId, theEvent ) - Fired when a model view is double clicked. clickedItemId is either the cid or id of the model, depending on if referenceModelsByCidreferenceModelsByCid is true or false respectively
-		 * sortStart - Fired just as a model view is starting to be dragged (sortable collection lists only)
-		 * sortStop - Fired when a drag of a model view is finished, but before the models have been reordered within the collection (sortable collection lists only)
-		 * reorder - Fired after a drag of a model view is finished and after the models have been reordered within the collection (sortable collection lists only)
-		 */
 
 		tagName : "ul",
 		// className : "collection-list", we add this class manually so we can spawn in className when extending class
@@ -55,96 +39,50 @@
 
 		initialize : function( options ){
 			var _this = this;
-			
-			if( _.isUndefined( options.collection ) ) options.collection = new Backbone.Collection();
-			if( _.isUndefined( options.modelView ) ) options.modelView = null;
-			if( _.isUndefined( options.modelViewOptions ) ) options.modelViewOptions = {};
-			if( _.isUndefined( options.itemTemplate ) ) options.itemTemplate = null;
-			if( _.isUndefined( options.renderFunction ) ) options.renderFunction = null;
-			if( _.isUndefined( options.selectable ) ) options.selectable = true;
-			if( _.isUndefined( options.clickToSelect ) ) options.clickToSelect = true;
-			if( _.isUndefined( options.selectableItemsFilter ) ) options.selectableItemsFilter = true;
-			if( _.isUndefined( options.selectMultiple ) ) options.selectMultiple = false;
-			if( _.isUndefined( options.clickToToggle ) ) options.clickToToggle = false;
-			if( _.isUndefined( options.processKeyEvents ) ) options.processKeyEvents = true;
-			if( _.isUndefined( options.sortable ) ) options.sortable = false;
-			if( _.isUndefined( options.sortableModelsFilter ) ) options.sortableModelsFilter = null;
-			//if( _.isUndefined( options.allowedMessages ) ) options.allowedMessages = [];
+	
+			//apply the defaults
+			options = _.extend( {},{
+					collection : null,
+					modelView : this.modelView || null,
+					modelViewOptions : {},
+					itemTemplate : null,
+					selectable : true,
+					clickToSelect : true,
+					selectableModelsFilter : null,
+					visibleModelsFilter : null,
+					sortableModelsFilter : null,
+					selectMultiple : true,
+					clickToToggle : false,
+					processKeyEvents : true,
+					sortable : false
+				}, options );
 
-			this.collection = options.collection;
-			this.modelView = options.modelView || this.modelView;
-			this.modelViewOptions = options.modelViewOptions;
-			this.itemTemplate = options.itemTemplate;
-			this.selectable = options.selectable;
-			this.clickToSelect = options.clickToSelect;
-			this.selectableModelsFilter = options.selectableModelsFilter;
-			this.selectMultiple = options.selectMultiple;
-			this.clickToToggle = options.clickToToggle;
-			this.processKeyEvents = options.processKeyEvents;
-			this.sortable = options.sortable;
-			this.sortableModelsFilter = options.sortableModelsFilter;
-			this.visibleModelsFilter = options.visibleModelsFilter;
-			this.emptyListDescriptionUpdateStateCallback = options.emptyListDescriptionUpdateStateCallback;
-			//this.allowedMessages = _.union( _.result( this, "allowedMessages" ), options.allowedMessages );
+			//add each of the well known/allowed options to the CollectionView
+			_.each( kAllowedOptions, function( option ) {
+				_this[ option ] = options[option];
+			} );
 
-			//If rendering a table, make sure that $el of modelView is a tr
-			if( _this._isRenderedAsTable() ) {
-					//need to make sure the el of the modelView is a tr.  is there a better way of doing this than creating an instance?
-					if( this.modelView ) {
-						var view = new options.modelView();
-						if( view.$el.prop("tagName").toLowerCase() !== 'tr' ) {
-							throw "If creating a CollectionView with a 'table' $el, modelView needs to have a 'tr' $el";
-						}
-					}
-			}
-			
-			if( options.renderFunction !== null )
-				this.render = function() {
-					options.renderFunction.apply( _this.bindCallbacksTo ? _this.bindCallbacksTo : _this, arguments );
-				};
-			
-			delete this.options;
+			if( _.isNull( this.collection ) ) this.collection = new Backbone.Collection();
 
 			if(this._isBackboneCourierAvailable()) {
     		Backbone.Courier.add( this );
 			}
 
-			// because this class is designed to be an base class for derived collection list view classes, which
-			// may include buttons or other controls besides just the list itself, we can not be sure that "el"
-			// will refer to the list element itself. To eliminate confusion, we do NOT use $el ANYWHERE in this
-			// view, but instead create a "listEl" property of this view that points to the actual unordered
-			// list element that we are using for the list itself.
-			if( this.$el.is( "ul, table" ) )
-				this.listEl = this.$el;
-			else
-				this.listEl = this.$el.find( "ul, table" ).assertOne();
-			
-			this.listEl.addClass( "collection-list" );
+			this.$el.data( "view", this );// needed for connected sortable lists
+			this.$el.addClass( "collection-list" );
 			if( this.processKeyEvents )
-				this.listEl.attr( "tabindex", 0 ); // so we get keyboard events
+				this.$el.attr( "tabindex", 0 ); // so we get keyboard events
 			
-			if( this.listEl.next().is( "div.empty-list-description" ) && ! _.isUndefined( Rotunda.Views.EmptyListDescription ) )
+			if( this.$el.next().is( "div.empty-list-description" ) && ! _.isUndefined( Rotunda.Views.EmptyListDescription ) )
 				this.emptyListDescriptionView = new Rotunda.Views.EmptyListDescription( {
-					el : this.listEl.next(),
+					el : this.$el.next(),
 					collectionListView : this,
 					udpateStateCallback : this.emptyListDescriptionUpdateStateCallback
 				} );
 			
 			this.selectedItems = [];
 
-			var itemTemplateHtml;
-			if( this.itemTemplate )
-			{
-				if( $( this.itemTemplate ).length == 0 ) throw "Could not find item template from selector: " + this.itemTemplate;
-
-				itemTemplateHtml = $( this.itemTemplate ).html();
-			}
-			else
-				itemTemplateHtml = this.$( ".item-template" ).html();
-
-			if( itemTemplateHtml ) this.itemTemplateFunction = _.template( itemTemplateHtml );
-
-			if( _.isString( this.bubbleEvents ) ) this.bubbleEvents = this.bubbleEvents.split( " " );
+			this._updateItemTemplate();
 
 			_.bindAll( this );
 			
@@ -174,8 +112,61 @@
 			// to be done already. so we have to make sure to not jump the gun and start rending at this point.
 			// this.render();
 		},
-		
-		setCollection : function( newCollection ) {
+
+
+		_updateItemTemplate : function() {
+
+			var itemTemplateHtml;
+			if( this.itemTemplate )
+			{
+				if( $( this.itemTemplate ).length == 0 ) throw "Could not find item template from selector: " + this.itemTemplate;
+
+				itemTemplateHtml = $( this.itemTemplate ).html();
+			}
+			else
+				itemTemplateHtml = this.$( ".item-template" ).html();
+
+			if( itemTemplateHtml ) this.itemTemplateFunction = _.template( itemTemplateHtml );
+
+		},
+
+		setOption : function( name, value ) {
+
+			if( name === "collection" ) {
+				this._setCollection( value );
+			}
+			else {
+				if( _.contains( kAllowedOptions, name ) ) {
+
+					this[ name ] = value;
+					switch( name ) {
+						case "selectMultiple" : 
+							if( !value && this.selectedItems.length > 1 )
+								this.setSelectedItem( _.first( this.selectedItems ) );
+							break;
+						case "selectable" :
+							if( !value && this.selectedItems.length > 0 )
+								this.setSelectedItems( [] );
+							break;
+						case "selectableModelsFilter" :
+							if( value && _.isFunction( value ) )
+								this.validateSelection();
+							break;
+						case "itemTemplate" :
+							this._updateItemTemplate();
+							break;
+						case "processKeyEvents" :
+							if( value )  this.$el.attr( "tabindex", 0 ); // so we get keyboard events
+							break;
+					}	
+
+					if( _.contains( kOptionsRequiringRerendering, name ) )  this.render();
+				}
+				else throw name + " is not an allowed option";
+			}
+		},
+
+		_setCollection : function( newCollection ) {
 			if( newCollection !== this.collection )
 			{
 				this.collection = newCollection;
@@ -189,15 +180,11 @@
 			this.render();
 		},
 		
-		getListElement : function() {
-			return this.listEl;
-		},
-
 		getSelectedItem : function() {
 			return this.selectedItems[0];
 		},
 
-		getSelectedItem : function(options) {
+		getSelectedItem : function( options ) {
 			return _.first( this.getSelectedItems( options ) );
 		},
 
@@ -231,7 +218,7 @@
 					break;
 				case "line" :
 					var curLineNumber = 0;
-					this.listEl.find( "> [data-item-id]:visible" ).each( function() {
+					this.$el.find( "> [data-item-id]:visible" ).each( function() {
 						var thisItemEl = $( this );
 						if( thisItemEl.is( ".selected" ) )
 							items.push( curLineNumber );
@@ -275,7 +262,7 @@
 			var viewEls = $();
 			
 			_.each( this.selectedItems, function( thisItemId ) {
-				viewEls = viewEls.add( this.listEl.find( "[data-item-id=" + thisItemId + "]" ) );
+				viewEls = viewEls.add( this.$el.find( "[data-item-id=" + thisItemId + "]" ) );
 			}, this );
 			
 			return viewEls;
@@ -315,7 +302,7 @@
 				case "line" :
 					var curLineNumber = 0;
 					var selectedItems = [];
-					this.listEl.find( "> [data-item-id]:visible" ).each( function() {
+					this.$el.find( "> [data-item-id]:visible" ).each( function() {
 						var thisItemEl = $( this );
 						if( _.contains( newSelectedItems, curLineNumber ) )
 							newSelectedItemsTemp.push( thisItemEl.attr( "data-item-id" ) );
@@ -328,7 +315,6 @@
 
 			var oldSelectedItems = _.clone( this.selectedItems );
 			this.selectedItems = this._convertStringsToInts( newSelectedItemsTemp );
-			//this.selectedItems = this._convertStringsToInts( newSelectedItems );
 			this._validateSelection();
 			
 			if( ! this._containSameElements( this.selectedItems, oldSelectedItems ) )
@@ -405,8 +391,6 @@
 
 			this.viewManager = new Backbone.ChildViewContainer();
 			
-			//this.modelViewsByReferenceId = {};
-
 			if( this.itemTemplateFunction != null )
 			{
 				var listHtml = "";
@@ -414,24 +398,30 @@
 					listHtml += _this.itemTemplateFunction( thisModel.toJSON() );
 				} );
 
-				this.listEl.html( listHtml );
+				this.$el.html( listHtml );
 
-				var listItemEls = this.listEl.children( "li, tr" );
+				var listItemEls = this.$el.children( "li, tr" );
 				var curElNum = 0;
 				this.collection.each( function( thisModel ){
 					var thisModelReferenceId = this._getModelReferenceId( thisModel );
 					var thisListItemEl = $( listItemEls[ curElNum ] );
 					thisListItemEl.attr( "data-item-id", thisModelReferenceId );
 					var thisModelView = new (mDefaultModelViewConstructor)( { el : thisListItemEl } );
+
+					if( _this._isRenderedAsTable() ) {
+						if( thisModelView.$el.prop("tagName").toLowerCase() !== 'tr' ) {
+							throw "If creating a CollectionView with a 'table' $el, modelView needs to have a 'tr' $el";
+						}
+					}
+
 					thisModelView.model = thisModel;
 					_this.viewManager.add( thisModelView );
-					//_this.modelViewsByReferenceId[ thisModelReferenceId ] = thisModelView;
 					curElNum++;
 				}, this );
 			}
 			else
 			{
-				this.listEl.empty();
+				this.$el.empty();
 				
 				this.collection.each( function( thisModel ) {
 					var thisModelViewConstructor = this._getModelViewConstructor( thisModel );
@@ -451,7 +441,7 @@
 					
 					// we use items client ids as opposed to real ids, since we may not have a representation
 					// of these models on the server
-					var thisModelViewWrapped;// = thisModelView.$el.wrapAll( "<li data-item-id='" + thisModelReferenceId + "'></li>" ).parent();
+					var thisModelViewWrapped;
 
 
 					//If we are rendering the collection in a table, the template $el is a tr so we just need to set the data-item-id
@@ -466,34 +456,11 @@
 
 					thisModelView.modelViewEl = thisModelViewWrapped;
 
-
-					//if( thisModel === this.collection.first() ) thisModelViewWrapped.addClass( "first" );
-					//else if( thisModel === this.collection.last() ) thisModelViewWrapped.addClass( "last" );
-					
 					if( _.isFunction( this.sortableModelsFilter ) )
 						if( this.sortableModelsFilter.call( _this, thisModel ) )
 							thisModelViewWrapped.addClass( "sortable" );
 
-					// if( this.bubbleEvents )
-					// 	_.each( this.bubbleEvents, function( thisEvent ) {
-					// 		_this.listenTo( thisModelView, thisEvent, function() {
-					// 			var args = Array.prototype.slice.call( arguments );
-
-					// 			if( _.isObject( args[0] ) && args[0]._isTriggerObject ) args.shift();
-
-					// 			args.unshift( {
-					// 				_isTriggerObject : true,
-					// 				view : thisModelView,
-					// 				model : thisModelView.model,
-					// 				collection : _this.collection
-					// 			} );
-
-					// 			args.unshift( thisEvent );
-					// 			_this.trigger.apply( _this, args );
-					// 		} );
-					// 	} );
-
-					this.listEl.append( thisModelViewWrapped );
+					this.$el.append( thisModelViewWrapped );
 					
 					// we have to render the modelView after it has been put in context, as opposed to in the 
 					// initialize function of the modelView, because some rendering might be dependent on
@@ -512,7 +479,6 @@
 					}
 
 					this.viewManager.add( thisModelView );
-					//this.modelViewsByReferenceId[ thisModelReferenceId ] = thisModelView;
 				}, this );
 			}
 			
@@ -524,7 +490,8 @@
 					forcePlaceholderSize : true,
 					start : this._sortStart,
 					change : this._sortChange,
-					stop : this._sortStop
+					stop : this._sortStop,
+					receive : this._receive
 				}, _.result( this, "sortableOptions" ) );
 
 				if( this.sortableModelsFilter === null ) {
@@ -539,8 +506,6 @@
 					sortableOptions.items = this.sortableModelsFilter;
 				}
 				else if( _.isFunction( this.sortableModelsFilter ) ) {
-					//sortableOptions.items = "> li.sortable";
-					//sortableOptions.items = "> li.sortable";
 					if( _this._isRenderedAsTable() ) {
 						sortableOptions.items = "> tbody > tr.sortable";
 					}
@@ -549,7 +514,7 @@
 					}
 				}
 
-				this.listEl = this.listEl.sortable( sortableOptions );
+				this.$el = this.$el.sortable( sortableOptions );
 			}
 			
 			this.trigger( "render" );
@@ -584,22 +549,6 @@
 			}
 		},
 
-		// unrender : function() {
-		// 	this.off( "sortStart sortChange sortStop" );
-
-		// 	if( this.sortable )
-		// 	{
-		// 		if( this.listEl.data( "ui-sortable" ) )
-		// 			this.listEl.sortable( "destroy" );
-		// 	}
-
-		// 	_.each( this.modelViewsByReferenceId, function( thisModelView ) {
-		// 		if( _.isFunction( thisModelView.close ) )
-		// 			thisModelView.close();
-		// 		else thisModelView.remove();
-		// 	} );
-		// },
-
 		_getModelReferenceId : function( theModel ) {
 
 			return theModel.cid;
@@ -615,7 +564,7 @@
 			// important to use currentTarget as opposed to target, since we could be bubbling
 			// an event that took place within another collectionList
 			var clickedItemEl = $( theEvent.currentTarget );
-			if( clickedItemEl.closest( ".collection-list" ).get(0) !== this.listEl.get(0) ) return;
+			if( clickedItemEl.closest( ".collection-list" ).get(0) !== this.$el.get(0) ) return;
 
 			// determine which list item was clicked. If we clicked in the blank area
 			// underneath all the elements, we want to know that too, since in this
@@ -656,22 +605,21 @@
 			itemsIdsFromWhichSelectedClassNeedsToBeRemoved = _.without( itemsIdsFromWhichSelectedClassNeedsToBeRemoved, this.selectedItems );
 
 			_.each( itemsIdsFromWhichSelectedClassNeedsToBeRemoved, function( thisItemId ) {
-				this.listEl.find( "[data-item-id=" + thisItemId + "]" ).removeClass( "selected" );
+				this.$el.find( "[data-item-id=" + thisItemId + "]" ).removeClass( "selected" );
 			}, this );
 			
 			var itemsIdsFromWhichSelectedClassNeedsToBeAdded = this.selectedItems;
 			itemsIdsFromWhichSelectedClassNeedsToBeAdded = _.without( itemsIdsFromWhichSelectedClassNeedsToBeAdded, oldItemsIdsWithSelectedClass );
 
 			_.each( itemsIdsFromWhichSelectedClassNeedsToBeAdded, function( thisItemId ) {
-				this.listEl.find( "[data-item-id=" + thisItemId + "]" ).addClass( "selected" );
+				this.$el.find( "[data-item-id=" + thisItemId + "]" ).addClass( "selected" );
 			}, this );
 		},
 		
 		_reorderCollectionBasedOnHTML : function() {
-			//var curOrder = 0;
 			var _this = this;
 			
-			this.listEl.children().each( function() {
+			this.$el.children().each( function() {
 				var thisModelId = $( this ).attr( "data-item-id" );
 				
 				if( thisModelId )
@@ -717,7 +665,13 @@
 
 		_sortStop : function( event, ui ) {
 			var modelBeingSorted = this.collection.get( ui.item.attr( "data-item-id" ) );
-			var newIndex = this.listEl.children().index( ui.item );
+			var newIndex = this.$el.children().index( ui.item );
+
+			if( newIndex == -1 ) {
+				// the element was removed from this list. can happen if this sortable is connected
+				// to another sortable, and the item was dropped into the other sortable.
+				this.collection.remove( modelBeingSorted, { silent : true } );
+			}
 
 			this._reorderCollectionBasedOnHTML();
 			this.updateDependentControls();
@@ -725,6 +679,17 @@
 			if( this._isBackboneCourierAvailable() )
 				this.spawn( "sortStop", { modelBeingSorted : modelBeingSorted, newIndex : newIndex } );
 		},
+
+		_receive : function( event, ui ) {
+			var senderListEl = ui.sender;
+			var senderCollectionListView = senderListEl.data( "view" );
+			if( ! senderCollectionListView || ! senderCollectionListView.collection ) return;
+
+			var newIndex = this.$el.children().index( ui.item );
+			var modelReceived = senderCollectionListView.collection.get( ui.item.attr( "data-item-id" ) );
+			this.collection.add( modelReceived, { at : newIndex } );
+			this.setSelectedItem( modelReceived, { by : "model" } );
+		}, 
 		
 		_onKeydown : function( event ) {
 			if( ! this.processKeyEvents ) return true;
@@ -758,12 +723,6 @@
 
 			if( clickedItemId )
 			{
-				// if this model is not selectable, then don't do anything!
-				// if( _.isFunction( this.selectableModelsFilter ) )
-				//	if( ! this.selectableModelsFilter.call( this, this._getModelByReferenceId( clickedItemId ) ) )
-				//		return;
-				// we now validate this in this_.validateSelection
-
 				// a list item was clicked
 				if( this.selectMultiple && theEvent.shiftKey )
 				{
@@ -820,7 +779,7 @@
 				this.setSelectedItems( [], { silent : false } );
 
 			if(this.sortable ) {
-				this.listEl.focus();
+				this.$el[0].focus();
 			}
 
 		},
@@ -830,7 +789,7 @@
 			
 			if( clickedItemId )
 			{
-				this.trigger( "doubleClick", clickedItemId, theEvent );
+				this.trigger( "doubleClick", clickedItemId );
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "doubleClick", { clickedItemId : clickedItemId } );
 			}
@@ -839,62 +798,48 @@
 		_listBackground_onClick : function( theEvent ) {
 			if( ! this.selectable ) return;
 			if( ! $( theEvent.target ).is( ".collection-list" ) ) return;
-			
+		
 			this.setSelectedItems( [], { silent : false } );
 		},
 
-  //added from underscore.mixins.js
-  _convertStringsToInts : function( theArray ) { 
-      return _.map( theArray, function( thisEl ) { 
-        if( ! _.isString( thisEl ) ) return thisEl;
-    
-        var thisElAsNumber = parseInt( thisEl, 10 );
-        return( thisElAsNumber == thisEl ? thisElAsNumber : thisEl );
-      } );
-    }, 
+	  //added from underscore.mixins.js
+		_convertStringsToInts : function( theArray ) { 
+			return _.map( theArray, function( thisEl ) { 
+				if( ! _.isString( thisEl ) ) return thisEl;
+				var thisElAsNumber = parseInt( thisEl, 10 );
+				return( thisElAsNumber == thisEl ? thisElAsNumber : thisEl );
+			} );
+		}, 
 
-  //added from underscore.mixins.js
-  _containSameElements : function( arrayA, arrayB ) { 
-      if( arrayA.length != arrayB.length ) return false;
-    
-      var intersectionSize = _.intersection( arrayA, arrayB ).length;
-      return intersectionSize == arrayA.length; // and must also equal arrayB.length, since arrayA.length == arrayB.length
-    },
+	  //added from underscore.mixins.js
+		_containSameElements : function( arrayA, arrayB ) { 
+			if( arrayA.length != arrayB.length ) return false;
+			var intersectionSize = _.intersection( arrayA, arrayB ).length;
+			return intersectionSize == arrayA.length; // and must also equal arrayB.length, since arrayA.length == arrayB.length
+		},
 
-	_isRenderedAsTable : function() {
-		return this.$el.prop('tagName').toLowerCase() === 'table';
-	},
+		_isRenderedAsTable : function() {
+			return this.$el.prop('tagName').toLowerCase() === 'table';
+		},
 
   
-	_isRenderedAsList : function() {
-		return !this._isRenderedAsTable();
-		//this.$el.prop('tagName').toLowerCase() === 'ul';
-	},
+		_isRenderedAsList : function() {
+			return !this._isRenderedAsTable();
+		},
 
-  _charCodes : { 
-    upArrow : 38, 
-    downArrow : 40
-  },
+		_charCodes : { 
+			upArrow : 38, 
+			downArrow : 40
+		},
 
-	_isBackboneCourierAvailable : function() {
-		return !_.isUndefined(Backbone.Courier);
-	}//,
-/*
-	_setModelBasedVisibility : function() {
-		if( _.isFunction(this.collectionListView.visibleModelsFilter) ) {
-			if( this.collectionListView.visibleModelsFilter(this.model) ) {
-				this.modelViewEl.show();
-			}
-			else {
-				this.modelViewEl.hide();
-			}
+		_isBackboneCourierAvailable : function() {
+			return !_.isUndefined(Backbone.Courier);
 		}
 
-	}*/
-
 	}, {
-		setDefaultModelViewConstructor : function( theConstructor )
-		{
+
+		setDefaultModelViewConstructor : function( theConstructor ) {
+
 			mDefaultModelViewConstructor = theConstructor;
 		}
 	});

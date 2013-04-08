@@ -33,6 +33,7 @@ myCollectionView.setSelectedModel( employeeCollection.first() );
 ## Options accepted by the CollectionView constructor
 * `el` : A `ul` or `table` element. If you supply a `table` element, make sure your modelView has elements of type of `tr`. If this option is not supplied, a new `ul` element will be created and used.
 * `collection` : The collection of models to be rendered.
+* `modelView` : The view constructor that will be used to render the models in the collection.
 * `selectable` : (default: _true_) Determines whether models in the CollectionView are selectable.
 * `clickToSelect` : (default: _true_) In a selectable CollectionView, determines whether mouse clicks should select models as would be appropriate in a standard HTML mutli-SELECT element.
 * `processKeyEvents` : (default: _true_) In a selectable CollectionView, determines whether the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-SELECT element.
@@ -48,9 +49,8 @@ The following options expect a filter function that takes a single parameter, th
 ## Methods and Properties Reference
 
 * __setSelectedItem( modelReference, [options] )__ Sets which model(s) are selected. (See discussion below.)
-* __getSelectedItem( options] )__ Returns references to the selected model(s). (See discussion below.)
-* __setCollection( collection )__ Changes the collection being rendered. Will automatically re-render the CollectionView.
-* __getListElement()__ Get the 'el' of the collection view. Will be either a `ul` or a `table`.
+* __getSelectedItem( [options] )__ Returns references to the selected model(s). (See discussion below.)
+* __setOption( optionName, optionValue )__ Updates the value of a configuration option.  All constructor options above are valid except `el`.  The CollectionView is automatically re-rendered.
 * __collection__ The Backbone collection instance that this CollectionView represents.
 * __viewManager__ A [Backbone.BabySitter](https://github.com/marionettejs/backbone.babysitter) instance that contains the model views that are created to represent the individual models in the collection (when the CollectionView is rendered).
 
@@ -89,7 +89,7 @@ CollectionViews `trigger` the following events on themselves. You can respond to
  is available, these events are also "spawned" using Courier.
 * __"selectionChanged"__ ( _newSelectedModelCids, oldSelectedModelCids_ )  Fired whenever the selection is changed, either by the user or by a programmatic call to `setSelectedItem(s)`.
 * __"updateDependentControls"__ ( _selectedModelCids_ ) Fired whenever controls that are dependent on the selection should be updated (e.g. buttons that should be disabled on no selection). This event is always fired just after `selectionChanged` is fired. In addition, it is fired after rendering and sorting.
-* __"doubleClick"__ ( _clickedModelCid, theEvent_ ) Fired when a model view is double clicked.
+* __"doubleClick"__ ( _clickedModelCid_ ) Fired when a model view is double clicked.
 * __"sortStart"__  Fired just as an item is starting to be dragged. (Sortable collection lists only.)
 * __"sortStop"__  Fired when a drag of an item is finished, but before the collection has been reordered. (Sortable collection lists only.)
 * __"reorder"__  Fired after a drag of an item is finished and after the collection has been reordered. (Sortable collection lists only.)
