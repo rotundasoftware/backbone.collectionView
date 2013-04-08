@@ -57,7 +57,7 @@ The following options expect a filter function that takes a single parameter, th
 
 ### <a name="setSelectedItem"></a>setSelectedItem(s) and getSelectedItem(s)
 
-The `getSelectedItem(s)` and `setSelectedItem(s)` methods are used to get or set the currently selected models. The methods are able to reference models in a variety of ways. For instance, it is possible to set the currently selected model using the model's `cid`, using the model's `id`, or using the model object itself. The magic is in the `by` option. Its not complicated - let's see some examples:
+The `getSelectedItem(s)` and `setSelectedItem(s)` methods are used to get or set the currently selected models. The methods are able to reference models in a variety of ways. For instance, it is possible to set the currently selected model using the model's `cid`, using the model's `id`, or using the model object itself. The magic is in the `by` option:
 
 ```javascript
 // Select model id 2 and model id 4
@@ -73,20 +73,20 @@ myCollectionView.setSelectedItem( "c21" );	// the "by" option defaults to "cid"
 myCollectionView.getSelectedItem( { by : "modelView" } );
 ```
 
-As you can see from the examples, the plural versions of the methods expect / return an array of "model references", whereas the singular versions expect / return just a single "model reference".
+As shown in the examples, the plural versions of the methods expect / return an array of "model references", whereas the singular versions expect / return just a single "model reference".
 
-There are five valid values for `by` option, which correspond to the type of model reference expected / returned:
+There are five valid values for `by` option, which correspond to the type of "model reference" expected / returned:
 * `"cid"` : The `cid` of the model. (This is the default value of the `by` option.)
 * `"id"` : The `id` of the model.
 * `"model"` : The model object itself.
 * `"modelView"` : The view that was created to represent the model when the CollectionView was rendered.
-* `"line"` : The zero-based index of the model in the collection, only models currently visible in the CollectionView.
+* `"line"` : The zero-based index of the model in the collection, only counting models currently visible in the CollectionView.
 
 In addition to the `by` option, the `setSelectedItems(s)` function accepts one additional option, `silent`, which, when true, will prevent the `selectionChanged` event from being fired.
 
 ##Events Fired
 CollectionViews `trigger` the following events on themselves. You can respond to these events from another view using Backbone's `listenTo` method. If [Backbone.Courier](https://github.com/rotundasoftware/backbone.courier)
- is available, these events are also spawned using Courier.
+ is available, these events are also "spawned" using Courier.
 * __"selectionChanged"__ ( _newSelectedModelCids, oldSelectedModelCids_ )  Fired whenever the selection is changed, either by the user or by a programmatic call to `setSelectedItem(s)`.
 * __"updateDependentControls"__ ( _selectedModelCids_ ) Fired whenever controls that are dependent on the selection should be updated (e.g. buttons that should be disabled on no selection). This event is always fired just after `selectionChanged` is fired. In addition, it is fired after rendering and sorting.
 * __"doubleClick"__ ( _clickedModelCid, theEvent_ ) Fired when a model view is double clicked.
