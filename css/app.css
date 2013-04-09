@@ -1,13 +1,19 @@
 /*todo:*/
 /*make non-sortable/selectable rows differnt color and unhoverable*/
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000336}}
-body {
-  color: #333333;
-  font-family: 'PT Sans', sans-serif;
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000343}}
+.collection-list {
+  list-style-type: none;
   margin: 0;
+  outline: medium none;
+  overflow: hidden;
+  padding: 0;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000349}}
+.collection-list li {
+  cursor: pointer;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000342}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000354}}
 button {
   padding: 10px 14px;
   color: white;
@@ -18,239 +24,277 @@ button {
   cursor: pointer;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000352}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000364}}
 .button-big {
   font-size: 20px;
   margin: 20px 72px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000356}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000369}}
 .button-small {
   font-size: 14px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000359}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000373}}
 .button-right {
   float: right;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000363}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000377}}
 .button-orange {
   background: #ff8742;
-  border: 1px solid #ff670f;
+  border: 1px solid #f55a00;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
   border-radius: 4px;
-  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ff9457), color-stop(100%, #ff7b2e));
-  background: -webkit-linear-gradient(#ff9457, #ff7b2e);
-  background: -moz-linear-gradient(#ff9457, #ff7b2e);
-  background: -o-linear-gradient(#ff9457, #ff7b2e);
-  background: linear-gradient(#ff9457, #ff7b2e);
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffa16b), color-stop(100%, #ff6e1a));
+  background: -webkit-linear-gradient(#ffa16b, #ff6e1a);
+  background: -moz-linear-gradient(#ffa16b, #ff6e1a);
+  background: -o-linear-gradient(#ffa16b, #ff6e1a);
+  background: linear-gradient(#ffa16b, #ff6e1a);
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000331}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000336}}
 .button-orange:hover {
-  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ff8742), color-stop(100%, #ff6e1a));
-  background: -webkit-linear-gradient(#ff8742, #ff6e1a);
-  background: -moz-linear-gradient(#ff8742, #ff6e1a);
-  background: -o-linear-gradient(#ff8742, #ff6e1a);
-  background: linear-gradient(#ff8742, #ff6e1a);
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ff9457), color-stop(100%, #ff6105));
+  background: -webkit-linear-gradient(#ff9457, #ff6105);
+  background: -moz-linear-gradient(#ff9457, #ff6105);
+  background: -o-linear-gradient(#ff9457, #ff6105);
+  background: linear-gradient(#ff9457, #ff6105);
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000367}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000378}}
 .button-blue {
   background: #6d8ddf;
-  border: 1px solid #436cd6;
+  border: 1px solid #2e5cd1;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
   border-radius: 4px;
-  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #7d9ae3), color-stop(100%, #5c80db));
-  background: -webkit-linear-gradient(#7d9ae3, #5c80db);
-  background: -moz-linear-gradient(#7d9ae3, #5c80db);
-  background: -o-linear-gradient(#7d9ae3, #5c80db);
-  background: linear-gradient(#7d9ae3, #5c80db);
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #8ea7e6), color-stop(100%, #4b73d8));
+  background: -webkit-linear-gradient(#8ea7e6, #4b73d8);
+  background: -moz-linear-gradient(#8ea7e6, #4b73d8);
+  background: -o-linear-gradient(#8ea7e6, #4b73d8);
+  background: linear-gradient(#8ea7e6, #4b73d8);
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000331}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000336}}
 .button-blue:hover {
-  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #6d8ddf), color-stop(100%, #4b73d8));
-  background: -webkit-linear-gradient(#6d8ddf, #4b73d8);
-  background: -moz-linear-gradient(#6d8ddf, #4b73d8);
-  background: -o-linear-gradient(#6d8ddf, #4b73d8);
-  background: linear-gradient(#6d8ddf, #4b73d8);
-}
-
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000371}}
-.button-red {
-  background: #f37286;
-  border: 1px solid #ef435d;
-  border-radius: 4px;
-  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #f48596), color-stop(100%, #f15f75));
-  background: -webkit-linear-gradient(#f48596, #f15f75);
-  background: -moz-linear-gradient(#f48596, #f15f75);
-  background: -o-linear-gradient(#f48596, #f15f75);
-  background: linear-gradient(#f48596, #f15f75);
-}
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000331}}
-.button-red:hover {
-  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #f37286), color-stop(100%, #ef4d65));
-  background: -webkit-linear-gradient(#f37286, #ef4d65);
-  background: -moz-linear-gradient(#f37286, #ef4d65);
-  background: -o-linear-gradient(#f37286, #ef4d65);
-  background: linear-gradient(#f37286, #ef4d65);
-}
-
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000375}}
-.button-green {
-  background: #64ce64;
-  border: 1px solid #3dc23d;
-  border-radius: 4px;
-  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #73d373), color-stop(100%, #54c954));
-  background: -webkit-linear-gradient(#73d373, #54c954);
-  background: -moz-linear-gradient(#73d373, #54c954);
-  background: -o-linear-gradient(#73d373, #54c954);
-  background: linear-gradient(#73d373, #54c954);
-}
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000331}}
-.button-green:hover {
-  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #64ce64), color-stop(100%, #45c445));
-  background: -webkit-linear-gradient(#64ce64, #45c445);
-  background: -moz-linear-gradient(#64ce64, #45c445);
-  background: -o-linear-gradient(#64ce64, #45c445);
-  background: linear-gradient(#64ce64, #45c445);
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #7d9ae3), color-stop(100%, #3a66d4));
+  background: -webkit-linear-gradient(#7d9ae3, #3a66d4);
+  background: -moz-linear-gradient(#7d9ae3, #3a66d4);
+  background: -o-linear-gradient(#7d9ae3, #3a66d4);
+  background: linear-gradient(#7d9ae3, #3a66d4);
 }
 
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000379}}
+.button-red {
+  background: #e06777;
+  border: 1px solid #cf2a40;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #e78895), color-stop(100%, #d94558));
+  background: -webkit-linear-gradient(#e78895, #d94558);
+  background: -moz-linear-gradient(#e78895, #d94558);
+  background: -o-linear-gradient(#e78895, #d94558);
+  background: linear-gradient(#e78895, #d94558);
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000336}}
+.button-red:hover {
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #e37886), color-stop(100%, #d53449));
+  background: -webkit-linear-gradient(#e37886, #d53449);
+  background: -moz-linear-gradient(#e37886, #d53449);
+  background: -o-linear-gradient(#e37886, #d53449);
+  background: linear-gradient(#e37886, #d53449);
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000380}}
+.button-green {
+  background: #6abe71;
+  border: 1px solid #43984a;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #86ca8c), color-stop(100%, #4eb156));
+  background: -webkit-linear-gradient(#86ca8c, #4eb156);
+  background: -moz-linear-gradient(#86ca8c, #4eb156);
+  background: -o-linear-gradient(#86ca8c, #4eb156);
+  background: linear-gradient(#86ca8c, #4eb156);
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000336}}
+.button-green:hover {
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #78c47f), color-stop(100%, #48a34f));
+  background: -webkit-linear-gradient(#78c47f, #48a34f);
+  background: -moz-linear-gradient(#78c47f, #48a34f);
+  background: -o-linear-gradient(#78c47f, #48a34f);
+  background: linear-gradient(#78c47f, #48a34f);
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000384}}
+body {
+  margin: 0;
+  color: #333333;
+  font-family: 'PT Sans', sans-serif;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000390}}
+header {
+  position: fixed;
+  display: block;
+  top: 0;
+  width: 100%;
+  padding: 10px 0;
+  border-bottom: 1px solid #9ebaff;
+  background: #ebf0ff;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003100}}
+.header-links {
+  position: absolute;
+  right: 50px;
+  bottom: 3px;
+  color: #999999;
+  -webkit-font-smoothing: antialiased;
+  font-size: 18px;
+  font-weight: bold;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003108}}
+.header-links a {
+  color: #333333;
+  text-decoration: none;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003111}}
+.header-links a:hover {
+  text-decoration: underline;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003117}}
+h1 {
+  margin: 0;
+  text-align: center;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003122}}
 .content {
   margin: 0 auto;
   width: 1070px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000384}}
-h1 {
-  padding: 10px 0;
-  margin: 0;
-  text-align: center;
-  background: #ebebff;
-  border-bottom: 1px solid #b8b8ff;
-  width: 100%;
-  position: fixed;
-  top: 0;
-}
-
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\0000395}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003127}}
 .nav {
+  position: fixed;
+  float: left;
   width: 170px;
   top: 80px;
-  float: left;
-  position: fixed;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003101}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003133}}
 .nav li {
-  -webkit-transition: all 0.24s ease-in;
-  -moz-transition: all 0.24s ease-in;
-  -o-transition: all 0.24s ease-in;
-  transition: all 0.24s ease-in;
   margin: 14px 0;
   color: gray;
   font-size: 17px;
   -webkit-font-smoothing: antialiased;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003107}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003139}}
 .nav li:hover {
-  color: #7d9be8;
+  color: #96aee8;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003112}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003144}}
 .nav .selected {
-  color: #205ef8;
   color: #6d8ddf;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003115}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003147}}
 .nav .selected:hover {
-  color: #205ef8;
+  color: #6d8ddf;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003121}}
-.intro-text {
-  font-size: 20px;
-}
-
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003125}}
-p {
-  font-size: 14px;
-}
-
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003129}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003153}}
 .example-wrapper {
   margin-left: 220px;
   margin-top: 63px;
   float: left;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003135}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003159}}
 .example-container {
   float: left;
   margin: 0 0 15px;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003138}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003163}}
 .example-container h2 {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   font-size: 28px;
   padding-bottom: 4px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003145}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003170}}
+.intro-text {
+  font-size: 20px;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003177}}
+.example-list li {
+  padding: 10px;
+  margin: 10px 0;
+  background: #f0f0f0;
+  border: 1px solid #c9c9c9;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003182}}
+.example-list li:hover {
+  background: #96aee8;
+  border: 1px solid #587dda;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003187}}
+.example-list .selected {
+  background: #6d8ddf;
+  border: 1px solid #2e5cd1;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+  border-radius: 4px;
+  color: white;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003193}}
 .demo-container {
   width: 350px;
   margin-right: 40px;
   float: left;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003149}}
-.demo-container h3 {
-  margin: 0;
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003198}}
+.demo-container p {
+  font-size: 14px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003154}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003203}}
 pre {
   width: 428px;
   font-size: 12px;
   background: #23293e;
-  border: 1px solid #11131d;
+  border: 1px solid #07090d;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
   border-radius: 4px;
   padding: 15px;
   margin: 0;
   float: left;
   line-height: 18px;
-}
-
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003164}}
-.example-list li {
-  padding: 10px;
-  margin: 10px 0;
-  background: #f0f0f0;
-  border: 1px solid #d6d6d6;
-  border-radius: 4px;
-  -webkit-transition: all 0.24s ease-in;
-  -moz-transition: all 0.24s ease-in;
-  -o-transition: all 0.24s ease-in;
-  transition: all 0.24s ease-in;
-}
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003169}}
-.example-list li:hover {
-  background: #96aee8;
-  border: 1px solid #6d8ddf;
-  border-radius: 4px;
-}
-
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003174}}
-ul.collection-list, table.collection-list {
-  cursor: pointer;
-  list-style-type: none;
-  margin: 0;
-  outline: medium none;
-  overflow: hidden;
-  padding: 0;
-}
-
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003183}}
-ul.example-list li.selected, table.collection-list tr.selected {
-  /*background: none repeat scroll 0 0 #9EADD0;*/
-  background: #6d8ddf;
-  border: 1px solid #436cd6;
-  border-radius: 4px;
-  color: white;
 }

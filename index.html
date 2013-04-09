@@ -10,7 +10,9 @@
 </head>
 
 <body>
-	<h1>Backbone.CollectionView</h1>
+	<header>
+		<h1>Backbone.CollectionView</h1>
+	</header>
 	<div class="content">
 		<ul id="example-navigation" class="nav"></ul>
 		<div class="example-wrapper">
@@ -186,30 +188,17 @@ $('#demoAddToCollectionButton').click(function() {
 });</code>
 </pre>
 		</div>
+	</div>
 
+		<!--Underscore template for an employee view.  Used in a collection view rendered as a list.-->
+		<script type="text/html" id="example-template">
+		<%= example %>
+		</script>
 
-			<!--Collection view table will be displayed here-->
-			<table id="tableForCollection"></table>
-
-			<!--Underscore template for an employee view.  Used in a collection view rendered as a list.-->
-			<script type="text/html" id="example-template">
-			<%= example %>
-			</script>
-
-			<!--Underscore template for an employee view.  Used in a collection view rendered as a list.-->
-			<script type="text/html" id="employee-template">
-			Full name: <%= firstName %> <%= lastName %>
-			</script>
-
-			<!--Underscore template for an employee view.  Used in a collection view rendered as a table.-->
-			<script type="text/html" id="employee-template-for-table-list">
-			<td>Full name: <%= firstName %></b> <%= lastName %></td>
-			</script>
-
-			<div id="popup"></div>
-
-			</div>
-		</div>
+		<!--Underscore template for an employee view.  Used in a collection view rendered as a list.-->
+		<script type="text/html" id="employee-template">
+		Full name: <%= firstName %> <%= lastName %>
+		</script>
 
 		<script type="text/javascript" src="lib/jquery-1.9.1.js"></script>
 		<script type="text/javascript" src="lib/jquery-ui.js"></script>

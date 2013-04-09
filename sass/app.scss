@@ -1,28 +1,33 @@
 /*todo:*/
 /*make non-sortable/selectable rows differnt color and unhoverable*/
-// organize css based on page permission
-// Mixins and variables
+
+//// Mixins and variables
  @import "compass/css3/images";
  @import "compass/css3/border-radius";
  @import "compass/css3/text-shadow";
- @import "compass/css3/transition";
 
-$lightBlue : hsl(240, 100%, 96%);
-$blue: hsl(223, 64%, 65%);
-$blueGrey : hsl(223, 64%, 75%);
-$grey :  hsl(0, 0%, 94%);
-$orange: hsl(22, 100%, 63%);
-$red: hsl(351, 84%, 70%);
-$green: hsl(120, 52%, 60%);
+$blue:      hsl( 223,  64%,  65% );
+$orange:    hsl(  22, 100%,  63% );
+$red:       hsl( 351,  84%,  70% );
+$green:     hsl( 120,  52%,  60% );
+$navy:      hsl( 227,  27%,  19% );
 
-@mixin borderBox($color){
+$lightBlue: hsl( 223, 100%,  96% );
+$blueGrey:  hsl( 223,  64%,  75% );
+$grey:      hsl(   0,   0%,  94% );
+$white:     hsl(   0, 100%, 100% );
+
+$borderOffset:  15;
+$gradientOffset: 8;
+
+@mixin borderBox($color) {
 	background: $color;
-	border: 1px solid darken($color,10);
-	border-radius: 4px;
+	border: 1px solid darken($color, $borderOffset);
+	@include border-radius(4px);
 }
 
 @mixin gradientor($color){
-	@include background( linear-gradient(lighten($color,4), darken($color,4)));
+	@include background(linear-gradient(lighten($color, $gradientOffset), darken($color, $gradientOffset)));
 }
 
 @mixin buttonize($color){
@@ -33,16 +38,23 @@ $green: hsl(120, 52%, 60%);
 	}
 }
 
-body {
-	color: hsl(0, 0%, 20%);
-	font-family: 'PT Sans', sans-serif;
+//// General styles
+
+.collection-list {
+	list-style-type: none;
 	margin: 0;
+	outline: medium none;
+	overflow: hidden;
+	padding: 0;
+	li {
+		cursor: pointer;
+	}
 }
 
-button{
+button {
 	padding: 10px 14px;
-	color: hsl(0, 100%, 100%);
-	text-shadow: 0 -1px 0px hsla(0, 0%, 0%, 0.25);
+	color: $white;
+	@include text-shadow(0 -1px 0px hsla(0, 0%, 0%, 0.25));
 	font-family: 'PT Sans', sans-serif;
 	-webkit-font-smoothing: antialiased;
 	font-weight: bold;
@@ -53,27 +65,41 @@ button{
 	font-size: 20px;
 	margin: 20px 72px;
 }
+
 .button-small {
 	font-size: 14px;
 }
+
 .button-right{
 	float: right;
 }
 
-.button-orange{
-	@include buttonize($orange);
+.button-orange { @include buttonize($orange); }
+.button-blue   { @include buttonize($blue); }
+.button-red    { @include buttonize($red); }
+.button-green  { @include buttonize($green); }
+
+/// Page styles
+
+body {
+	margin: 0;
+	color: hsl(0, 0%, 20%);
+	font-family: 'PT Sans', sans-serif;
 }
 
-.button-blue {
-	@include buttonize($blue);
+header {
+	position: fixed;
+	display: block;
+	top: 0;
+	width: 100%;
+	padding: 10px 0;
+	border-bottom: 1px solid darken($lightBlue, $borderOffset);
+	background: $lightBlue;
 }
 
-.button-red {
-	@include buttonize($red);
-}
-
-.button-green {
-	@include buttonize($green);
+h1 {
+	margin: 0;
+	text-align: center;
 }
 
 .content {
@@ -81,49 +107,30 @@ button{
 	width: 1070px;
 }
 
-h1 {
-	padding: 10px 0;
-	margin: 0;
-	text-align: center;
-	background: $lightBlue;
-	border-bottom: 1px solid darken($lightBlue, 10);
-	width: 100%;
-	position: fixed;
-	top: 0;
-}
-
 .nav {
+	position: fixed;
+	float: left;
 	width: 170px;
 	top: 80px;
-	float: left;
-	position: fixed;
 
 	li {
-		@include single-transition(all, 0.24s, ease-in);
 		margin: 14px 0;
 		color: hsl(0, 0%, 50%);
 		font-size: 17px;
 		-webkit-font-smoothing: antialiased;
+
 		&:hover {
-			color: hsl(223, 70%, 70%);
+			color: $blueGrey;
 		}
 	}
 
-	.selected{
-		color: hsl(223, 94%, 55%);
+	.selected {
 		color: $blue;
+
 		&:hover {
-			color: hsl(223, 94%, 55%);
+			color: $blue;
 		}
 	}
-}
-
-.intro-text{
-	font-size: 20px;
-}
-
-p{
-	font-size: 14px;
 }
 
 .example-wrapper{
@@ -135,6 +142,7 @@ p{
 .example-container {
 	float: left;
 	margin: 0 0 15px;
+
 	h2 {
 		border-bottom: 1px solid hsla(0, 0%, 0%, 0.1);
 		font-size: 28px;
@@ -142,46 +150,45 @@ p{
 	}
 }
 
+.intro-text{
+	font-size: 20px;
+}
+
+
+.example-list {
+
+	li {
+		padding: 10px;
+		margin: 10px 0;
+		@include borderBox($grey);
+
+		&:hover{
+			@include borderBox($blueGrey);
+		}
+	}
+
+	.selected {
+		@include borderBox($blue);
+		color: $white;
+	}
+}
+
 .demo-container {
 	width: 350px;
 	margin-right: 40px;
 	float: left;
-	h3 {
-		margin: 0;
+
+	p {
+		font-size: 14px;
 	}
 }
 
-	pre{
-		width: 428px;
-		font-size: 12px;
-		@include borderBox(hsl(227, 27%, 19%));
-		padding: 15px;
-		margin:0;
-		float: left;
-		line-height: 18px;
-	}
-
-.example-list li{
-	padding: 10px;
-	margin: 10px 0;
-	@include borderBox($grey);
-	@include single-transition(all, 0.24s, ease-in);
-	&:hover{
-		@include borderBox($blueGrey);
-	}
-}
-
-ul.collection-list, table.collection-list {
-	cursor: pointer;
-	list-style-type: none;
-	margin: 0;
-	outline: medium none;
-	overflow: hidden;
-	padding: 0;
-}
-
-ul.example-list li.selected, table.collection-list tr.selected {
-	/*background: none repeat scroll 0 0 #9EADD0;*/
-	@include borderBox($blue);
-	color: white;
+pre {
+	width: 428px;
+	font-size: 12px;
+	@include borderBox($navy);
+	padding: 15px;
+	margin:0;
+	float: left;
+	line-height: 18px;
 }
