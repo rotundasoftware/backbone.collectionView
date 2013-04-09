@@ -1,37 +1,33 @@
 // Retruns the bottom bound of the example containers, to be used for the
 // scrollSpy and for navigating to examples
 function getContainerHeights (exampleContainers) {
-	var old = 0;
-	var headerHeight = 72;
-	return [headerHeight].concat(_.map(exampleContainers, function (container) {
-		var currentContainer = old + $(container).height() + 15;
-		old = currentContainer;
+	var marginHeight = 15;
+	var lastHeight = 0;
+
+	return _.map(exampleContainers, function (container) {
+		var currentContainer = lastHeight + $(container).height() + marginHeight;
+		lastHeight = currentContainer;
 		return currentContainer;
-	}));
+	});
 }
 
 $(document).ready(function() {
-	//// Navigation
 
-	// Increase document length based on window height. This is to ensure that
-	// when you scroll to the last example it will be at the top of the page
-	$('.example-wrapper').css({
-		marginBottom: $(window).height() - 415
-	});
-
+	// Store all example container divs so we can get their heights
 	var $containerDivs = $('.example-container');
 
+	// When the user scrolls, update the nav to show the current example
 	$(window).scroll(function () {
-    var currentNav;
+
 		var fromTop = $(document).scrollTop();
 		var containerHeights = getContainerHeights($containerDivs);
+
 		for (var i = 0; i < containerHeights.length; i++) {
 			if (containerHeights[i] > fromTop) {
-        currentNav = i - 1;
+				navView.setSelectedItem('c' + i);
 				break;
 			}
 		}
-    navView.setSelectedItem('c' + currentNav);
 	});
 
 
@@ -52,14 +48,14 @@ $(document).ready(function() {
 		el : $('#example-navigation'),
 		selectable : true,
 		collection : new Examples([
-			{example: 'Single Selection'},
-			{example: 'Multiple Selection'},
-			{example: 'Using arrow keys'},
-			{example: 'Sorting'},
-			{example: 'Adding and Removing'},
-			{example: 'Selected Event'},
-			{example: 'Filtering by selectable'},
-			{example: 'Filtering by sortable'}
+			new Example({example : 'Single Selection'}),
+			new Example({example : 'Multiple Selection'}),
+			new Example({example : 'Using arrow keys'}),
+			new Example({example : 'Sorting'}),
+			new Example({example : 'Adding and Removing'}),
+			new Example({example : 'Selected Event'}),
+			new Example({example : 'Filtering by selectable'}),
+			new Example({example : 'Filtering by sortable'})
 		]),
 		modelView : ExampleView
 	});
@@ -68,14 +64,23 @@ $(document).ready(function() {
 
 	// Navigate to newly selected example, this should be triggered by clicking
 	// and arrow keys but not by selection change caused by scrolling
-	navView.on('selectionChanged',function(newSelectedItems) {
+	navView.on('selectionChanged', function(newSelectedItems, oldSelectedItems) {
+
+		// Get scroll destination heights for each example
 		var containerHeights = getContainerHeights($containerDivs);
 
+		var scrollTarget;
+		if (newSelectedItems.length) {
+			scrollTarget = newSelectedItems[0];
+		} else {
+			scrollTarget = oldSelectedItems[0];
+		}
+
 		// cut the 'c' off the 'cid'
-		var containerNum = newSelectedItems[0].substring(1);
+		var containerNum = scrollTarget.substring(1);
 		
 		// scroll to selected example
-		window.scrollTo(0, containerHeights[containerNum]);
+		window.scrollTo(0, containerHeights[containerNum - 1]);
 	});
 
 	//// Examples
@@ -217,55 +222,12 @@ $(document).ready(function() {
 
 	sortableFilterView.render();
 
+	// Increase document length based on window height. This is to ensure that
+	// when you scroll to the last example, it will be at the top of the page
+	var headerHeight = 78;
+	var lastDiv = $(_.last($containerDivs)).height() + headerHeight;
 
-/*
-	viewCollection = new Backbone.CollectionView({
-		el : $('#listForCollection'),
-		selectable : true,
-		selectMultiple : true,
-		collection : createACollection(),
-		modelView : EmployeeView,
-		sortable : true,
-		sortableModelsFilter : function(model) {
-			return model.get("firstName") === 'Oleg';
-		}
+	$('.example-wrapper').css({
+		marginBottom: $(window).height() - lastDiv
 	});
-
-	viewCollection.render();
-
-  var EmployeeViewForTableList = Backbone.View.extend({
-
-		tagName : 'tr',
-
-		template : _.template($("#employee-template-for-table-list").html()),
-
-		initialize : function() {
-			console.log('employee view initialized');
-		},
-
-		render : function() {
-			var emp = this.model.toJSON();
-			var html = this.template(emp);
-			this.$el.append(html);
-		}
-	});
-
-	viewCollectionForTableList = new Backbone.CollectionView({
-		el : $('#tableForCollection'),
-		selectable : true,
-		selectMultiple : true,
-		collection : createACollection(),
-		modelView : EmployeeViewForTableList,
-		sortable : true,
-		sortableModelsFilter : function(model) {
-			return model.get("firstName") === 'Oleg';
-		}
-	});
-
-	viewCollectionForTableList.render();
-*/
-    //viewCollection.on("selectionChanged", function(newSelectedItems,oldSelectedItems) {
-	//	console.log('selection listener triggered');
-	//});
-
 });
