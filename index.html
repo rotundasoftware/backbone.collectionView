@@ -1,77 +1,225 @@
+<!DOCTYPE html>
 <html>
 
 <head>
 
-	<link href="lib/jquery-ui.css" rel="stylesheet"/>
+	<link href="css/blackboard.css" rel="stylesheet"/>
 	<link href="css/app.css" rel="stylesheet"/>
-  <script type="text/javascript" src="lib/jquery-1.9.1.js"></script>
-  <script type="text/javascript" src="lib/jquery-ui.js"></script>
-  <script type="text/javascript" src="lib/underscore.js"></script>
-  <script type="text/javascript" src="lib/backbone.js"></script>
-  <script type="text/javascript" src="lib/backbone.babysitter.js"></script>
-  <script type="text/javascript" src="lib/backbone.courier.js"></script>
-  <script type="text/javascript" src="lib/collectionView.js"></script>
-  <script type="text/javascript" src="js/app.js"></script>
+	<link href='http://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'>
 
 </head>
 
 <body>
+	<h1>Backbone.CollectionView</h1>
+	<div class="content">
+		<ul id="example-navigation" class="nav"></ul>
+		<div class="example-wrapper">
 
-<h1>Backbone.CollectionView</h1>
-
-<h2>This page is a demo of Backbone.CollectionView features</h2>
-<p>Feel free to take a look at the page source to find out how these demos are implemented.</p>
-
-<h3>Single Selection</h3>
-<p>Try clicking on a row, the background of the selected row will change.  There is now way to select multiple rows.</p>
-<ul id="demoSingleSelectionList"></ul>
-
-<h3>Multiple Selection</h3>
-<p>Select a row.  Then hold down command or shift and click on another row.  Multiple rows are selected.  If you held down shift, all the rows in between are selected.  Using command, only the two rows you clicked on are selected.</p>
-<ul id="demoMultipleSelectionList"></ul>
-
-<h3>Using arrow keys to change selection</h3>
-<p>Select a row.  Try using the up and down arrow keys.  The selected row will change.</p>
-<ul id="demoUpDownArrowSelection"></ul>
-
-<h3>Sorting</h3>
-<p>Click on a row and drag it to another location in the list.  The list re-arranges itself.  Click on the button below to see the contents of the backing collection.  You will see that that has been rearranged as well.</p>
-<input type="button" id="showModelSorting" value="See the collection contents"/><br/><br/>
-<ul id="demoSortable"></ul>
-
-<h3>Adding and Removing items from the List</h3>
-<p>Click on the buttons below to either add an item to the end of the collection, or remove the currently selected item.  The collection is automatically re-rendered for you.</p>
-<input type="button" id="demoAddToCollectionButton" value="Add an item to the collection"/><input type="button" id="demoRemoveFromCollectionButton" value="Remove the currently selected item"/><br/><br/>
-<ul id="demoAddAndRemoveFromList"></ul>
-
-<h3>Selected Event</h3>
-<p>Try selecting an element.  A popup will inform you of which item is the newly selected one and which one (if any was previously selected).</p>
-<ul id="demoSelectedEvent"></ul>
-
-<h3>Filtering which models are selectable</h3>
-<p>A function specifying that only models with a last name of 'Holmes' can be selectable was passed to the CollectionView.  John Watson is not selectable.</p>
-<ul id="demoSelectableFilter"></ul>
-
-<h3>Filtering which models are sortable</h3>
-<p>A function specifying that only models with a last name of 'Holmes' can be sorted (dragged and dropped) was passed to the CollectionView.  John Watson is not sortable.</p>
-<ul id="demoSortableFilter"></ul>
+		<div class="example-container">
+			<p class="intro-text">A backbone view class that renders a collection of models. This class is similar to the collection view classes found in Backbone.Marionette and other frameworks, with added features for automatic selection of models in response to clicks, and support for rearranging models (and reordering the underlying collection) through drag and drop.</p>
+			<button class="button-big button-orange">Download Minified Source</button>
+			<button class="button-big button-blue">Download Commented Source</button>
+		</div>
 
 
-	<!--Collection view table will be displayed here-->
-  <table id="tableForCollection"></table>
+		<div class="example-container">
+			<h2>Single Selection</h2>
+			<div class="demo-container">
+				<p>Try clicking on a row, the background of the selected row will change.  There is now way to select multiple rows.</p>
+				<ul id="demoSingleSelectionList" class="example-list"></ul>
+			</div>
+			<pre>
+<code data-language="javascript">var singleSelectionView = new Backbone.CollectionView({
+  el : $('#demoSingleSelectionList'),
+  selectable : true,
+  collection : createACollection(),
+  modelView : EmployeeView
+});</code>
+</pre>
+		</div>
 
-	<!--Underscore template for an employee view.  Used in a collection view rendered as a list.-->
-  <script type="text/html" id="employee-template">
-    Full name: <%= firstName %> <%= lastName %>
-  </script>
 
-	<!--Underscore template for an employee view.  Used in a collection view rendered as a table.-->
-  <script type="text/html" id="employee-template-for-table-list">
-    <td>Full name: <%= firstName %></b> <%= lastName %></td>
-  </script>
+		<div class="example-container">
+			<h2>Multiple Selection</h2>
+			<div class="demo-container">
+				<p>Select a row.  Then hold down command or shift and click on another row.  Multiple rows are selected.  If you held down shift, all the rows in between are selected.  Using command, only the two rows you clicked on are selected.</p>
+				<ul id="demoMultipleSelectionList" class="example-list"></ul>
+			</div>
+			<pre>
+<code data-language="javascript">var multipleSelectionView = new Backbone.CollectionView({
+  el : $('#demoMultipleSelectionList'),
+  selectable : true,
+  selectMultiple : true,
+  collection : createACollection(),
+  modelView : EmployeeView
+});</code>
+</pre>
+		</div>
 
-	<div id="popup"></div>
 
+		<div class="example-container">
+			<h2>Using arrow keys to change selection</h2>
+			<div class="demo-container">
+				<p>Select a row.  Try using the up and down arrow keys.  The selected row will change.</p>
+				<ul id="demoUpDownArrowSelection" class="example-list"></ul>
+			</div>
+			<pre>
+<code data-language="javascript">var arrowSelectionView = new Backbone.CollectionView({
+  el : $('#demoUpDownArrowSelection'),
+  selectable : true,
+  collection : createACollection(),
+  modelView : EmployeeView
+});</code>
+</pre>
+		</div>
+
+
+		<div class="example-container">
+			<h2>Sorting</h2>
+			<div class="demo-container">
+				<p>Click on a row and drag it to another location in the list.  The list re-arranges itself.  Click on the button below to see the contents of the backing collection.  You will see that that has been rearranged as well.</p>
+				<button id="showModelSorting" class="button-small button-blue">See the collection contents</button>
+				<ul id="demoSortable" class="example-list"></ul>
+			</div>
+			<pre>
+<code data-language="javascript"> var sortableView = new Backbone.CollectionView({
+  el : $('#demoSortable'),
+  selectable : true,
+  sortable : true,
+  collection : createACollection(),
+  modelView : EmployeeView
+});</code>
+</pre>
+		</div>
+
+
+		<div class="example-container">
+			<h2>Adding and Removing items from the List</h2>
+			<div class="demo-container">
+				<p>Click on the buttons below to either add an item to the end of the collection, or remove the currently selected item.  The collection is automatically re-rendered for you.</p>
+				<button id="demoAddToCollectionButton" class="button-small button-green">Add item</button>
+				<button id="demoRemoveFromCollectionButton" class="button-small button-right button-red">Remove selected item</button>
+				<ul id="demoAddAndRemoveFromList" class="example-list"></ul>
+			</div>
+			<pre>
+<code data-language="javascript"> $('#demoRemoveFromCollectionButton').click(function() {
+
+  var curSelectedModel = addRemoveItemView.getSelectedItem({
+    by : "model"
+  });
+
+  if (curSelectedModel) {
+    addRemoveItemView.collection.remove(curSelectedModel);
+  }
+});
+
+$('#demoAddToCollectionButton').click(function() {
+  addRemoveItemView.collection.add({
+    firstName : 'Super',lastName : 'Sleuth'
+  });
+});</code>
+</pre>
+		</div>
+
+		<div class="example-container">
+			<h2>Selected Event</h2>
+			<div class="demo-container">
+				<p>Try selecting an element.  A popup will inform you of which item is the newly selected one and which one (if any was previously selected).</p>
+				<ul id="demoSelectedEvent" class="example-list"></ul>
+			</div>
+			<pre>
+<code data-language="javascript">selectedEventView.on("selectionChanged", function(
+  newSelectedItems,
+  oldSelectedItems
+) {
+
+  if (newSelectedItems.length === 1) {
+    var newSelectedModel = this.viewManager.findByModel(
+      this.collection.get( newSelectedItems[0] )
+    ).model;
+    alert('The newly selected model: ' +
+          newSelectedModel.get('firstName') + ' ' +
+          newSelectedModel.get('lastName'));
+  }
+  else {
+    alert('All items were unselected.');
+  }
+});</code>
+</pre>
+		</div>
+
+		<div class="example-container">
+			<h2>Filtering which models are selectable</h2>
+			<div class="demo-container">
+				<p>A function specifying that only models with a last name of 'Holmes' can be selectable was passed to the CollectionView.  John Watson is not selectable.</p>
+				<ul id="demoSelectableFilter" class="example-list"></ul>
+			</div>
+			<pre>
+<code data-language="javascript">var selectableFilterView = new Backbone.CollectionView({
+  el : $('#demoSelectableFilter'),
+  selectable : true,
+  collection : createACollection(),
+  modelView : EmployeeView,
+  selectableModelsFilter : function(model) {
+    return model.get('lastName') === 'Holmes';
+  }
+});</code>
+</pre>
+		</div>
+
+		<div class="example-container">
+			<h2>Filtering which models are sortable</h2>
+			<div class="demo-container">
+				<p>A function specifying that only models with a last name of 'Holmes' can be sorted (dragged and dropped) was passed to the CollectionView.  John Watson is not sortable.</p>
+				<ul id="demoSortableFilter" class="example-list"></ul>
+			</div>
+			<pre>
+<code data-language="javascript"> var sortableFilterView = new Backbone.CollectionView({
+  el : $('#demoSortableFilter'),
+  selectable : true,
+  sortable : true,
+  collection : createACollection(),
+  modelView : EmployeeView,
+  sortableModelsFilter : function(model) {
+    return model.get('lastName') === 'Holmes';
+  }
+});</code>
+</pre>
+		</div>
+
+
+			<!--Collection view table will be displayed here-->
+			<table id="tableForCollection"></table>
+
+			<!--Underscore template for an employee view.  Used in a collection view rendered as a list.-->
+			<script type="text/html" id="example-template">
+			<%= example %>
+			</script>
+
+			<!--Underscore template for an employee view.  Used in a collection view rendered as a list.-->
+			<script type="text/html" id="employee-template">
+			Full name: <%= firstName %> <%= lastName %>
+			</script>
+
+			<!--Underscore template for an employee view.  Used in a collection view rendered as a table.-->
+			<script type="text/html" id="employee-template-for-table-list">
+			<td>Full name: <%= firstName %></b> <%= lastName %></td>
+			</script>
+
+			<div id="popup"></div>
+
+			</div>
+		</div>
+
+		<script type="text/javascript" src="lib/jquery-1.9.1.js"></script>
+		<script type="text/javascript" src="lib/jquery-ui.js"></script>
+		<script type="text/javascript" src="lib/underscore.js"></script>
+		<script type="text/javascript" src="lib/backbone.js"></script>
+		<script type="text/javascript" src="lib/backbone.babysitter.js"></script>
+		<script type="text/javascript" src="lib/backbone.courier.js"></script>
+		<script type="text/javascript" src="lib/collectionView.js"></script>
+		<script type="text/javascript" src="lib/rainbow-custom.min.js"></script>
+		<script type="text/javascript" src="js/app.js"></script>
 </body>
 
 </html>
