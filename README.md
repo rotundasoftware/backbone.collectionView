@@ -51,7 +51,7 @@ The following options expect a filter function that takes a single parameter, th
 * __getSelectedModel( [options] )__ Returns references to the selected model(s). (See discussion below.)
 * __setOption( optionName, optionValue )__ Updates the value of a configuration option.  All constructor options above are valid except `el`.  The CollectionView is automatically re-rendered if necessary.
 * __collection__ The Backbone collection instance that this CollectionView represents.
-* __viewManager__ A [Backbone.BabySitter](https://github.com/marionettejs/backbone.babysitter) instance that contains the model views that are created to represent the individual models in the collection (when the CollectionView is rendered).
+* __viewManager__ A [Backbone.BabySitter](https://github.com/marionettejs/backbone.babysitter) instance that contains the model views for each of the individual models in the collection. The Babysitter is a powerful but simple "view collection" implementation that enables you to, for example, iterate through all the model views, or easily trigger an event on all model views at once. See the [Backbone.BabySitter](https://github.com/marionettejs/backbone.babysitter) documentation for more information.
 
 
 ### <a name="setSelectedModel"></a>setSelectedModel(s) and getSelectedModel(s)
