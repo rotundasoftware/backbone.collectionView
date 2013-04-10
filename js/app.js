@@ -1,19 +1,104 @@
-  
+// Retruns the bottom bound of the example containers, to be used for the
+// scrollSpy and for navigating to examples
+function getContainerHeights (exampleContainers) {
+	var marginHeight = 15;
+	var lastHeight = 0;
+
+	return _.map(exampleContainers, function (container) {
+		var currentContainer = lastHeight + $(container).height() + marginHeight;
+		lastHeight = currentContainer;
+		return currentContainer;
+	});
+}
+
 $(document).ready(function() {
 
-	var Employee = Backbone.Model.extend({});
-  var Employees = Backbone.Collection.extend({ model : Employee});
+	// Store all example container divs so we can get their heights
+	var $containerDivs = $('.example-container');
 
-  function createACollection() {
-	  var emp1 = new Employee({firstName : 'Sherlock', lastName : 'Holmes'});
-	  var emp2 = new Employee({firstName : 'John', lastName : 'Watson'});
-	  var emp3 = new Employee({firstName : 'Mycroft', lastName : 'Holmes'});
-		return new Employees([emp1,emp2,emp3]);
+	// When the user scrolls, update the nav to show the current example
+	$(window).scroll(function () {
+
+		var fromTop = $(document).scrollTop();
+		var containerHeights = getContainerHeights($containerDivs);
+
+		for (var i = 0; i < containerHeights.length; i++) {
+			if (containerHeights[i] > fromTop) {
+				navView.setSelectedItem('c' + i);
+				break;
+			}
+		}
+	});
+
+
+	var ExampleView = Backbone.View.extend({
+
+		template : _.template($('#example-template').html()),
+
+		render : function() {
+			var emp = this.model.toJSON();
+			var html = this.template(emp);
+			this.$el.append(html);
+		}
+	});
+
+	var Example = Backbone.Model.extend({});
+	var Examples = Backbone.Collection.extend({ model : Example });
+	var navView = new Backbone.CollectionView({
+		el : $('#example-navigation'),
+		selectable : true,
+		collection : new Examples([
+			new Example({example : 'Single Selection'}),
+			new Example({example : 'Multiple Selection'}),
+			new Example({example : 'Using arrow keys'}),
+			new Example({example : 'Sorting'}),
+			new Example({example : 'Adding and Removing'}),
+			new Example({example : 'Selected Event'}),
+			new Example({example : 'Filtering by selectable'}),
+			new Example({example : 'Filtering by sortable'})
+		]),
+		modelView : ExampleView
+	});
+
+	navView.render();
+
+	// Navigate to newly selected example, this should be triggered by clicking
+	// and arrow keys but not by selection change caused by scrolling
+	navView.on('selectionChanged', function(newSelectedItems, oldSelectedItems) {
+
+		// Get scroll destination heights for each example
+		var containerHeights = getContainerHeights($containerDivs);
+
+		var scrollTarget;
+		if (newSelectedItems.length) {
+			scrollTarget = newSelectedItems[0];
+		} else {
+			scrollTarget = oldSelectedItems[0];
+		}
+
+		// cut the 'c' off the 'cid'
+		var containerNum = scrollTarget.substring(1);
+		
+		// scroll to selected example
+		window.scrollTo(0, containerHeights[containerNum - 1]);
+	});
+
+	//// Examples
+
+	var Employee = Backbone.Model.extend({});
+	var Employees = Backbone.Collection.extend({ model : Employee});
+
+	function createACollection() {
+		return new Employees([
+			new Employee({firstName : 'Sherlock', lastName : 'Holmes'}),
+			new Employee({firstName : 'John', lastName : 'Watson'}),
+			new Employee({firstName : 'Mycroft', lastName : 'Holmes'})
+		]);
 	}
 
-  var EmployeeView = Backbone.View.extend({
+	var EmployeeView = Backbone.View.extend({
 
-		template : _.template($("#employee-template").html()),
+		template : _.template($('#employee-template').html()),
 
 		render : function() {
 			var emp = this.model.toJSON();
@@ -79,7 +164,7 @@ $(document).ready(function() {
 
 	$('#demoRemoveFromCollectionButton').click(function() {
 
-		var curSelectedModel = addRemoveItemView.getSelectedItem( { by : "model" } );
+		var curSelectedModel = addRemoveItemView.getSelectedItem( { by : 'model' } );
 
 		if(curSelectedModel) {
 			addRemoveItemView.collection.remove(curSelectedModel);
@@ -88,7 +173,7 @@ $(document).ready(function() {
 
 	$('#demoAddToCollectionButton').click(function() {
 
-		addRemoveItemView.collection.add({firstName : 'Super',lastName : 'Sleuth'});
+		addRemoveItemView.collection.add({firstName : 'Super', lastName : 'Sleuth'});
 
 	});
 
@@ -99,7 +184,7 @@ $(document).ready(function() {
 		modelView : EmployeeView
 	});
 
-	selectedEventView.on("selectionChanged",function(newSelectedItems,oldSelectedItems) {
+	selectedEventView.on('selectionChanged', function(newSelectedItems) {
 
 		if(newSelectedItems.length === 1) {
 			var newSelectedModel = this.viewManager.findByModel( this.collection.get( newSelectedItems[0] ) ).model;
@@ -108,7 +193,6 @@ $(document).ready(function() {
 		else {
 			alert('All items were unselected.');
 		}
-
 	});
 
 	selectedEventView.render();
@@ -138,57 +222,12 @@ $(document).ready(function() {
 
 	sortableFilterView.render();
 
+	// Increase document length based on window height. This is to ensure that
+	// when you scroll to the last example, it will be at the top of the page
+	var headerHeight = 78;
+	var lastDiv = $(_.last($containerDivs)).height() + headerHeight;
 
-/*
-	viewCollection = new Backbone.CollectionView({
-		el : $('#listForCollection'),
-		selectable : true,
-		selectMultiple : true,
-		collection : createACollection(),
-		modelView : EmployeeView,
-		sortable : true,
-		sortableModelsFilter : function(model) {
-			return model.get("firstName") === 'Oleg';
-		}
+	$('.example-wrapper').css({
+		marginBottom: $(window).height() - lastDiv
 	});
-
-	viewCollection.render();
-
-  var EmployeeViewForTableList = Backbone.View.extend({
-
-		tagName : 'tr',
-
-		template : _.template($("#employee-template-for-table-list").html()),
-
-		initialize : function() {
-			console.log('employee view initialized');
-		},
-
-		render : function() {
-			var emp = this.model.toJSON();
-			var html = this.template(emp);
-			this.$el.append(html);
-		}
-	});
-
-
-	viewCollectionForTableList = new Backbone.CollectionView({
-		el : $('#tableForCollection'),
-		selectable : true,
-		selectMultiple : true,
-		collection : createACollection(),
-		modelView : EmployeeViewForTableList,
-		sortable : true,
-		sortableModelsFilter : function(model) {
-			return model.get("firstName") === 'Oleg';
-		}
-	});
-
-	viewCollectionForTableList.render();
-*/
-    //viewCollection.on("selectionChanged", function(newSelectedItems,oldSelectedItems) {
-	//	console.log('selection listener triggered');
-	//});
-
 });
-
