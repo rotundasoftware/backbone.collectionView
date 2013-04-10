@@ -56,7 +56,7 @@ The following options expect a filter function that takes a single parameter, th
 
 ### <a name="setSelectedModel"></a>setSelectedModel(s) and getSelectedModel(s)
 
-The `getSelectedModel(s)` and `setSelectedModel(s)` methods are used to get or set the currently selected models. The methods are able to reference models in a variety of ways. For instance, it is possible to set the currently selected model using the model's `cid`, using the model's `id`, or using the model object itself. The magic is in the `by` option:
+The `getSelectedModel(s)` and `setSelectedModel(s)` methods are used to get or set the currently selected models. The methods are able to reference models in a variety of ways. For instance, it is possible to set the currently selected model using the model object itself (the default), the model's `cid`, or the model's `id`. The magic is in the `by` option:
 
 ```javascript
 // Returns an array of the selected models
@@ -77,14 +77,13 @@ myCollectionView.getSelectedModel( { by : "view" } );
 
 As shown in the examples, the plural versions of the methods expect / return an array of "model references", whereas the singular versions expect / return just a single "model reference".
 
-There are five valid values for `by` option, which correspond to the type of "model reference" expected / returned:
-* `"model"` : The model object itself. (This is the default value of the `by` option.)
+There are four valid values for `by` option, which correspond to the type of "model reference" expected / returned.
 * `"cid"` : The `cid` of the model.
 * `"id"` : The `id` of the model.
 * `"view"` : The view that was created to represent the model when the CollectionView was rendered.
 * `"offset"` : The zero-based index of the model in the collection, only counting models currently visible in the CollectionView.
 
-In addition to the `by` option, the `setSelectedModel(s)` function accepts one additional option, `silent`, which, when true, will prevent the `selectionChanged` event from being fired.
+If no `by` option is provided the model object itself is expected / returned. Additionally, the `setSelectedModel(s)` function accepts one additional option, `silent`, which, when true, will prevent the `selectionChanged` event from being fired.
 
 ##Events Fired
 CollectionViews `trigger` the following events on themselves. You can respond to these events from another view using Backbone's `listenTo` method. If [Backbone.Courier](https://github.com/rotundasoftware/backbone.courier)
