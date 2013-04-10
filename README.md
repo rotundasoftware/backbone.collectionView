@@ -78,10 +78,10 @@ myCollectionView.getSelectedModel( { by : "view" } );
 As shown in the examples, the plural versions of the methods expect / return an array of "model references", whereas the singular versions expect / return just a single "model reference".
 
 There are four valid values for `by` option, which correspond to the type of "model reference" expected / returned.
-* `"cid"` : The `cid` of the model.
 * `"id"` : The `id` of the model.
-* `"view"` : The view that was created to represent the model when the CollectionView was rendered.
+* `"cid"` : The `cid` of the model.
 * `"offset"` : The zero-based index of the model in the collection, only counting models currently visible in the CollectionView.
+* `"view"` : The view that was created to represent the model when the CollectionView was rendered.
 
 If no `by` option is provided the model object itself is expected / returned. Additionally, the `setSelectedModel(s)` function accepts one additional option, `silent`, which, when true, will prevent the `selectionChanged` event from being fired.
 
