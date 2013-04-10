@@ -24,7 +24,7 @@ $(document).ready(function() {
 
 		for (var i = 0; i < containerHeights.length; i++) {
 			if (containerHeights[i] > fromTop) {
-				navView.setSelectedItem('c' + i);
+				navView.setSelectedModel('c' + i, { by : "cid" } );
 				break;
 			}
 		}
@@ -64,16 +64,16 @@ $(document).ready(function() {
 
 	// Navigate to newly selected example, this should be triggered by clicking
 	// and arrow keys but not by selection change caused by scrolling
-	navView.on('selectionChanged', function(newSelectedItems, oldSelectedItems) {
+	navView.on('selectionChanged', function(newSelectedModels, oldSelectedModels) {
 
 		// Get scroll destination heights for each example
 		var containerHeights = getContainerHeights($containerDivs);
 
 		var scrollTarget;
-		if (newSelectedItems.length) {
-			scrollTarget = newSelectedItems[0];
+		if (newSelectedModels.length) {
+			scrollTarget = newSelectedModels[0].cid;
 		} else {
-			scrollTarget = oldSelectedItems[0];
+			scrollTarget = oldSelectedModels[0].cid;
 		}
 
 		// cut the 'c' off the 'cid'
@@ -164,7 +164,7 @@ $(document).ready(function() {
 
 	$('#demoRemoveFromCollectionButton').click(function() {
 
-		var curSelectedModel = addRemoveItemView.getSelectedItem( { by : 'model' } );
+		var curSelectedModel = addRemoveItemView.getSelectedModel();
 
 		if(curSelectedModel) {
 			addRemoveItemView.collection.remove(curSelectedModel);
@@ -184,10 +184,10 @@ $(document).ready(function() {
 		modelView : EmployeeView
 	});
 
-	selectedEventView.on('selectionChanged', function(newSelectedItems) {
+	selectedEventView.on('selectionChanged', function(newSelectedModels) {
 
-		if(newSelectedItems.length === 1) {
-			var newSelectedModel = this.viewManager.findByModel( this.collection.get( newSelectedItems[0] ) ).model;
+		if(newSelectedModels.length === 1) {
+			var newSelectedModel = newSelectedModels[0];
 			alert('The newly selected model: ' + newSelectedModel.get('firstName') + ' ' + newSelectedModel.get('lastName'));
 		}
 		else {
