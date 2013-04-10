@@ -8,14 +8,13 @@ Depends on jQuery and jQueryUI for event handling and sorting, respectively.
 
 ## Benefits
 
-* Provides a easy way to render a collection of models.
-* Supports single and multiple selection through meta-key and shift clicks, as you would expect from a multi-SELECT element.
-* Adds "selected" css class to selected `<li>` or `<tr>`, allowing you to easily style selected items.
-* Allows a user to reorder the collection by dragging and dropping and automatically applies the new order to the collection.
+* Provides a view that renders a collection of models, updating automatically when models are added or removed.
 * Keeps track of selected model(s) and fires events when the selection is changed.
+* Adds "selected" css class to selected `<li>` or `<tr>`, allowing you to easily style selected model views.
+* Supports single and multiple selection through meta-key and shift clicks, as you would expect from a multi-SELECT element.
+* Allows a user to reorder the collection by dragging and dropping and automatically applies the new order to the collection.
 * Supports changing the currently selected model(s) through up and down arrow key presses.
 * Allows you to filter which models are visible, selectable, and sortable.
-* Fires a variety of events allowing you to add your own behavior based on user actions.
 * Integrates with [Backboune.Courier](https://github.com/rotundasoftware/backbone.courier) out of the box.
 
 ## Sample Usage
@@ -31,14 +30,14 @@ myCollectionView.setSelectedModel( employeeCollection.first() );
 ```
 
 ## Options accepted by the CollectionView constructor
-* `el` : A `ul` or `table` element. If you supply a `table` element, make sure your modelView has elements of type of `tr`. If this option is not supplied, a new `ul` element will be created and used.
+* `el` : A `ul` or `table` element. If you supply a `ul` element, your modelView's element can be of any type, but if you supply a `table` element, make sure your modelView has elements of type of `tr`. (If no `el` is supplied, a new `ul` element will be created and used.)
 * `collection` : The collection of models to be rendered.
-* `modelView` : The view constructor that will be used to render the models in the collection.
+* `modelView` : The view constructor that will be used to create the views for each individual model in the collection.
 * `selectable` : (default: _true_) Determines whether models in the CollectionView are selectable.
 * `clickToSelect` : (default: _true_) In a selectable CollectionView, determines whether mouse clicks should select models as would be appropriate in a standard HTML mutli-SELECT element.
 * `processKeyEvents` : (default: _true_) In a selectable CollectionView, determines whether the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-SELECT element.
 * `selectMultiple` : (default: _false_) In a selectable CollectionView, determines whether multiple models can be selected at once.
-* `clickToToggle` : (default: _false_) In a selectable CollectionView, determines whether clicking an item should toggle its selected / unselected state. Only applies if selectMultiple == true.
+* `clickToToggle` : (default: _false_) In a selectable CollectionView, determines whether clicking a model view should toggle its selected / unselected state. Only applies if selectMultiple == true.
 * `sortable` : (default: _false_) Determines whether models can be rearranged by dragging and dropping. (jQueryUI required.)
 
 The following options expect a filter function that takes a single parameter, the model in question, and returns true or false.
@@ -60,11 +59,14 @@ The following options expect a filter function that takes a single parameter, th
 The `getSelectedModel(s)` and `setSelectedModel(s)` methods are used to get or set the currently selected models. The methods are able to reference models in a variety of ways. For instance, it is possible to set the currently selected model using the model's `cid`, using the model's `id`, or using the model object itself. The magic is in the `by` option:
 
 ```javascript
+// Returns an array of the selected models
+myCollectionView.getSelectedModels();
+
+// Returns an array of the ids of the selected models
+myCollectionView.getSelectedModels( { by : "id" } );
+
 // Select model id 2 and model id 4
 myCollectionView.setSelectedModels( [ 2, 4 ], { by : "id" } );
-
-// Returns an array of the selected models
-myCollectionView.getSelectedModels(); // the "by" option defaults to "model"
 
 // Select the model with cid equal to "c21"
 myCollectionView.setSelectedModel( "c21", { by : "cid" } );
@@ -90,9 +92,9 @@ CollectionViews `trigger` the following events on themselves. You can respond to
 * __"selectionChanged"__ ( _newSelectedModels, oldSelectedModels_ )  Fired whenever the selection is changed, either by the user or by a programmatic call to `setSelectedModel(s)`.
 * __"updateDependentControls"__ ( _selectedModels_ ) Fired whenever controls that are dependent on the selection should be updated (e.g. buttons that should be disabled on no selection). This event is always fired just after `selectionChanged` is fired. In addition, it is fired after rendering and sorting.
 * __"doubleClick"__ ( _clickedModel_ ) Fired when a model view is double clicked.
-* __"sortStart"__  Fired just as an item is starting to be dragged. (Sortable collection lists only.)
-* __"sortStop"__  Fired when a drag of an item is finished, but before the collection has been reordered. (Sortable collection lists only.)
-* __"reorder"__  Fired after a drag of an item is finished and after the collection has been reordered. (Sortable collection lists only.)
+* __"sortStart"__  Fired just as a model view is starting to be dragged. (Sortable collection lists only.)
+* __"sortStop"__  Fired when a drag of a model view is finished, but before the collection has been reordered. (Sortable collection lists only.)
+* __"reorder"__  Fired after a drag of a model view is finished and after the collection has been reordered. (Sortable collection lists only.)
 
 ##Dependencies
 * Backbone.js (tested with v0.9.10)
