@@ -8,8 +8,8 @@
 
 $blue:      hsl( 223,  64%,  65% );
 $orange:    hsl(  22, 100%,  63% );
-$red:       hsl( 351,  84%,  70% );
-$green:     hsl( 120,  52%,  60% );
+$red:       hsl( 352,  66%,  64% );
+$green:     hsl( 125,  39%,  58% );
 $navy:      hsl( 227,  27%,  19% );
 
 $lightBlue: hsl( 223, 100%,  96% );
@@ -95,6 +95,23 @@ header {
 	padding: 10px 0;
 	border-bottom: 1px solid darken($lightBlue, $borderOffset);
 	background: $lightBlue;
+}
+
+.header-links {
+	position: absolute;
+	right: 50px;
+	bottom: 3px;
+	color: hsl(0, 0%, 60%);
+	-webkit-font-smoothing: antialiased;
+	font-size: 18px;
+	font-weight: bold;
+	a {
+		color: hsl(0, 0%, 20%);
+		text-decoration: none;
+		&:hover {
+			text-decoration: underline;
+		}
+	}
 }
 
 h1 {
