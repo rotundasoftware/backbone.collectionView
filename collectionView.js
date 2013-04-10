@@ -1,5 +1,5 @@
 /*!
- * Backbone.CollectionView, v0.4.1
+ * Backbone.CollectionView, v0.4.5
  * Copyright (c)2013 Rotunda Software, LLC.
  * Distributed under MIT license
  * http://github.com/rotundasoftware/backbone-collection-view
@@ -8,7 +8,7 @@
 (function(){
 	var mDefaultModelViewConstructor = Backbone.View;
 
-	var kDefaultReferenceBy = "cid";
+	var kDefaultReferenceBy = "model";
 
 	var kAllowedOptions = [ "collection", "modelView", "modelViewOptions", "itemTemplate",
 														"selectable", "clickToSelect", "selectableModelsFilter", "visibleModelsFilter",
@@ -51,7 +51,7 @@
 					selectableModelsFilter : null,
 					visibleModelsFilter : null,
 					sortableModelsFilter : null,
-					selectMultiple : true,
+					selectMultiple : false,
 					clickToToggle : false,
 					processKeyEvents : true,
 					sortable : false
@@ -73,11 +73,12 @@
 			if( this.processKeyEvents )
 				this.$el.attr( "tabindex", 0 ); // so we get keyboard events
 			
+
 			if( this.$el.next().is( "div.empty-list-description" ) && ! _.isUndefined( Rotunda.Views.EmptyListDescription ) )
 				this.emptyListDescriptionView = new Rotunda.Views.EmptyListDescription( {
 					el : this.$el.next(),
 					collectionListView : this,
-					udpateStateCallback : this.emptyListDescriptionUpdateStateCallback
+					udpateStateCallback : options.emptyListDescriptionUpdateStateCallback
 				} );
 			
 			this.selectedItems = [];
@@ -142,11 +143,11 @@
 						case "selectMultiple" : 
 							this[ name ] = value;
 							if( !value && this.selectedItems.length > 1 )
-								this.setSelectedItem( _.first( this.selectedItems ) );
+								this.setSelectedModel( _.first( this.selectedItems ), { by : "cid" } );
 							break;
 						case "selectable" :
 							if( !value && this.selectedItems.length > 0 )
-								this.setSelectedItems( [] );
+								this.setSelectedModels( [] );
 							this[ name ] = value;
 							break;
 						case "selectableModelsFilter" :
@@ -186,20 +187,11 @@
 			this.render();
 		},
 		
-		getSelectedItem : function() {
-			return this.selectedItems[0];
+		getSelectedModel : function( options ) {
+			return _.first( this.getSelectedModels( options ) );
 		},
 
-		getSelectedItem : function( options ) {
-			return _.first( this.getSelectedItems( options ) );
-		},
-
-		
-		getSelectedItems : function() {
-			return this.selectedItems;
-		},
-
-		getSelectedItems : function ( options ) {
+		getSelectedModels : function ( options ) {
 
 			var _this = this;
 
@@ -216,13 +208,13 @@
 			switch( referenceBy ) {
 				case "id" :
 					_.each(this.selectedItems, function ( item ) {
-						items.push( _this.viewManager.findByModel( _this.collection.get( item ) ).model.id );
+						items.push( _this.collection.get( item ).id );
 					});
 					break;
 				case "cid" :
 					items = items.concat( this.selectedItems );
 					break;
-				case "line" :
+				case "offset" :
 					var curLineNumber = 0;
 					this.$el.find( "> [data-item-id]:visible" ).each( function() {
 						var thisItemEl = $( this );
@@ -233,10 +225,10 @@
 					break;
 				case "model" :
 					_.each(this.selectedItems, function ( item ) {
-						items.push( _this.viewManager.findByModel( _this.collection.get( item ) ).model );
+						items.push( _this.collection.get( item ) );
 					});
 					break;
-				case "modelView" :
+				case "view" :
 					_.each(this.selectedItems, function ( item ) {
 						items.push( _this.viewManager.findByModel( _this.collection.get( item ) ) );
 					});
@@ -274,12 +266,12 @@
 			return viewEls;
 		},
 		
-		setSelectedItems : function( newSelectedItems, options ) {
+		setSelectedModels : function( newSelectedItems, options ) {
 			if( ! this.selectable ) throw "Attempt to set selected items on non-selectable list";
 			if( ! _.isArray( newSelectedItems ) ) throw "Invalid parameter value";
 
 			options = _.extend( {}, {
-				silent : true,
+				silent : false,
 				by : kDefaultReferenceBy
 			}, options );
 
@@ -300,12 +292,12 @@
 				case "model" :
 					newSelectedItemsTemp = _.pluck( newSelectedItems, "cid" );
 					break;
-				case "modelView" :
+				case "view" :
 					_.each(newSelectedItems, function ( item ) {
 						newSelectedItemsTemp.push( item.model.cid );
 					});
 					break;
-				case "line" :
+				case "offset" :
 					var curLineNumber = 0;
 					var selectedItems = [];
 					this.$el.find( "> [data-item-id]:visible" ).each( function() {
@@ -319,21 +311,25 @@
 					throw "The referenceBy property was not properly set"
 			};
 
-			var oldSelectedItems = _.clone( this.selectedItems );
+			var oldSelectedModels = this.getSelectedModels();
+			var oldSelectedCids = _.clone( this.selectedItems );
+
 			this.selectedItems = this._convertStringsToInts( newSelectedItemsTemp );
 			this._validateSelection();
+
+			var newSelectedModels = this.getSelectedModels();
 			
-			if( ! this._containSameElements( this.selectedItems, oldSelectedItems ) )
+			if( ! this._containSameElements( oldSelectedCids, this.selectedItems ) )
 			{
-				this._addSelectedClassToSelectedItems( oldSelectedItems );
+				this._addSelectedClassToSelectedItems( oldSelectedCids );
 
 				if( ! options.silent )
 				{
-					this.trigger( "selectionChanged", this.selectedItems, oldSelectedItems );
+					this.trigger( "selectionChanged", newSelectedModels, oldSelectedModels );
 					if( this._isBackboneCourierAvailable() ) {
 						this.spawn( "selectionChanged", {
-							selectedItems : this.selectedItems,
-							oldSelectedItems : oldSelectedItems
+							selectedModels : newSelectedModels,
+							oldSelectedModels : oldSelectedModels
 						} );
 					}
 				}
@@ -344,15 +340,15 @@
 
 		},
 		
-		setSelectedItem : function( newSelectedItem, options ) {
+		setSelectedModel : function( newSelectedItem, options ) {
 			if( _.isUndefined( newSelectedItem ) || _.isNull( newSelectedItem) ) 
 				this.selectNone();
 			else
-				this.setSelectedItems( [ newSelectedItem ], options );
+				this.setSelectedModels( [ newSelectedItem ], options );
 		},
 
 		selectNone : function( options ) {
-			this.setSelectedItems( [], options );
+			this.setSelectedModels( [], options );
 		},
 		
 		_saveSelection : function() {
@@ -362,7 +358,7 @@
 			
 			this.savedSelection = {
 				items : this.selectedItems,
-				lines : this.getSelectedItems( { by : "line" } )
+				offset : this.getSelectedModel( { by : "offset" } )
 			};
 		},
 		
@@ -372,19 +368,19 @@
 			// reset selectedItems to empty so that we "redraw" all "selected" classes
 			// when we set our new selection. We do this because it is likely that our
 			// contents have been refreshed, and we have thus lost all old "selected" classes.
-			this.setSelectedItems( [] );
+			this.setSelectedModels( [] );
 			
 			if( this.savedSelection.items.length > 0 )
 			{
 				// first try to restore the old selected items using their reference ids.
-				this.setSelectedItems( this.savedSelection.items );
+				this.setSelectedModels( this.savedSelection.items, { by : "cid" } );
 
 				// all the items with the saved reference ids have been removed from the list.
-				// ok. try to restore the selection based on the lines that used to be selected.
+				// ok. try to restore the selection based on the offset that used to be selected.
 				// this is the expected behavior after a item is deleted from a list (i.e. select
 				// the line that immediately follows the deleted line).
 				if( this.selectedItems.length === 0 )
-					this.setSelectedItems( this.savedSelection.lines, { by : "line" } );
+					this.setSelectedModel( this.savedSelection.offset, { by : "offset" } );
 			}
 			
 			delete this.savedSelection;
@@ -547,10 +543,10 @@
 		},
 		
 		updateDependentControls : function() {
-			this.trigger( "updateDependentControls", this.selectedItems );
+			this.trigger( "updateDependentControls", this.getSelectedModels() );
 			if( this._isBackboneCourierAvailable() ) {
 				this.spawn( "updateDependentControls", {
-					selectedItems : this.selectedItems
+					selectedModels : this.getSelectedModels()
 				} );
 			}
 		},
@@ -702,19 +698,19 @@
 			
 			var trap = false;
 			
-			if( this.getSelectedItems( { by : "line" } ).length == 1 )
+			if( this.getSelectedModels( { by : "offset" } ).length == 1 )
 			{
 				// need to trap down and up arrows or else the browser
 				// will end up scrolling a autoscroll div.
 				
 				if( event.which == this._charCodes.upArrow )
 				{
-					this.setSelectedItem( this.getSelectedItem( { by : "line" } ) - 1, { by : "line" } );
+					this.setSelectedModel( this.getSelectedModel( { by : "offset" } ) - 1, { by : "offset" } );
 					trap = true;
 				}
 				else if( event.which == this._charCodes.downArrow )
 				{
-					this.setSelectedItem( this.getSelectedItem( { by : "line" } ) + 1, { by : "line" } );
+					this.setSelectedModel( this.getSelectedModel( { by : "offset" } ) + 1, { by : "offset" } );
 					trap = true;
 				}
 			}
@@ -759,7 +755,7 @@
 					var newSelectedItems = [];
 					for( var thisIndex = minSelectedItemIndex; thisIndex <= maxSelectedItemIndex; thisIndex ++ )
 						newSelectedItems.push( this._getModelReferenceId( this.collection.at( thisIndex ) ) );
-					this.setSelectedItems( newSelectedItems, { silent : false } );
+					this.setSelectedModels( newSelectedItems, { by : "cid" } );
 					
 					// shift clicking will usually highlight selectable text, which we do not want.
 					// this is a cross browser (hopefully) snippet that deselects all text selection.
@@ -774,15 +770,15 @@
 				else if( this.selectMultiple && ( this.clickToToggle || theEvent.metaKey ) )
 				{
 					if( _.contains( this.selectedItems, clickedItemId ) )
-						this.setSelectedItems( _.without( this.selectedItems, clickedItemId ), { silent : false } );
-					else this.setSelectedItems( _.union( this.selectedItems, clickedItemId ), { silent : false } );
+						this.setSelectedModels( _.without( this.selectedItems, clickedItemId ), { by : "cid" } );
+					else this.setSelectedModels( _.union( this.selectedItems, clickedItemId ), { by : "cid" } );
 				}
 				else
-					this.setSelectedItems( [ clickedItemId ], { silent : false } );
+					this.setSelectedModels( [ clickedItemId ], { by : "cid" } );
 			}
 			else
 				// the blank area of the list was clicked
-				this.setSelectedItems( [], { silent : false } );
+				this.setSelectedModels( [] );
 
 			if(this.sortable ) {
 				this.$el[0].focus();
@@ -792,12 +788,13 @@
 		
 		_listItem_onDoubleClick : function( theEvent ) {
 			var clickedItemId = this._getClickedItemId( theEvent );
-			
+
 			if( clickedItemId )
 			{
-				this.trigger( "doubleClick", clickedItemId );
+				var clickedModel = this.collection.get( clickedItemId );
+				this.trigger( "doubleClick", clickedModel );
 				if( this._isBackboneCourierAvailable() )
-					this.spawn( "doubleClick", { clickedItemId : clickedItemId } );
+					this.spawn( "doubleClick", { clickedModel : clickedModel } );
 			}
 		},
 		
@@ -805,7 +802,7 @@
 			if( ! this.selectable ) return;
 			if( ! $( theEvent.target ).is( ".collection-list" ) ) return;
 		
-			this.setSelectedItems( [], { silent : false } );
+			this.setSelectedModels( [] );
 		},
 
 	  //added from underscore.mixins.js
