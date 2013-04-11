@@ -37,7 +37,7 @@
 				<p>Try clicking on a row, the background of the selected row will change.  There is now way to select multiple rows.</p>
 				<ul id="demoSingleSelectionList" class="example-list"></ul>
 			</div>
-			<pre>
+			<pre id="code-text-1">
 <code data-language="javascript">var singleSelectionView = new Backbone.CollectionView({
   el : $('#demoSingleSelectionList'),
   selectable : true,
@@ -54,7 +54,7 @@
 				<p>Select a row.  Then hold down command or shift and click on another row.  Multiple rows are selected.  If you held down shift, all the rows in between are selected.  Using command, only the two rows you clicked on are selected.</p>
 				<ul id="demoMultipleSelectionList" class="example-list"></ul>
 			</div>
-			<pre>
+			<pre id="code-text-2">
 <code data-language="javascript">var multipleSelectionView = new Backbone.CollectionView({
   el : $('#demoMultipleSelectionList'),
   selectable : true,
@@ -72,7 +72,7 @@
 				<p>Select a row.  Try using the up and down arrow keys.  The selected row will change.</p>
 				<ul id="demoUpDownArrowSelection" class="example-list"></ul>
 			</div>
-			<pre>
+			<pre id="code-text-3">
 <code data-language="javascript">var arrowSelectionView = new Backbone.CollectionView({
   el : $('#demoUpDownArrowSelection'),
   selectable : true,
@@ -90,7 +90,7 @@
 				<button id="showModelSorting" class="button-small button-blue">See the collection contents</button>
 				<ul id="demoSortable" class="example-list"></ul>
 			</div>
-			<pre>
+			<pre id="code-text-4">
 <code data-language="javascript"> var sortableView = new Backbone.CollectionView({
   el : $('#demoSortable'),
   selectable : true,
@@ -110,7 +110,7 @@
 				<button id="demoRemoveFromCollectionButton" class="button-small button-right button-red">Remove selected item</button>
 				<ul id="demoAddAndRemoveFromList" class="example-list"></ul>
 			</div>
-			<pre>
+			<pre id="code-text-5">
 <code data-language="javascript"> $('#demoRemoveFromCollectionButton').click(function() {
 
   var curSelectedModel = addRemoveItemView.getSelectedItem({
@@ -136,7 +136,7 @@ $('#demoAddToCollectionButton').click(function() {
 				<p>Try selecting an element.  A popup will inform you of which item is the newly selected one and which one (if any was previously selected).</p>
 				<ul id="demoSelectedEvent" class="example-list"></ul>
 			</div>
-			<pre>
+			<pre id="code-text-6">
 <code data-language="javascript">selectedEventView.on("selectionChanged", function(
   newSelectedItems,
   oldSelectedItems
@@ -163,7 +163,7 @@ $('#demoAddToCollectionButton').click(function() {
 				<p>A function specifying that only models with a last name of 'Holmes' can be selectable was passed to the CollectionView.  John Watson is not selectable.</p>
 				<ul id="demoSelectableFilter" class="example-list"></ul>
 			</div>
-			<pre>
+			<pre id="code-text-7">
 <code data-language="javascript">var selectableFilterView = new Backbone.CollectionView({
   el : $('#demoSelectableFilter'),
   selectable : true,
@@ -182,7 +182,7 @@ $('#demoAddToCollectionButton').click(function() {
 				<p>A function specifying that only models with a last name of 'Holmes' can be sorted (dragged and dropped) was passed to the CollectionView.  John Watson is not sortable.</p>
 				<ul id="demoSortableFilter" class="example-list"></ul>
 			</div>
-			<pre>
+			<pre id="code-text-8">
 <code data-language="javascript"> var sortableFilterView = new Backbone.CollectionView({
   el : $('#demoSortableFilter'),
   selectable : true,

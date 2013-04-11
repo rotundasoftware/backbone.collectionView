@@ -13,24 +13,6 @@ function getContainerHeights (exampleContainers) {
 
 $(document).ready(function() {
 
-	// Store all example container divs so we can get their heights
-	var $containerDivs = $('.example-container');
-
-	// When the user scrolls, update the nav to show the current example
-	$(window).scroll(function () {
-
-		var fromTop = $(document).scrollTop();
-		var containerHeights = getContainerHeights($containerDivs);
-
-		for (var i = 0; i < containerHeights.length; i++) {
-			if (containerHeights[i] > fromTop) {
-				navView.setSelectedModel('c' + i, { by : "cid" } );
-				break;
-			}
-		}
-	});
-
-
 	var ExampleView = Backbone.View.extend({
 
 		template : _.template($('#example-template').html()),
@@ -61,6 +43,23 @@ $(document).ready(function() {
 	});
 
 	navView.render();
+
+	// Store all example container divs so we can get their heights
+	var $containerDivs = $('.example-container');
+
+	// When the user scrolls, update the nav to show the current example
+	$(window).scroll(function () {
+
+		var fromTop = $(document).scrollTop();
+		var containerHeights = getContainerHeights($containerDivs);
+
+		for (var i = 0; i < containerHeights.length; i++) {
+			if (containerHeights[i] > fromTop) {
+				navView.setSelectedModel('c' + i, { by : 'cid' } );
+				break;
+			}
+		}
+	});
 
 	// Navigate to newly selected example, this should be triggered by clicking
 	// and arrow keys but not by selection change caused by scrolling
@@ -166,7 +165,7 @@ $(document).ready(function() {
 
 		var curSelectedModel = addRemoveItemView.getSelectedModel();
 
-		if(curSelectedModel) {
+		if (curSelectedModel) {
 			addRemoveItemView.collection.remove(curSelectedModel);
 		}
 	});
@@ -230,4 +229,40 @@ $(document).ready(function() {
 	$('.example-wrapper').css({
 		marginBottom: $(window).height() - lastDiv
 	});
+
+	// If the user releases the click in less than 200 ms then select the code
+	// text
+
+	var held; // This is true if the mouse has been pressed for over 200 ms
+	var heldTimer;
+	$('pre').mousedown(function (event) {
+		held = false;
+
+		if (heldTimer) window.clearTimeout(heldTimer);
+
+		// After 200 ms, the mouse has been held down to long to perform
+		// selection
+		heldTimer = window.setTimeout(function () {
+			held = true;
+		}, 200);
+	});
+
+	$('pre').mouseup(function (event) {
+		// If mouse has been held down for less than 200 ms
+		if (!held) {
+			var codeId = $(event.currentTarget).attr('id');
+			var element = document.getElementById(codeId);
+			// Hack to do crossbrowser selection of text within non-input tag
+			if (document.selection) {
+				var range = document.body.createTextRange();
+				range.moveToElementText(element);
+				range.select();
+			} else if (window.getSelection) {
+				var range = document.createRange();
+				range.selectNode(element);
+				window.getSelection().addRange(range);
+			}
+		}
+	});
+
 });

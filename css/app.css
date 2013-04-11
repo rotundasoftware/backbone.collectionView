@@ -297,4 +297,5 @@ pre {
   margin: 0;
   float: left;
   line-height: 18px;
+  cursor: pointer;
 }
