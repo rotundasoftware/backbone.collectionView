@@ -80,15 +80,6 @@
 			if( this.processKeyEvents )
 				this.$el.attr( "tabindex", 0 ); // so we get keyboard events
 			
-/*
-			if( this.$el.next().is( "div.empty-list-description" ) && ! _.isUndefined( Rotunda.Views.EmptyListDescription ) )
-				this.emptyListDescriptionView = new Rotunda.Views.EmptyListDescription( {
-					el : this.$el.next(),
-					collectionListView : this,
-					udpateStateCallback : options.emptyListDescriptionUpdateStateCallback
-				} );
-*/
-			
 			this.selectedItems = [];
 
 			this._updateItemTemplate();
@@ -527,16 +518,13 @@
 				this.$el = this.$el.sortable( sortableOptions );
 			}
 
-
 			if( ! _.isNull( this.emptyListCaption ) ) {
 
-				var hasVisibleView = false;
-
-				this.viewManager.each( function( view ) {
-					if( view.$el.is( ":visible" ) ) hasVisibleView = true;
+				var visibleView = this.viewManager.find( function( view ) {
+					return view.$el.is( ":visible" );
 				} );
 
-				if( ! hasVisibleView ) {
+				if( _.isUndefined( visibleView ) ) {
 
 					var emptyListString;
 
