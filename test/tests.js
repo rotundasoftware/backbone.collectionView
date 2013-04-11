@@ -18,6 +18,15 @@ $(document).ready( function() {
 			}
 		} );
 
+		this.EmployeeViewForTable = Backbone.View.extend( {
+			template : _.template( $( "#employee-template-for-table" ).html() ),
+			render : function() {
+				var emp = this.model.toJSON();
+				var html = this.template(emp);
+				this.$el.append(html);
+			}
+		} );
+
 		this.EmployeeView2 = Backbone.View.extend( {
 			template : _.template( $( "#employee-template-2" ).html() ),
 			render : function() {
@@ -30,8 +39,10 @@ $(document).ready( function() {
 
 		var $fixture = $( "#qunit-fixture" );
 		$fixture.append( "<ul id='myCollectionList'></ul>" );
+		$fixture.append( "<table id='myCollectionTable'></table>" );
 		
 		this.$collectionViewEl = $( "#myCollectionList" );
+		this.$collectionViewForTableEl = $( "#myCollectionTable" );
 
 	}
 
@@ -530,6 +541,118 @@ $(document).ready( function() {
 		var emp2View = myCollectionView.viewManager.findByModel( _this.emp2 );
 
 		emp2View.$el.dblclick();
+
+	} );
+
+	module( "Empty List Caption",
+		{
+			setup: function() {
+				commonSetup.call( this );
+			}
+		}
+	);
+
+	test( "Rendering as list", 2, function() {
+
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewEl,
+			collection : this.employees,
+			modelView : this.EmployeeView,
+			selectable : true,
+			emptyListCaption : "This is an empty list"
+		} );
+
+		this.employees.reset();
+		myCollectionView.render();
+
+		equal( $( "li.empty-list-caption" ).length, 1, "Empty list caption is present" );
+
+		stop();
+
+		myCollectionView.on( "render", function() {
+
+			start();
+			equal( $( "li.empty-list-caption" ).length, 0, "Empty list caption is not present" );
+
+		} );
+
+		myCollectionView.collection.add( this.emp1 );
+
+	} );
+
+	test( "Rendering as table", 2, function() {
+
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewForTableEl,
+			collection : this.employees,
+			modelView : this.EmployeeViewForTable,
+			selectable : true,
+			emptyListCaption : "This is an empty list"
+		} );
+
+		this.employees.reset();
+		myCollectionView.render();
+
+		equal( $( "tr.empty-list-caption" ).length, 1, "Empty list caption is present" );
+
+		stop();
+
+		myCollectionView.on( "render", function() {
+
+			start();
+			equal( $( "tr.empty-list-caption" ).length, 0, "Empty list caption is not present" );
+
+		} );
+
+		myCollectionView.collection.add( this.emp1 );
+
+	} );
+
+	test( "String caption", 1, function() {
+
+		var myEmptyListCaption = "This is an empty list";
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewEl,
+			collection : this.employees,
+			modelView : this.EmployeeView,
+			selectable : true,
+			emptyListCaption : myEmptyListCaption
+		} );
+
+		this.employees.reset();
+		myCollectionView.render();
+
+		ok( $( "li.empty-list-caption" ).html().contains( myEmptyListCaption ) , "Empty list caption contains correct text" );
+
+	} );
+
+
+	test( "Function caption", 2, function() {
+
+		var emptyCaption = "Empty caption 1";
+
+		var myEmptyCaptionFunction = function() {
+			return emptyCaption;
+		};
+
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewEl,
+			collection : this.employees,
+			modelView : this.EmployeeView,
+			selectable : true,
+			emptyListCaption : myEmptyCaptionFunction
+		} );
+
+		this.employees.reset();
+		myCollectionView.render();
+
+		ok( $( "li.empty-list-caption" ).html().contains( emptyCaption ), "Empty list caption contains the correct text" );
+
+		emptyCaption = "Empty caption 2";
+		myCollectionView.render();
+
+		ok( $( "li.empty-list-caption" ).html().contains( emptyCaption ), "Empty list caption contains the correct text" );
+
 
 	} );
 

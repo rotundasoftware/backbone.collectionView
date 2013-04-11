@@ -1,5 +1,5 @@
 /*!
- * Backbone.CollectionView, v0.4.5
+ * Backbone.CollectionView, v0.4.6
  * Copyright (c)2013 Rotunda Software, LLC.
  * Distributed under MIT license
  * http://github.com/rotundasoftware/backbone-collection-view
@@ -10,11 +10,17 @@
 
 	var kDefaultReferenceBy = "model";
 
-	var kAllowedOptions = [ "collection", "modelView", "modelViewOptions", "itemTemplate",
+	var kAllowedOptions = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "emptyListCaption",
 														"selectable", "clickToSelect", "selectableModelsFilter", "visibleModelsFilter",
 														"selectMultiple", "clickToToggle", "processKeyEvents", "sortable", "sortableModelsFilter" ];
 
 	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "visibleModelsFilter" ];
+
+	var kStylesForEmptyListCaption = {
+		"background" : "transparent",
+		"border" : "none"
+	};
+	
 
 	Backbone.CollectionView = Backbone.View.extend({
 
@@ -54,7 +60,8 @@
 					selectMultiple : false,
 					clickToToggle : false,
 					processKeyEvents : true,
-					sortable : false
+					sortable : false,
+					emptyListCaption : null
 				}, options );
 
 			//add each of the well known/allowed options to the CollectionView
@@ -73,13 +80,14 @@
 			if( this.processKeyEvents )
 				this.$el.attr( "tabindex", 0 ); // so we get keyboard events
 			
-
+/*
 			if( this.$el.next().is( "div.empty-list-description" ) && ! _.isUndefined( Rotunda.Views.EmptyListDescription ) )
 				this.emptyListDescriptionView = new Rotunda.Views.EmptyListDescription( {
 					el : this.$el.next(),
 					collectionListView : this,
 					udpateStateCallback : options.emptyListDescriptionUpdateStateCallback
 				} );
+*/
 			
 			this.selectedItems = [];
 
@@ -518,7 +526,39 @@
 
 				this.$el = this.$el.sortable( sortableOptions );
 			}
-			
+
+
+			if( ! _.isNull( this.emptyListCaption ) ) {
+
+				var hasVisibleView = false;
+
+				this.viewManager.each( function( view ) {
+					if( view.$el.is( ":visible" ) ) hasVisibleView = true;
+				} );
+
+				if( ! hasVisibleView ) {
+
+					var emptyListString;
+
+					if( _.isFunction( this.emptyListCaption ) )
+						emptyListString = this.emptyListCaption();
+					else
+						emptyListString = this.emptyListCaption;
+
+					var $emptyCaptionEl;
+
+					var $varEl = $( "<var class='caption'>" + emptyListString + "</var>" );
+
+					//need to wrap the empty caption to make it fit the rendered list structure (either with an li or a tr td)
+					if( this._isRenderedAsList() )
+						$emptyListCaptionEl = $varEl.wrapAll( "<li class='empty-list-caption' ></li>" ).parent().css( kStylesForEmptyListCaption );
+					else
+						$emptyListCaptionEl = $varEl.wrapAll( "<tr class='empty-list-caption' ><td></td></tr>" ).parent().parent().css( kStylesForEmptyListCaption );
+
+					this.$el.append( $emptyListCaptionEl );
+				}
+			}
+
 			this.trigger( "render" );
 			if( this._isBackboneCourierAvailable() ) 
 				this.spawn( "render" );
