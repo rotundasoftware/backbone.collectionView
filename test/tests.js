@@ -552,7 +552,7 @@ $(document).ready( function() {
 		}
 	);
 
-	test( "Rendering as list", 2, function() {
+	test( "Rendering as list", 3, function() {
 
 		var myCollectionView = new Backbone.CollectionView( {
 			el : this.$collectionViewEl,
@@ -565,14 +565,15 @@ $(document).ready( function() {
 		this.employees.reset();
 		myCollectionView.render();
 
-		equal( $( "li.empty-list-caption" ).length, 1, "Empty list caption is present" );
+		equal( $( "var.empty-list-caption" ).length, 1, "Empty list caption is present" );
+		equal( $( "var.empty-list-caption" ).parent().prop( "tagName" ), "LI", "Empty list caption is wrapped in an li" );
 
 		stop();
 
 		myCollectionView.on( "render", function() {
 
 			start();
-			equal( $( "li.empty-list-caption" ).length, 0, "Empty list caption is not present" );
+			equal( $( "var.empty-list-caption" ).length, 0, "Empty list caption is not present" );
 
 		} );
 
@@ -580,7 +581,7 @@ $(document).ready( function() {
 
 	} );
 
-	test( "Rendering as table", 2, function() {
+	test( "Rendering as table", 4, function() {
 
 		var myCollectionView = new Backbone.CollectionView( {
 			el : this.$collectionViewForTableEl,
@@ -593,14 +594,16 @@ $(document).ready( function() {
 		this.employees.reset();
 		myCollectionView.render();
 
-		equal( $( "tr.empty-list-caption" ).length, 1, "Empty list caption is present" );
+		equal( $( "var.empty-list-caption" ).length, 1, "Empty list caption is present" );
+		equal( $( "var.empty-list-caption" ).parent().prop( "tagName" ), "TD", "Empty list caption is wrapped in an td" );
+		equal( $( "var.empty-list-caption" ).parent().parent().prop( "tagName" ), "TR", "Empty list caption is wrapped in a tr around the td" );
 
 		stop();
 
 		myCollectionView.on( "render", function() {
 
 			start();
-			equal( $( "tr.empty-list-caption" ).length, 0, "Empty list caption is not present" );
+			equal( $( "var.empty-list-caption" ).length, 0, "Empty list caption is not present" );
 
 		} );
 
@@ -622,7 +625,7 @@ $(document).ready( function() {
 		this.employees.reset();
 		myCollectionView.render();
 
-		ok( $( "li.empty-list-caption" ).html().contains( myEmptyListCaption ) , "Empty list caption contains correct text" );
+		ok( $( "var.empty-list-caption" ).html().contains( myEmptyListCaption ) , "Empty list caption contains correct text" );
 
 	} );
 
@@ -646,12 +649,12 @@ $(document).ready( function() {
 		this.employees.reset();
 		myCollectionView.render();
 
-		ok( $( "li.empty-list-caption" ).html().contains( emptyCaption ), "Empty list caption contains the correct text" );
+		ok( $( "var.empty-list-caption" ).html().contains( emptyCaption ), "Empty list caption contains the correct text" );
 
 		emptyCaption = "Empty caption 2";
 		myCollectionView.render();
 
-		ok( $( "li.empty-list-caption" ).html().contains( emptyCaption ), "Empty list caption contains the correct text" );
+		ok( $( "var.empty-list-caption" ).html().contains( emptyCaption ), "Empty list caption contains the correct text" );
 
 
 	} );

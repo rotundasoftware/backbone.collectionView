@@ -547,13 +547,13 @@
 
 					var $emptyCaptionEl;
 
-					var $varEl = $( "<var class='caption'>" + emptyListString + "</var>" );
+					var $varEl = $( "<var class='empty-list-caption'>" + emptyListString + "</var>" );
 
 					//need to wrap the empty caption to make it fit the rendered list structure (either with an li or a tr td)
 					if( this._isRenderedAsList() )
-						$emptyListCaptionEl = $varEl.wrapAll( "<li class='empty-list-caption' ></li>" ).parent().css( kStylesForEmptyListCaption );
+						$emptyListCaptionEl = $varEl.wrapAll( "<li></li>" ).parent().css( kStylesForEmptyListCaption );
 					else
-						$emptyListCaptionEl = $varEl.wrapAll( "<tr class='empty-list-caption' ><td></td></tr>" ).parent().parent().css( kStylesForEmptyListCaption );
+						$emptyListCaptionEl = $varEl.wrapAll( "<tr><td></td></tr>" ).parent().parent().css( kStylesForEmptyListCaption );
 
 					this.$el.append( $emptyListCaptionEl );
 				}
