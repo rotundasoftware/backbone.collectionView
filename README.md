@@ -39,6 +39,7 @@ myCollectionView.setSelectedModel( employeeCollection.first() );
 * `selectMultiple` : (default: _false_) In a selectable CollectionView, determines whether multiple models can be selected at once.
 * `clickToToggle` : (default: _false_) In a selectable CollectionView, determines whether clicking a model view should toggle its selected / unselected state. Only applies if selectMultiple == true.
 * `sortable` : (default: _false_) Determines whether models can be rearranged by dragging and dropping. (jQueryUI required.)
+* `emptyListCaption` : A string or a function that returns text to be displayed when there are no visible views in the CollectionView.  See [Styling the Empty List Caption](#emptyListCaptionStyling) for info on styling the caption.
 
 The following options expect a filter function that takes a single parameter, the model in question, and returns true or false.
 * `visibleModelsFilter` : (default: _all models_) Determines which models are visible. 
@@ -85,6 +86,8 @@ There are four valid values for `by` option, which correspond to the type of "mo
 
 If no `by` option is provided the model object itself is expected / returned. Additionally, the `setSelectedModel(s)` function accepts one additional option, `silent`, which, when true, will prevent the `selectionChanged` event from being fired.
 
+
+
 ##Events Fired
 CollectionViews `trigger` the following events on themselves. You can respond to these events from another view using Backbone's `listenTo` method. If [Backbone.Courier](https://github.com/rotundasoftware/backbone.courier)
  is available, these events are also "spawned" using Courier.
@@ -95,6 +98,21 @@ CollectionViews `trigger` the following events on themselves. You can respond to
 * __"sortStop"__  Fired when a drag of a model view is finished, but before the collection is reordered. (Sortable collection lists only.)
 * __"reorder"__  Fired after a drag of a model view is finished and after the collection is reordered. (Sortable collection lists only.)
 
+##Styling
+###<a name="emptyListCaptionStyling"></a>Empty List Caption
+
+The `emptyListCaption` text can be styled using the `var.empty-list-caption` selector.  Here is an example:
+
+```css
+var.empty-list-caption {
+  color: #A0A0A0;
+  padding: 30px;
+  display: block;
+  text-align: center;
+  font-style: normal;
+  line-height: 1.45;
+}
+```
 ##Dependencies
 * Backbone.js (tested with v0.9.10)
 * [Backbone.BabySitter](https://github.com/marionettejs/backbone.babysitter)
