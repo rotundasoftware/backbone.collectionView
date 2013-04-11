@@ -2,39 +2,46 @@
 /*make non-sortable/selectable rows differnt color and unhoverable*/
 
 //// Mixins and variables
- @import "compass/css3/images";
- @import "compass/css3/border-radius";
- @import "compass/css3/text-shadow";
+@import "compass/css3/images";
+@import "compass/css3/border-radius";
+@import "compass/css3/text-shadow";
+@import "compass/css3/box-shadow";
+@import "compass/css3/transition";
 
-$blue:      hsl( 223,  64%,  65% );
+$blue:      hsl( 223,  70%,  65% );
 $orange:    hsl(  22, 100%,  63% );
 $red:       hsl( 352,  66%,  64% );
 $green:     hsl( 125,  39%,  58% );
 $navy:      hsl( 227,  27%,  19% );
 
-$lightBlue: hsl( 223, 100%,  96% );
-$blueGrey:  hsl( 223,  64%,  75% );
-$grey:      hsl(   0,   0%,  94% );
-$white:     hsl(   0, 100%, 100% );
+$lightBlue:  hsl( 223, 100%,  96% );
+$brightBlue: saturate($blue, 30);
+$blueGrey:   hsl( 223,  64%,  75% );
+$grey:       hsl(   0,   0%,  94% );
+$darkGrey:   hsl(   0,   0%,  35% );
+$white:      hsl(   0, 100%, 100% );
 
 $borderOffset:  15;
-$gradientOffset: 8;
+$buttonGradientOffset: 8;
 
+@mixin borderRadius() {
+	@include border-radius(4px);
+}
 @mixin borderBox($color) {
 	background: $color;
 	border: 1px solid darken($color, $borderOffset);
-	@include border-radius(4px);
+	@include borderRadius();
 }
 
-@mixin gradientor($color){
-	@include background(linear-gradient(lighten($color, $gradientOffset), darken($color, $gradientOffset)));
+@mixin gradientor($color, $offset){
+	@include background(linear-gradient(lighten($color, $offset), darken($color, $offset)));
 }
 
 @mixin buttonize($color){
 	@include borderBox($color);
-	@include gradientor($color);
+	@include gradientor($color, $buttonGradientOffset);
 	&:hover {
-		@include gradientor(darken($color, 4));
+		@include gradientor(darken($color, 4), $buttonGradientOffset);
 	}
 }
 
@@ -44,7 +51,6 @@ $gradientOffset: 8;
 	list-style-type: none;
 	margin: 0;
 	outline: medium none;
-	overflow: hidden;
 	padding: 0;
 	li {
 		cursor: pointer;
@@ -172,7 +178,7 @@ h1 {
 }
 
 
-.example-list {
+.flat-border-list {
 
 	li {
 		padding: 10px;
@@ -187,8 +193,96 @@ h1 {
 	.selected {
 		@include borderBox($blue);
 		color: $white;
+		&:hover {
+			@include borderBox($blue);
+		}
 	}
 }
+
+.light-flat-list {
+	@include box-shadow(0 1px 3px 0 hsla(0, 0%, 0%, 0.33));
+
+	li {
+		padding: 10px;
+		background: hsl(0, 0%, 97%);
+		font-family: "Helvetica Neue", Helvetica, arial, freesans, clean, sans-serif;
+		-webkit-font-smoothing: antialiased;
+		border-bottom: 1px solid hsl(0, 0%, 90%);
+
+		&:last-of-type {
+			border-bottom: 0;
+		}
+
+		&:hover{
+			background: darken($lightBlue, 10);
+		}
+	}
+
+	.selected {
+		color: $white;
+		background: $blue;
+		&:hover {
+		background: $blue;
+		}
+	}
+}
+
+.gradient-list {
+
+	li {
+		padding: 10px;
+		margin: 10px 0;
+		background: $grey;
+		@include gradientor($grey, 3);
+		border: 1px solid darken($grey, $borderOffset);
+		@include borderRadius;
+		@include box-shadow(0 1px 3px hsla(0, 0%, 0%, 0.14));
+		@include text-shadow(0 1px 0 hsla(0, 100%, 100%, 0.8));
+
+		&:hover{
+			@include gradientor($blueGrey, 3);
+			border: 1px solid darken($blueGrey, $borderOffset);
+		}
+	}
+
+	.selected {
+		@include borderBox($blue);
+		color: $white;
+		text-shadow: 0 1px 0 hsla(0, 0%, 0%, 0.8);
+
+		&:hover {
+			@include borderBox($blue);
+		}
+	}
+}
+
+.dark-flat-list {
+	margin: 10px 0;
+
+	li {
+		padding: 10px;
+		margin: 4px 0;
+		background: $darkGrey;
+		color: white;
+		font-family: "Helvetica Neue", Helvetica, arial, freesans, clean, sans-serif;
+		-webkit-font-smoothing: antialiased;
+		font-weight: bold;
+		@include transition( all 0.20s ease-out);
+
+		&:hover{
+			background: desaturate($brightBlue, 10);
+		}
+	}
+
+	.selected {
+		background: $brightBlue;
+
+		&:hover {
+			background: $brightBlue;
+		}
+	}
+}
+
 
 .demo-container {
 	width: 350px;

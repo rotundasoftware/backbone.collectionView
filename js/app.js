@@ -55,7 +55,7 @@ $(document).ready(function() {
 
 		for (var i = 0; i < containerHeights.length; i++) {
 			if (containerHeights[i] > fromTop) {
-				navView.setSelectedModel('c' + i, { by : 'cid' } );
+				navView.setSelectedModel('c' + i, { by : 'cid', silent: true});
 				break;
 			}
 		}
@@ -125,14 +125,28 @@ $(document).ready(function() {
 
 	multipleSelectionView.render();
 
-	var arrowSelectionView = new Backbone.CollectionView({
+  var EmployeeViewForTableList = Backbone.View.extend({
+
+		tagName : 'tr',
+
+		template : _.template($('#employee-template-for-table-list').html()),
+
+		render : function() {
+			var emp = this.model.toJSON();
+			var html = this.template(emp);
+			this.$el.append(html);
+		}
+	});
+
+
+	viewCollectionForTableList = new Backbone.CollectionView({
 		el : $('#demoUpDownArrowSelection'),
 		selectable : true,
 		collection : createACollection(),
-		modelView : EmployeeView
+		modelView : EmployeeViewForTableList
 	});
 
-	arrowSelectionView.render();
+	viewCollectionForTableList.render();
 
 	var sortableView = new Backbone.CollectionView({
 		el : $('#demoSortable'),
