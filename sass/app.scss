@@ -263,6 +263,47 @@ h1 {
 	}
 }
 
+table {
+	border-collapse: collapse;
+	width: 350px;
+	@include borderBox($grey);
+	font-family: "Helvetica Neue", Helvetica, arial, freesans, clean, sans-serif;
+}
+
+td {
+	padding: 10px 20px;
+	-webkit-font-smoothing: antialiased;
+
+	&:first-of-type {
+		border-right: 1px solid darken($grey, $borderOffset);
+	}
+}
+
+tr {
+	cursor: pointer;
+
+	&:nth-of-type(odd) {
+		background: white;
+	}
+
+	&:nth-of-type(even) {
+		background: $lightBlue;
+	}
+
+	&:hover{
+		background:($blueGrey);
+	}
+
+	&.selected {
+		background: $blue;
+		color: $white;
+
+		&:hover {
+			background: $blue;
+		}
+	}
+}
+
 .gradient-list {
 
 	li {
@@ -293,6 +334,7 @@ h1 {
 }
 
 .dark-flat-list {
+
 	margin: 10px 0;
 
 	li {
