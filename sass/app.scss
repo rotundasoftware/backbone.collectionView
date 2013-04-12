@@ -45,6 +45,39 @@ $buttonGradientOffset: 8;
 	}
 }
 
+// Github icon font
+@font-face {
+	font-family: 'Octicons Regular';
+	src: url("https://a248.e.akamai.net/assets.github.com/assets/octicons/octicons-regular-webfont-f8cb074da115b589d1518e9701e5ce0145a9a04b.eot");
+	src: url("https://a248.e.akamai.net/assets.github.com/assets/octicons/octicons-regular-webfont-f8cb074da115b589d1518e9701e5ce0145a9a04b.eot#iefix") format("embedded-opentype"),
+	url("https://a248.e.akamai.net/assets.github.com/assets/octicons/octicons-regular-webfont-ca94a86a0e39e28efb023a130cb748731bb0ab58.woff") format("woff"),
+	url("https://a248.e.akamai.net/assets.github.com/assets/octicons/octicons-regular-webfont-83378e6a590d9a4a7242c6cf23f1a1b49ce7aa14.ttf") format("truetype"),
+	url("https://a248.e.akamai.net/assets.github.com/assets/octicons/octicons-regular-webfont-e1451ddc22ffbea19d2e8fca0742d5667940b793.svg#newFontRegular") format("svg");
+	font-weight: normal;
+	font-style: normal;
+}
+
+.github-icon {
+	position: absolute;
+	left: 10px;
+	bottom: 8px;
+	line-height: 1;
+	font-family: 'Octicons Regular';
+	font-size: 45px;
+	-webkit-font-smoothing: antialiased;
+	text-decoration: none;
+	@include transition( all 0.15s ease-out);
+	color: hsla(0,  0%,  0%, .3);
+
+	&:hover {
+		color: hsla(0,  0%,  0%, .7);
+	}
+
+	&:before {
+		content: ""
+	}
+}
+
 //// General styles
 
 .collection-list {
@@ -52,6 +85,7 @@ $buttonGradientOffset: 8;
 	margin: 0;
 	outline: medium none;
 	padding: 0;
+
 	li {
 		cursor: pointer;
 	}
@@ -103,7 +137,7 @@ header {
 	background: $lightBlue;
 }
 
-.header-links {
+.rotunda-link {
 	position: absolute;
 	right: 50px;
 	bottom: 3px;
@@ -111,9 +145,11 @@ header {
 	-webkit-font-smoothing: antialiased;
 	font-size: 18px;
 	font-weight: bold;
+
 	a {
 		color: hsl(0, 0%, 20%);
 		text-decoration: none;
+
 		&:hover {
 			text-decoration: underline;
 		}
