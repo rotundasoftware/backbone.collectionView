@@ -215,7 +215,14 @@
 					break;
 				case "offset" :
 					var curLineNumber = 0;
-					this.$el.find( "> [data-item-id]:visible" ).each( function() {
+
+					var itemElements;
+					if( this._isRenderedAsTable() )
+						itemElements = this.$el.find( "> tbody > [data-item-id]:visible" );
+					else if( this._isRenderedAsList() )
+						itemElements = this.$el.find( "> [data-item-id]:visible" );
+
+					itemElements.each( function() {
 						var thisItemEl = $( this );
 						if( thisItemEl.is( ".selected" ) )
 							items.push( curLineNumber );
@@ -299,7 +306,14 @@
 				case "offset" :
 					var curLineNumber = 0;
 					var selectedItems = [];
-					this.$el.find( "> [data-item-id]:visible" ).each( function() {
+
+					var itemElements;
+					if( this._isRenderedAsTable() )
+						itemElements = this.$el.find( "> tbody > [data-item-id]:visible" );
+					else if( this._isRenderedAsList() )
+						itemElements = this.$el.find( "> [data-item-id]:visible" );
+
+					itemElements.each( function() {
 						var thisItemEl = $( this );
 						if( _.contains( newSelectedItems, curLineNumber ) )
 							newSelectedItemsTemp.push( thisItemEl.attr( "data-item-id" ) );
