@@ -19,6 +19,7 @@ $(document).ready( function() {
 		} );
 
 		this.EmployeeViewForTable = Backbone.View.extend( {
+			tagName : 'tr',
 			template : _.template( $( "#employee-template-for-table" ).html() ),
 			render : function() {
 				var emp = this.model.toJSON();
@@ -54,76 +55,103 @@ $(document).ready( function() {
 		}
 	);
 
-	test( "getSelectedModel", 5, function() {
+	test( "getSelectedModel", 6, function() {
 
-		var singleSelectionView = new Backbone.CollectionView( {
+		var singleSelectionListView = new Backbone.CollectionView( {
 			el : this.$collectionViewEl,
 			selectable : true,
 			collection : this.employees,
 			modelView : this.EmployeeView
 		} );
 
-		singleSelectionView.render();
+		singleSelectionListView.render();
 
-		singleSelectionView.setSelectedModel( this.emp1 );
+		singleSelectionListView.setSelectedModel( this.emp1 );
 
-		var selectedCid = singleSelectionView.getSelectedModel( { by : "cid" } );
+		var selectedCid = singleSelectionListView.getSelectedModel( { by : "cid" } );
 		equal( selectedCid, this.emp1.cid, "Selected item is the correct cid" );
 
-		var selectedModel = singleSelectionView.getSelectedModel();
+		var selectedModel = singleSelectionListView.getSelectedModel();
 		equal( selectedModel, this.emp1, "Selected item is the correct model" );
 
-		var selectedId = singleSelectionView.getSelectedModel( { by : "id" } );
+		var selectedId = singleSelectionListView.getSelectedModel( { by : "id" } );
 		equal( selectedId, this.emp1.id, "Selected item is the correct id" );
 
-		var selectedModelView = singleSelectionView.getSelectedModel( { by : "view" } );
+		var selectedModelView = singleSelectionListView.getSelectedModel( { by : "view" } );
 		equal( selectedModelView.model, this.emp1, "Selected item is the correct view" );
 
-		singleSelectionView.setSelectedModel( this.emp2 );
+		singleSelectionListView.setSelectedModel( this.emp2 );
 
-		var selectedOffset = singleSelectionView.getSelectedModel( { by : "offset" } );
-		equal( selectedOffset, 1, "Selected item is the correct offset" );
+		var selectedListItemOffset = singleSelectionListView.getSelectedModel( { by : "offset" } );
+		equal( selectedListItemOffset, 1, "Selected list item is the correct offset" );
+
+		var singleSelectionTableView = new Backbone.CollectionView( {
+			el : this.$collectionViewForTableEl,
+			selectable : true,
+			collection : this.employees,
+			modelView : this.EmployeeViewForTable
+		} );
+
+		singleSelectionTableView.render();
+
+		singleSelectionTableView.setSelectedModel( this.emp2 );
+
+		var selectedTableRowOffset = singleSelectionTableView.getSelectedModel( { by : "offset" } );
+		equal( selectedTableRowOffset, 1, "Selected table row is the correct offset" );
 
 	});
 
-	test( "setSelectedModel", 5, function() {
+	test( "setSelectedModel", 6, function() {
 
-		var singleSelectionView = new Backbone.CollectionView( {
+		var singleSelectionListView = new Backbone.CollectionView( {
 			el : this.$collectionViewEl,
 			selectable : true,
 			collection : this.employees,
 			modelView : this.EmployeeView
 		} );
 
-		singleSelectionView.render();
+		singleSelectionListView.render();
 
 		var selectedCid;
 
-		singleSelectionView.setSelectedModel( this.emp1.id, { by : "id" } );
-		selectedCid = singleSelectionView.getSelectedModel( { by : "cid" } );
+		singleSelectionListView.setSelectedModel( this.emp1.id, { by : "id" } );
+		selectedCid = singleSelectionListView.getSelectedModel( { by : "cid" } );
 		equal( selectedCid, this.emp1.cid, "Selected item correctly set using id" );
 
-		singleSelectionView.setSelectedModel( this.emp2.cid, { by : "cid" } );
-		selectedCid = singleSelectionView.getSelectedModel( { by : "cid" } );
+		singleSelectionListView.setSelectedModel( this.emp2.cid, { by : "cid" } );
+		selectedCid = singleSelectionListView.getSelectedModel( { by : "cid" } );
 		equal( selectedCid, this.emp2.cid, "Selected item correctly set using cid" );
 
-		singleSelectionView.setSelectedModel( this.emp3 );
-		selectedModel = singleSelectionView.getSelectedModel();
+		singleSelectionListView.setSelectedModel( this.emp3 );
+		selectedModel = singleSelectionListView.getSelectedModel();
 		equal( selectedModel, this.emp3, "Selected item correctly set using model" );
 
-		singleSelectionView.setSelectedModel( singleSelectionView.viewManager.findByModel( this.emp1 ), { by : "view" } );
-		selectedModel = singleSelectionView.getSelectedModel();
+		singleSelectionListView.setSelectedModel( singleSelectionListView.viewManager.findByModel( this.emp1 ), { by : "view" } );
+		selectedModel = singleSelectionListView.getSelectedModel();
 		equal( selectedModel, this.emp1, "Selected item correctly set using view" );
 
-		singleSelectionView.setSelectedModel( 1, { by : "offset" } );
-		selectedModel = singleSelectionView.getSelectedModel();
-		equal( selectedModel, this.emp2, "Selected item correctly set using offset" );
+		singleSelectionListView.setSelectedModel( 1, { by : "offset" } );
+		selectedModel = singleSelectionListView.getSelectedModel();
+		equal( selectedModel, this.emp2, "Selected list item correctly set using offset" );
+
+		var singleSelectionTableView = new Backbone.CollectionView( {
+			el : this.$collectionViewForTableEl,
+			selectable : true,
+			collection : this.employees,
+			modelView : this.EmployeeViewForTable
+		} );
+
+		singleSelectionTableView.render();
+
+		singleSelectionTableView.setSelectedModel( 1, { by : "offset" } );
+		selectedModel = singleSelectionTableView.getSelectedModel();
+		equal( selectedModel, this.emp2, "Selected table row correctly set using offset" );
 
 	});
 
-	test( "getSelectedModels", 15, function() {
+	test( "getSelectedModels", 18, function() {
 
-		var singleSelectionView = new Backbone.CollectionView( {
+		var singleSelectionListView = new Backbone.CollectionView( {
 			el : this.$collectionViewEl,
 			selectable : true,
 			selectMultiple : true,
@@ -131,77 +159,106 @@ $(document).ready( function() {
 			modelView : this.EmployeeView
 		} );
 
-		singleSelectionView.render();
+		singleSelectionListView.render();
 
-		singleSelectionView.setSelectedModels( [ this.emp1, this.emp2 ] );
+		singleSelectionListView.setSelectedModels( [ this.emp1, this.emp2 ] );
 
-		var selectedCids = singleSelectionView.getSelectedModels( { by : "cid" } );
+		var selectedCids = singleSelectionListView.getSelectedModels( { by : "cid" } );
 		equal( selectedCids.length, 2, "Correct number of selected items");
 		equal( selectedCids[0], this.emp1.cid, "One of selected items is the correct cid" );
 		equal( selectedCids[1], this.emp2.cid, "Other selected item is the correct cid" );
 
-		var selectedModels = singleSelectionView.getSelectedModels();
+		var selectedModels = singleSelectionListView.getSelectedModels();
 		equal( selectedModels.length, 2, "Correct number of selected items");
 		equal( selectedModels[0], this.emp1, "One of selected items is the correct model" );
 		equal( selectedModels[1], this.emp2, "Other selected item is the correct model" );
 
-		var selectedIds = singleSelectionView.getSelectedModels({ by : "id" });
+		var selectedIds = singleSelectionListView.getSelectedModels({ by : "id" });
 		equal( selectedIds.length, 2, "Correct number of selected items");
 		equal( selectedIds[0], this.emp1.id, "One of selected items is the correct id" );
 		equal( selectedIds[1], this.emp2.id, "Other selected item is the correct id" );
 
-		var selectedModelViews = singleSelectionView.getSelectedModels( { by : "view" });
+		var selectedModelViews = singleSelectionListView.getSelectedModels( { by : "view" });
 		equal( selectedModelViews.length, 2, "Correct number of selected items");
 		equal( selectedModelViews[0].model, this.emp1, "One of the selected items is the correct view" );
 		equal( selectedModelViews[1].model, this.emp2, "Other selected item is the correct view" );
 
-		var selectedOffsets = singleSelectionView.getSelectedModels( { by : "offset" } );
-		equal( selectedOffsets.length, 2, "Correct number of selected items" );
-		equal( selectedOffsets[0], 0, "One of the selected item is the correct offset" );
-		equal( selectedOffsets[1], 1, "Other selected item is the correct offset" );
+		var selectedListItemOffsets = singleSelectionListView.getSelectedModels( { by : "offset" } );
+		equal( selectedListItemOffsets.length, 2, "Correct number of selected list items" );
+		equal( selectedListItemOffsets[0], 0, "One of the selected list item is the correct offset" );
+		equal( selectedListItemOffsets[1], 1, "Other selected list item is the correct offset" );
 
+		var singleSelectionTableView = new Backbone.CollectionView( {
+			el : this.$collectionViewForTableEl,
+			selectable : true,
+			collection : this.employees,
+			modelView : this.EmployeeViewForTable
+		} );
+
+		singleSelectionTableView.render();
+
+		singleSelectionTableView.setSelectedModels( [ this.emp1, this.emp2 ] );
+
+		var selectedTableRowOffsets = singleSelectionTableView.getSelectedModels( { by : "offset" } );
+		equal( selectedTableRowOffsets.length, 2, "Correct number of selected table rows" );
+		equal( selectedTableRowOffsets[0], 0, "One of the selected table row is the correct offset" );
+		equal( selectedTableRowOffsets[1], 1, "Other selected table row is the correct offset" );
 
 	});
 
-	test( "setSelectedModels", 12, function() {
+	test( "setSelectedModels", 14, function() {
 
-		var singleSelectionView = new Backbone.CollectionView( {
+		var singleSelectionListView = new Backbone.CollectionView( {
 			el : this.$collectionViewEl,
 			selectable : true,
 			collection : this.employees,
 			modelView : this.EmployeeView
 		} );
 
-		singleSelectionView.render();
+		singleSelectionListView.render();
 
 		var selectedCid;
 
-		singleSelectionView.setSelectedModels( [ this.emp1.id, this.emp2.id ], { by : "id" } );
-		selectedModels = singleSelectionView.getSelectedModels();
+		singleSelectionListView.setSelectedModels( [ this.emp1.id, this.emp2.id ], { by : "id" } );
+		selectedModels = singleSelectionListView.getSelectedModels();
 		equal( selectedModels.length, 2, "Correct number of selected items");
 		equal( selectedModels[0], this.emp1, "One of selected items correctly set using 'id'" );
 		equal( selectedModels[1], this.emp2, "Other selected item correctly set using 'id'" );
 		equal( _.intersection( selectedModels, [this.emp1, this.emp2 ] ).length, 2,  "Selected items correctly set using 'id'" );
 
-		singleSelectionView.setSelectedModels([ this.emp2.cid, this.emp3.cid ], { by : "cid" } );
-		selectedModels = singleSelectionView.getSelectedModels();
+		singleSelectionListView.setSelectedModels([ this.emp2.cid, this.emp3.cid ], { by : "cid" } );
+		selectedModels = singleSelectionListView.getSelectedModels();
 		equal( selectedModels.length, 2, "Correct number of selected items");
 		equal(_.intersection(selectedModels, [ this.emp2, this.emp3 ] ).length, 2,  "Selected items correctly set using 'cid'" );
 
-		singleSelectionView.setSelectedModels( [ this.emp1, this.emp2 ] );
-		selectedModels = singleSelectionView.getSelectedModels();
+		singleSelectionListView.setSelectedModels( [ this.emp1, this.emp2 ] );
+		selectedModels = singleSelectionListView.getSelectedModels();
 		equal( selectedModels.length, 2, "Correct number of selected items");
 		equal( _.intersection(selectedModels, [ this.emp1, this.emp2 ] ).length, 2,  "Selected items correctly set using 'model'" );
 
-		singleSelectionView.setSelectedModels([ singleSelectionView.viewManager.findByModel( this.emp2 ), singleSelectionView.viewManager.findByModel( this.emp3 ) ], { by : "view" } );
-		selectedModels = singleSelectionView.getSelectedModels();
+		singleSelectionListView.setSelectedModels([ singleSelectionListView.viewManager.findByModel( this.emp2 ), singleSelectionListView.viewManager.findByModel( this.emp3 ) ], { by : "view" } );
+		selectedModels = singleSelectionListView.getSelectedModels();
 		equal( selectedModels.length, 2, "Correct number of selected items");
 		equal( _.intersection(selectedModels, [ this.emp2, this.emp3 ] ).length, 2,  "Selected items correctly set using 'view'" );
 
-		singleSelectionView.setSelectedModels( [ 0, 1 ], { by : "offset" } );
-		selectedModels = singleSelectionView.getSelectedModels();
-		equal( selectedModels.length, 2, "Correct number of selected items");
-		equal( _.intersection(selectedModels, [ this.emp1, this.emp2 ] ).length, 2,  "Selected items correctly set using 'offset'" );
+		singleSelectionListView.setSelectedModels( [ 0, 1 ], { by : "offset" } );
+		selectedModels = singleSelectionListView.getSelectedModels();
+		equal( selectedModels.length, 2, "Correct number of selected list items");
+		equal( _.intersection(selectedModels, [ this.emp1, this.emp2 ] ).length, 2,  "Selected list items correctly set using 'offset'" );
+
+		var singleSelectionTableView = new Backbone.CollectionView( {
+			el : this.$collectionViewForTableEl,
+			selectable : true,
+			collection : this.employees,
+			modelView : this.EmployeeViewForTable
+		} );
+
+		singleSelectionTableView.render();
+
+		singleSelectionTableView.setSelectedModels( [ 0, 1 ], { by : "offset" } );
+		selectedModels = singleSelectionTableView.getSelectedModels();
+		equal( selectedModels.length, 2, "Correct number of selected table rows");
+		equal( _.intersection(selectedModels, [ this.emp1, this.emp2 ] ).length, 2,  "Selected table rows correctly set using 'offset'" );
 
 	});
 
