@@ -1,10 +1,3 @@
-/*!
- * Backbone.CollectionView, v0.4.6
- * Copyright (c)2013 Rotunda Software, LLC.
- * Distributed under MIT license
- * http://github.com/rotundasoftware/backbone-collection-view
-*/
-
 (function(){
 	var mDefaultModelViewConstructor = Backbone.View;
 
