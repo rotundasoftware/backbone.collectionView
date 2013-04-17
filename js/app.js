@@ -244,12 +244,24 @@ $(document).ready(function() {
 		marginBottom: $(window).height() - lastDiv
 	});
 
+	$('.tab-list li').click(function (event) {
+		var $target = $(event.currentTarget);
+		var $targetClass = $target.attr('class');
+		var $container = $target.closest('.code-container');
+		if ($targetClass.indexOf('current') === -1 ) {
+			$container.find('pre.' + $targetClass).addClass('visible-code');
+			var $oldTab = $target.parent().find('.current');
+			$oldTab.removeClass('current');
+			$container.find('pre.' + $oldTab.attr('class')).removeClass('visible-code');
+			$target.addClass('current');
+		}
+	});
 	// If the user releases the click in less than 200 ms then select the code
 	// text
 
 	var held; // This is true if the mouse has been pressed for over 200 ms
 	var heldTimer;
-	$('pre').mousedown(function (event) {
+	$('pre').mousedown(function () {
 		held = false;
 
 		if (heldTimer) window.clearTimeout(heldTimer);
@@ -264,15 +276,16 @@ $(document).ready(function() {
 	$('pre').mouseup(function (event) {
 		// If mouse has been held down for less than 200 ms
 		if (!held) {
-			var codeId = $(event.currentTarget).attr('id');
+			var codeId = $(event.currentTarget).parent().attr('id');
 			var element = document.getElementById(codeId);
-			// Hack to do crossbrowser selection of text within non-input tag
+			// Crossbrowser selection of text within a non-input tag
+			var range;
 			if (document.selection) {
-				var range = document.body.createTextRange();
+				range = document.body.createTextRange();
 				range.moveToElementText(element);
 				range.select();
 			} else if (window.getSelection) {
-				var range = document.createRange();
+				range = document.createRange();
 				range.selectNode(element);
 				window.getSelection().addRange(range);
 			}

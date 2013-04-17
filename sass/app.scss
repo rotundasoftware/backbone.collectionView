@@ -135,6 +135,7 @@ header {
 	padding: 10px 0;
 	border-bottom: 1px solid darken($lightBlue, $borderOffset);
 	background: $lightBlue;
+	z-index: 100;
 }
 
 .rotunda-link {
@@ -163,7 +164,7 @@ h1 {
 
 .content {
 	margin: 0 auto;
-	width: 1070px;
+	width: 1090px;
 }
 
 .nav {
@@ -221,7 +222,7 @@ h1 {
 		margin: 10px 0;
 		@include borderBox($grey);
 
-		&:hover{
+		&:hover:not(.selected) {
 			@include borderBox($blueGrey);
 		}
 	}
@@ -229,9 +230,6 @@ h1 {
 	.selected {
 		@include borderBox($blue);
 		color: $white;
-		&:hover {
-			@include borderBox($blue);
-		}
 	}
 }
 
@@ -241,7 +239,7 @@ h1 {
 	li {
 		padding: 10px;
 		background: hsl(0, 0%, 97%);
-		font-family: "Helvetica Neue", Helvetica, arial, freesans, clean, sans-serif;
+		font-family: "Helvetica Neue", Helvetica, arial;
 		-webkit-font-smoothing: antialiased;
 		border-bottom: 1px solid hsl(0, 0%, 90%);
 
@@ -266,8 +264,8 @@ h1 {
 table {
 	border-collapse: collapse;
 	width: 350px;
-	@include borderBox($grey);
-	font-family: "Helvetica Neue", Helvetica, arial, freesans, clean, sans-serif;
+	border: 1px solid darken($grey, $borderOffset);
+	font-family: "Helvetica Neue", Helvetica, arial;
 }
 
 td {
@@ -281,10 +279,6 @@ td {
 
 tr {
 	cursor: pointer;
-
-	&:nth-of-type(odd) {
-		background: white;
-	}
 
 	&:nth-of-type(even) {
 		background: $lightBlue;
@@ -342,7 +336,7 @@ tr {
 		margin: 4px 0;
 		background: $darkGrey;
 		color: white;
-		font-family: "Helvetica Neue", Helvetica, arial, freesans, clean, sans-serif;
+		font-family: "Helvetica Neue", Helvetica, arial;
 		-webkit-font-smoothing: antialiased;
 		font-weight: bold;
 		@include transition( all 0.20s ease-out);
@@ -372,13 +366,62 @@ tr {
 	}
 }
 
-pre {
-	width: 428px;
-	font-size: 12px;
-	@include borderBox($navy);
-	padding: 15px;
-	margin:0;
+.code-container{
 	float: left;
+	width: 480px;
+	position:relative;
+}
+
+.code-wrapper{
+	float: left;
+}
+
+pre {
+	display: none;
+	overflow: auto;
+	float: left;
+	width: 437px;
+	height: 174px;
+	padding: 18px 15px;
+	margin:0;
+	border: 1px solid #9c9c9c;
 	line-height: 18px;
+	font-size: 12px;
+	@include borderRadius();
+	background: $navy;
 	cursor: pointer;
+}
+
+.visible-code{
+	display: block;
+}
+
+.tab-list{
+	float: left;
+	list-style: none;
+	margin: 0 15px -1px;
+	position: relative;
+	padding: 0;
+
+	li {
+		float: left;
+		padding: 5px 15px;
+		margin-right: 5px;
+		padding-bottom: 4px;
+		border: 1px solid #9c9c9c;
+		border-bottom: 0px;
+		color: #979797;
+		-webkit-font-smoothing: antialiased;
+		font-weight: bold;
+		background: darken($navy, 5);
+		border-top-left-radius: 8px;
+		border-top-right-radius: 8px;
+		cursor: pointer;
+	}
+
+	.current {
+		padding-bottom: 5px;
+		background: $navy;
+    color: white;
+	}
 }
