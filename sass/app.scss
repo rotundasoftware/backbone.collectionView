@@ -2,39 +2,79 @@
 /*make non-sortable/selectable rows differnt color and unhoverable*/
 
 //// Mixins and variables
- @import "compass/css3/images";
- @import "compass/css3/border-radius";
- @import "compass/css3/text-shadow";
+@import "compass/css3/images";
+@import "compass/css3/border-radius";
+@import "compass/css3/text-shadow";
+@import "compass/css3/box-shadow";
+@import "compass/css3/transition";
 
-$blue:      hsl( 223,  64%,  65% );
+$blue:      hsl( 223,  70%,  65% );
 $orange:    hsl(  22, 100%,  63% );
 $red:       hsl( 352,  66%,  64% );
 $green:     hsl( 125,  39%,  58% );
 $navy:      hsl( 227,  27%,  19% );
 
-$lightBlue: hsl( 223, 100%,  96% );
-$blueGrey:  hsl( 223,  64%,  75% );
-$grey:      hsl(   0,   0%,  94% );
-$white:     hsl(   0, 100%, 100% );
+$lightBlue:  hsl( 223, 100%,  96% );
+$brightBlue: saturate($blue, 30);
+$blueGrey:   hsl( 223,  64%,  75% );
+$grey:       hsl(   0,   0%,  94% );
+$darkGrey:   hsl(   0,   0%,  35% );
+$white:      hsl(   0, 100%, 100% );
 
 $borderOffset:  15;
-$gradientOffset: 8;
+$buttonGradientOffset: 8;
 
+@mixin borderRadius() {
+	@include border-radius(4px);
+}
 @mixin borderBox($color) {
 	background: $color;
 	border: 1px solid darken($color, $borderOffset);
-	@include border-radius(4px);
+	@include borderRadius();
 }
 
-@mixin gradientor($color){
-	@include background(linear-gradient(lighten($color, $gradientOffset), darken($color, $gradientOffset)));
+@mixin gradientor($color, $offset){
+	@include background(linear-gradient(lighten($color, $offset), darken($color, $offset)));
 }
 
 @mixin buttonize($color){
 	@include borderBox($color);
-	@include gradientor($color);
+	@include gradientor($color, $buttonGradientOffset);
 	&:hover {
-		@include gradientor(darken($color, 4));
+		@include gradientor(darken($color, 4), $buttonGradientOffset);
+	}
+}
+
+// Github icon font
+@font-face {
+	font-family: 'Octicons Regular';
+	src: url("https://a248.e.akamai.net/assets.github.com/assets/octicons/octicons-regular-webfont-f8cb074da115b589d1518e9701e5ce0145a9a04b.eot");
+	src: url("https://a248.e.akamai.net/assets.github.com/assets/octicons/octicons-regular-webfont-f8cb074da115b589d1518e9701e5ce0145a9a04b.eot#iefix") format("embedded-opentype"),
+	url("https://a248.e.akamai.net/assets.github.com/assets/octicons/octicons-regular-webfont-ca94a86a0e39e28efb023a130cb748731bb0ab58.woff") format("woff"),
+	url("https://a248.e.akamai.net/assets.github.com/assets/octicons/octicons-regular-webfont-83378e6a590d9a4a7242c6cf23f1a1b49ce7aa14.ttf") format("truetype"),
+	url("https://a248.e.akamai.net/assets.github.com/assets/octicons/octicons-regular-webfont-e1451ddc22ffbea19d2e8fca0742d5667940b793.svg#newFontRegular") format("svg");
+	font-weight: normal;
+	font-style: normal;
+}
+
+.github-icon {
+	position: absolute;
+	left: 10px;
+	bottom: 8px;
+	line-height: 1;
+	font-family: 'Octicons Regular';
+	font-size: 45px;
+	-webkit-font-smoothing: antialiased;
+	text-decoration: none;
+	@include transition( all 0.15s ease-out);
+	color: hsla(0,  0%,  0%, .3);
+
+	&:hover {
+		color: hsla(0,  0%,  0%, .7);
+	}
+
+	&:before {
+		content: ""
 	}
 }
 
@@ -44,8 +84,8 @@ $gradientOffset: 8;
 	list-style-type: none;
 	margin: 0;
 	outline: medium none;
-	overflow: hidden;
 	padding: 0;
+
 	li {
 		cursor: pointer;
 	}
@@ -95,9 +135,10 @@ header {
 	padding: 10px 0;
 	border-bottom: 1px solid darken($lightBlue, $borderOffset);
 	background: $lightBlue;
+	z-index: 100;
 }
 
-.header-links {
+.rotunda-link {
 	position: absolute;
 	right: 50px;
 	bottom: 3px;
@@ -105,9 +146,11 @@ header {
 	-webkit-font-smoothing: antialiased;
 	font-size: 18px;
 	font-weight: bold;
+
 	a {
 		color: hsl(0, 0%, 20%);
 		text-decoration: none;
+
 		&:hover {
 			text-decoration: underline;
 		}
@@ -121,7 +164,7 @@ h1 {
 
 .content {
 	margin: 0 auto;
-	width: 1070px;
+	width: 1090px;
 }
 
 .nav {
@@ -172,14 +215,14 @@ h1 {
 }
 
 
-.example-list {
+.flat-border-list {
 
 	li {
 		padding: 10px;
 		margin: 10px 0;
 		@include borderBox($grey);
 
-		&:hover{
+		&:hover:not(.selected) {
 			@include borderBox($blueGrey);
 		}
 	}
@@ -189,6 +232,129 @@ h1 {
 		color: $white;
 	}
 }
+
+.light-flat-list {
+	@include box-shadow(0 1px 3px 0 hsla(0, 0%, 0%, 0.33));
+
+	li {
+		padding: 10px;
+		background: hsl(0, 0%, 97%);
+		font-family: "Helvetica Neue", Helvetica, arial;
+		-webkit-font-smoothing: antialiased;
+		border-bottom: 1px solid hsl(0, 0%, 90%);
+
+		&:last-of-type {
+			border-bottom: 0;
+		}
+
+		&:hover{
+			background: darken($lightBlue, 10);
+		}
+	}
+
+	.selected {
+		color: $white;
+		background: $blue;
+		&:hover {
+		background: $blue;
+		}
+	}
+}
+
+table {
+	border-collapse: collapse;
+	width: 350px;
+	border: 1px solid darken($grey, $borderOffset);
+	font-family: "Helvetica Neue", Helvetica, arial;
+}
+
+td {
+	padding: 10px 20px;
+	-webkit-font-smoothing: antialiased;
+
+	&:first-of-type {
+		border-right: 1px solid darken($grey, $borderOffset);
+	}
+}
+
+tr {
+	cursor: pointer;
+
+	&:nth-of-type(even) {
+		background: $lightBlue;
+	}
+
+	&:hover{
+		background:($blueGrey);
+	}
+
+	&.selected {
+		background: $blue;
+		color: $white;
+
+		&:hover {
+			background: $blue;
+		}
+	}
+}
+
+.gradient-list {
+
+	li {
+		padding: 10px;
+		margin: 10px 0;
+		background: $grey;
+		@include gradientor($grey, 3);
+		border: 1px solid darken($grey, $borderOffset);
+		@include borderRadius;
+		@include box-shadow(0 1px 3px hsla(0, 0%, 0%, 0.14));
+		@include text-shadow(0 1px 0 hsla(0, 100%, 100%, 0.8));
+
+		&:hover{
+			@include gradientor($blueGrey, 3);
+			border: 1px solid darken($blueGrey, $borderOffset);
+		}
+	}
+
+	.selected {
+		@include borderBox($blue);
+		color: $white;
+		text-shadow: 0 1px 0 hsla(0, 0%, 0%, 0.8);
+
+		&:hover {
+			@include borderBox($blue);
+		}
+	}
+}
+
+.dark-flat-list {
+
+	margin: 10px 0;
+
+	li {
+		padding: 10px;
+		margin: 4px 0;
+		background: $darkGrey;
+		color: white;
+		font-family: "Helvetica Neue", Helvetica, arial;
+		-webkit-font-smoothing: antialiased;
+		font-weight: bold;
+		@include transition( all 0.20s ease-out);
+
+		&:hover{
+			background: desaturate($brightBlue, 10);
+		}
+	}
+
+	.selected {
+		background: $brightBlue;
+
+		&:hover {
+			background: $brightBlue;
+		}
+	}
+}
+
 
 .demo-container {
 	width: 350px;
@@ -200,12 +366,62 @@ h1 {
 	}
 }
 
-pre {
-	width: 428px;
-	font-size: 12px;
-	@include borderBox($navy);
-	padding: 15px;
-	margin:0;
+.code-container{
 	float: left;
+	width: 480px;
+	position:relative;
+}
+
+.code-wrapper{
+	float: left;
+}
+
+pre {
+	display: none;
+	overflow: auto;
+	float: left;
+	width: 437px;
+	height: 174px;
+	padding: 18px 15px;
+	margin:0;
+	border: 1px solid #9c9c9c;
 	line-height: 18px;
+	font-size: 12px;
+	@include borderRadius();
+	background: $navy;
+	cursor: pointer;
+}
+
+.visible-code{
+	display: block;
+}
+
+.tab-list{
+	float: left;
+	list-style: none;
+	margin: 0 15px -1px;
+	position: relative;
+	padding: 0;
+
+	li {
+		float: left;
+		padding: 5px 15px;
+		margin-right: 5px;
+		padding-bottom: 4px;
+		border: 1px solid #9c9c9c;
+		border-bottom: 0px;
+		color: #979797;
+		-webkit-font-smoothing: antialiased;
+		font-weight: bold;
+		background: darken($navy, 5);
+		border-top-left-radius: 8px;
+		border-top-right-radius: 8px;
+		cursor: pointer;
+	}
+
+	.current {
+		padding-bottom: 5px;
+		background: $navy;
+    color: white;
+	}
 }

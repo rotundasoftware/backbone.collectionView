@@ -13,24 +13,6 @@ function getContainerHeights (exampleContainers) {
 
 $(document).ready(function() {
 
-	// Store all example container divs so we can get their heights
-	var $containerDivs = $('.example-container');
-
-	// When the user scrolls, update the nav to show the current example
-	$(window).scroll(function () {
-
-		var fromTop = $(document).scrollTop();
-		var containerHeights = getContainerHeights($containerDivs);
-
-		for (var i = 0; i < containerHeights.length; i++) {
-			if (containerHeights[i] > fromTop) {
-				navView.setSelectedModel('c' + i, { by : "cid" } );
-				break;
-			}
-		}
-	});
-
-
 	var ExampleView = Backbone.View.extend({
 
 		template : _.template($('#example-template').html()),
@@ -61,6 +43,23 @@ $(document).ready(function() {
 	});
 
 	navView.render();
+
+	// Store all example container divs so we can get their heights
+	var $containerDivs = $('.example-container');
+
+	// When the user scrolls, update the nav to show the current example
+	$(window).scroll(function () {
+
+		var fromTop = $(document).scrollTop();
+		var containerHeights = getContainerHeights($containerDivs);
+
+		for (var i = 0; i < containerHeights.length; i++) {
+			if (containerHeights[i] > fromTop) {
+				navView.setSelectedModel('c' + i, { by : 'cid', silent: true});
+				break;
+			}
+		}
+	});
 
 	// Navigate to newly selected example, this should be triggered by clicking
 	// and arrow keys but not by selection change caused by scrolling
@@ -126,14 +125,28 @@ $(document).ready(function() {
 
 	multipleSelectionView.render();
 
-	var arrowSelectionView = new Backbone.CollectionView({
+  var EmployeeViewForTableList = Backbone.View.extend({
+
+		tagName : 'tr',
+
+		template : _.template($('#employee-template-for-table-list').html()),
+
+		render : function() {
+			var emp = this.model.toJSON();
+			var html = this.template(emp);
+			this.$el.append(html);
+		}
+	});
+
+
+	viewCollectionForTableList = new Backbone.CollectionView({
 		el : $('#demoUpDownArrowSelection'),
 		selectable : true,
 		collection : createACollection(),
-		modelView : EmployeeView
+		modelView : EmployeeViewForTableList
 	});
 
-	arrowSelectionView.render();
+	viewCollectionForTableList.render();
 
 	var sortableView = new Backbone.CollectionView({
 		el : $('#demoSortable'),
@@ -166,7 +179,7 @@ $(document).ready(function() {
 
 		var curSelectedModel = addRemoveItemView.getSelectedModel();
 
-		if(curSelectedModel) {
+		if (curSelectedModel) {
 			addRemoveItemView.collection.remove(curSelectedModel);
 		}
 	});
@@ -230,4 +243,53 @@ $(document).ready(function() {
 	$('.example-wrapper').css({
 		marginBottom: $(window).height() - lastDiv
 	});
+
+	$('.tab-list li').click(function (event) {
+		var $target = $(event.currentTarget);
+		var $targetClass = $target.attr('class');
+		var $container = $target.closest('.code-container');
+		if ($targetClass.indexOf('current') === -1 ) {
+			$container.find('pre.' + $targetClass).addClass('visible-code');
+			var $oldTab = $target.parent().find('.current');
+			$oldTab.removeClass('current');
+			$container.find('pre.' + $oldTab.attr('class')).removeClass('visible-code');
+			$target.addClass('current');
+		}
+	});
+	// If the user releases the click in less than 200 ms then select the code
+	// text
+
+	var held; // This is true if the mouse has been pressed for over 200 ms
+	var heldTimer;
+	$('pre').mousedown(function () {
+		held = false;
+
+		if (heldTimer) window.clearTimeout(heldTimer);
+
+		// After 200 ms, the mouse has been held down to long to perform
+		// selection
+		heldTimer = window.setTimeout(function () {
+			held = true;
+		}, 200);
+	});
+
+	$('pre').mouseup(function (event) {
+		// If mouse has been held down for less than 200 ms
+		if (!held) {
+			var codeId = $(event.currentTarget).parent().attr('id');
+			var element = document.getElementById(codeId);
+			// Crossbrowser selection of text within a non-input tag
+			var range;
+			if (document.selection) {
+				range = document.body.createTextRange();
+				range.moveToElementText(element);
+				range.select();
+			} else if (window.getSelection) {
+				range = document.createRange();
+				range.selectNode(element);
+				window.getSelection().addRange(range);
+			}
+		}
+	});
+
 });
