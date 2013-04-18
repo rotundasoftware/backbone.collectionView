@@ -15,9 +15,13 @@ module.exports = function(grunt) {
 			banner: '<%= banner %>',
 			stripBanners: true
 		},
-		dist: {
+		js: {
 			src: ['src/<%= pkg.name %>.js'],
 			dest: 'dist/<%= pkg.name %>.js'
+		},
+		css: {
+			src: ['css/<%= pkg.name %>.css'],
+			dest: 'dist/<%= pkg.name %>.css'
 		}
 	},
 	uglify: {
@@ -25,7 +29,7 @@ module.exports = function(grunt) {
 			banner: '<%= banner %>'
 		},
 		dist: {
-			src: '<%= concat.dist.dest %>',
+			src: '<%= concat.js.dest %>',
 			dest: 'dist/<%= pkg.name %>.min.js'
 		}
 	},
