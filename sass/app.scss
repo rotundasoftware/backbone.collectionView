@@ -58,6 +58,10 @@ $buttonGradientOffset: 8;
 	}
 }
 
+a {
+	text-decoration: none;
+}
+
 button {
 	padding: 10px 14px;
 	color: $white;
@@ -69,9 +73,11 @@ button {
 }
 
 .button-big {
-	width: 330px;
-	margin: 20px 0 20px 70px;
-	font-size: 20px;
+	display: block;
+	width: 300px;
+	margin: 35px auto 0;
+	font-size: 25px;
+	letter-spacing: 1px;
 }
 
 .button-small {
@@ -191,7 +197,10 @@ h1 {
 }
 
 .intro-text{
+	margin: 30px 0 0;
 	font-size: 20px;
+	line-height: 27px;
+	-webkit-font-smoothing: antialiased;
 }
 
 
