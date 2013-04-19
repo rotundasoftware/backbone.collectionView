@@ -4,7 +4,7 @@ A backbone view class that renders a collection of models. This class is similar
 
 Depends on jQuery and jQueryUI for event handling and sorting, respectively.
 
-[Click here for a demo of key features](http://rotundasoftware.github.com/backbone.collectionView/)
+For demos see [the Backbone.CollectionView home page](http://rotundasoftware.github.com/backbone.collectionView/).
 
 ## Benefits
 
