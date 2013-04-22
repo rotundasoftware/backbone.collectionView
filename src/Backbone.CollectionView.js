@@ -431,7 +431,18 @@
 			}
 			else
 			{
-				this.$el.empty();
+				// Element that contains the model views
+				var modelViewParentElement;
+
+				// If collection view element is a table and it has a tbody
+				// within it, render the model views inside of the tbody
+				var tbodyChild = this.$el.find( "> tbody" );
+				if( this._isRenderedAsTable() && tbodyChild.length > 0 )
+					modelViewParentElement = $( tbodyChild[ 0 ] );
+				else
+					modelViewParentElement = this.$el;
+
+				modelViewParentElement.empty();
 				
 				this.collection.each( function( thisModel ) {
 					var thisModelViewConstructor = this._getModelViewConstructor( thisModel );
@@ -470,7 +481,7 @@
 						if( this.sortableModelsFilter.call( _this, thisModel ) )
 							thisModelViewWrapped.addClass( "sortable" );
 
-					this.$el.append( thisModelViewWrapped );
+					modelViewParentElement.append( thisModelViewWrapped );
 					
 					// we have to render the modelView after it has been put in context, as opposed to in the 
 					// initialize function of the modelView, because some rendering might be dependent on
