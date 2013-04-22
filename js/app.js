@@ -169,7 +169,8 @@ $(document).ready(function() {
 	var addRemoveItemView = new Backbone.CollectionView({
 		el : $('#demoAddAndRemoveFromList'),
 		selectable : true,
-		collection : createACollection(),
+		emptyListCaption : 'There are no items in this list.',
+		collection : new Employees(),
 		modelView : EmployeeView
 	});
 
