@@ -203,6 +203,88 @@ h1 {
 	-webkit-font-smoothing: antialiased;
 }
 
+.demo-container {
+	width: 350px;
+	margin-right: 40px;
+	float: left;
+
+	p {
+		font-size: 14px;
+	}
+}
+
+.empty-list-caption {
+	display: block;
+	margin: 0 -10px;
+	padding: 30px;
+	font-size: 18px;
+	text-align: center;
+	font-style: normal;
+	line-height: 1.45;
+	@include borderRadius;
+	color: darken($grey, 20);
+	background: $grey;
+}
+
+.code-container{
+	float: left;
+	width: 480px;
+	position:relative;
+}
+
+.code-wrapper{
+	float: left;
+}
+
+pre {
+	display: none;
+	overflow: auto;
+	float: left;
+	width: 437px;
+	height: 174px;
+	padding: 18px 15px;
+	margin:0;
+	border: 1px solid #9c9c9c;
+	line-height: 18px;
+	font-size: 12px;
+	@include borderRadius();
+	background: $navy;
+	cursor: pointer;
+}
+
+.visible-code{
+	display: block;
+}
+
+.tab-list{
+	float: left;
+	list-style: none;
+	margin: 0 15px -1px;
+	position: relative;
+	padding: 0;
+
+	li {
+		float: left;
+		padding: 7px 20px;
+		margin-right: 5px;
+		padding-bottom: 4px;
+		border: 1px solid #9c9c9c;
+		border-bottom: 0px;
+		color: #979797;
+		-webkit-font-smoothing: antialiased;
+		font-weight: bold;
+		background: darken($navy, 5);
+		border-top-left-radius: 8px;
+		border-top-right-radius: 8px;
+		cursor: pointer;
+	}
+
+	.current {
+		padding-bottom: 5px;
+		background: $navy;
+    color: white;
+	}
+}
 
 .flat-border-list {
 
@@ -341,76 +423,5 @@ tr {
 		&:hover {
 			background: $brightBlue;
 		}
-	}
-}
-
-
-.demo-container {
-	width: 350px;
-	margin-right: 40px;
-	float: left;
-
-	p {
-		font-size: 14px;
-	}
-}
-
-.code-container{
-	float: left;
-	width: 480px;
-	position:relative;
-}
-
-.code-wrapper{
-	float: left;
-}
-
-pre {
-	display: none;
-	overflow: auto;
-	float: left;
-	width: 437px;
-	height: 174px;
-	padding: 18px 15px;
-	margin:0;
-	border: 1px solid #9c9c9c;
-	line-height: 18px;
-	font-size: 12px;
-	@include borderRadius();
-	background: $navy;
-	cursor: pointer;
-}
-
-.visible-code{
-	display: block;
-}
-
-.tab-list{
-	float: left;
-	list-style: none;
-	margin: 0 15px -1px;
-	position: relative;
-	padding: 0;
-
-	li {
-		float: left;
-		padding: 5px 15px;
-		margin-right: 5px;
-		padding-bottom: 4px;
-		border: 1px solid #9c9c9c;
-		border-bottom: 0px;
-		color: #979797;
-		-webkit-font-smoothing: antialiased;
-		font-weight: bold;
-		background: darken($navy, 5);
-		border-top-left-radius: 8px;
-		border-top-right-radius: 8px;
-		cursor: pointer;
-	}
-
-	.current {
-		padding-bottom: 5px;
-		background: $navy;
-    color: white;
 	}
 }

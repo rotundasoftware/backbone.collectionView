@@ -273,7 +273,7 @@
 		<div class="example-container">
 			<h2>Adding and Removing items from the List</h2>
 			<div class="demo-container">
-				<p>Click on the buttons below to either add an item to the end of the collection, or remove the currently selected item.  The collection is automatically re-rendered for you.</p>
+				<p>Click on the buttons below to either add an item to the end of the collection, or remove the currently selected item.  The collection is automatically re-rendered for you. The emptyListCaption option is being used to display text when the list is empty.</p>
 				<button id="demoAddToCollectionButton" class="button-small button-green">Add item</button>
 				<button id="demoRemoveFromCollectionButton" class="button-small button-right button-red">Remove selected item</button>
 				<ul id="demoAddAndRemoveFromList" class="dark-flat-list"></ul>
@@ -285,7 +285,15 @@
 				</ul>
 				<div class="code-wrapper" id="code-text-5">
 					<pre class="js-code visible-code">
-<code data-language="javascript"> $('#demoRemoveFromCollectionButton').click(function() {
+<code data-language="javascript"> var addRemoveItemView = new Backbone.CollectionView({
+  el : $('#demoAddAndRemoveFromList'),
+  selectable : true,
+  emptyListCaption : 'There are no items in this list.',
+  collection : new Employees(),
+  modelView : EmployeeView
+});
+
+$('#demoRemoveFromCollectionButton').click(function() {
 
   var curSelectedModel = addRemoveItemView.getSelectedItem({
     by : "model"
