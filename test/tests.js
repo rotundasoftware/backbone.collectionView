@@ -41,11 +41,49 @@ $(document).ready( function() {
 		var $fixture = $( "#qunit-fixture" );
 		$fixture.append( "<ul id='myCollectionList'></ul>" );
 		$fixture.append( "<table id='myCollectionTable'></table>" );
+		$fixture.append( "<table id='myCollectionTableWithContents'><thead></thead><tbody></tbody></table>" );
 		
 		this.$collectionViewEl = $( "#myCollectionList" );
 		this.$collectionViewForTableEl = $( "#myCollectionTable" );
+		this.$collectionViewForTableWithContentsEl = $( "#myCollectionTableWithContents" );
 
 	}
+
+	module( "Table rendering",
+		{
+			setup: function() {
+				commonSetup.call( this );
+			}
+		}
+	);
+
+	test( "Rendering with an empty table element", 2, function() {
+
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewForTableEl,
+			collection : this.employees,
+			modelView : this.EmployeeViewForTable
+		} );
+
+		myCollectionView.render();
+
+		equal( myCollectionView.$el.find( "tbody" ).length, 1, "Tbody is created" );
+		equal( myCollectionView.$el.find( "tbody > tr" ).length, 3, "Model views are added inside the tbody" );
+	} );
+
+	test( "Rendering with a tbody and thead inside the table element", 2, function() {
+
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewForTableWithContentsEl,
+			collection : this.employees,
+			modelView : this.EmployeeViewForTable
+		} );
+
+		myCollectionView.render();
+
+		equal( myCollectionView.$el.find( "thead" ).length, 1, "Thead remains after rendering" );
+		equal( myCollectionView.$el.find( "tbody > tr" ).length, 3, "Model views are added inside the tbody" );
+	} );
 
 	module( "Item Selection",
 		{
