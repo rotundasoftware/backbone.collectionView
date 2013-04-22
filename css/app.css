@@ -447,28 +447,34 @@ td:first-of-type {
 }
 
 @media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003351}}
-tr {
+thead {
+  border-bottom: 1px solid #c9c9c9;
+  font-weight: bold;
+}
+
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003356}}
+tbody tr {
   cursor: pointer;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003354}}
-tr:nth-of-type(even) {
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003359}}
+tbody tr:nth-of-type(odd) {
   background: #ebf0ff;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003358}}
-tr:hover {
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003363}}
+tbody tr:hover {
   background: #96aee8;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003362}}
-tr.selected {
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003367}}
+tbody tr.selected {
   background: #678be4;
   color: white;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003366}}
-tr.selected:hover {
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003371}}
+tbody tr.selected:hover {
   background: #678be4;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003374}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003379}}
 .gradient-list li {
   padding: 10px;
   margin: 10px 0;
@@ -489,7 +495,7 @@ tr.selected:hover {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003384}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003389}}
 .gradient-list li:hover {
   background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #a3b7eb), color-stop(100%, #8aa4e5));
   background: -webkit-linear-gradient(#a3b7eb, #8aa4e5);
@@ -498,7 +504,7 @@ tr.selected:hover {
   background: linear-gradient(#a3b7eb, #8aa4e5);
   border: 1px solid #587dda;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003390}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003395}}
 .gradient-list .selected {
   background: #678be4;
   border: 1px solid #2659d9;
@@ -510,7 +516,7 @@ tr.selected:hover {
   color: white;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.8);
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003395}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003400}}
 .gradient-list .selected:hover {
   background: #678be4;
   border: 1px solid #2659d9;
@@ -521,11 +527,11 @@ tr.selected:hover {
   border-radius: 4px;
 }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003401}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003406}}
 .dark-flat-list {
   margin: 10px 0;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003405}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003410}}
 .dark-flat-list li {
   padding: 10px;
   margin: 4px 0;
@@ -539,15 +545,15 @@ tr.selected:hover {
   -o-transition: all 0.2s ease-out;
   transition: all 0.2s ease-out;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003415}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003420}}
 .dark-flat-list li:hover {
   background: #5583f6;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003420}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003425}}
 .dark-flat-list .selected {
   background: #4d7fff;
 }
-@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003423}}
+@media -sass-debug-info{filename{font-family:file\:\/\/\/Users\/colinwren\/Projects\/backbone-collection-view\/sass\/app\.scss}line{font-family:\00003428}}
 .dark-flat-list .selected:hover {
   background: #4d7fff;
 }
