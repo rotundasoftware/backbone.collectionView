@@ -183,3 +183,21 @@
 .dark-flat-list .selected:hover {
 	background: #4D7FFF;
 }
+
+// Styling for caption that appears when list is empty
+.empty-list-caption {
+	display: block;
+	margin: 0 -10px;
+	padding: 30px;
+	font-size: 18px;
+	text-align: center;
+	font-style: normal;
+	line-height: 1.45;
+	color: #BDBDBD;
+	background: #F0F0F0;
+	-webkit-border-radius: 4px;
+	   -moz-border-radius: 4px;
+	    -ms-border-radius: 4px;
+	     -o-border-radius: 4px;
+	        border-radius: 4px;
+}
