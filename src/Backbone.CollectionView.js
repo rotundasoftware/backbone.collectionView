@@ -739,15 +739,16 @@
 			{
 				// need to trap down and up arrows or else the browser
 				// will end up scrolling a autoscroll div.
-				
-				if( event.which == this._charCodes.upArrow )
+
+				var  currentOffset = this.getSelectedModel( { by : "offset" } );
+				if( event.which === this._charCodes.upArrow && currentOffset !== 0 )
 				{
-					this.setSelectedModel( this.getSelectedModel( { by : "offset" } ) - 1, { by : "offset" } );
+					this.setSelectedModel( currentOffset - 1, { by : "offset" } );
 					trap = true;
 				}
-				else if( event.which == this._charCodes.downArrow )
+				else if( event.which === this._charCodes.downArrow && currentOffset !== this.collection.length - 1 )
 				{
-					this.setSelectedModel( this.getSelectedModel( { by : "offset" } ) + 1, { by : "offset" } );
+					this.setSelectedModel( currentOffset + 1, { by : "offset" } );
 					trap = true;
 				}
 			}
