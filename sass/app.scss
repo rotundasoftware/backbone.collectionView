@@ -33,11 +33,11 @@ $buttonGradientOffset: 8;
 	@include borderRadius();
 }
 
-@mixin gradientor($color, $offset){
+@mixin gradientor($color, $offset) {
 	@include background(linear-gradient(lighten($color, $offset), darken($color, $offset)));
 }
 
-@mixin buttonize($color){
+@mixin buttonize($color) {
 	@include borderBox($color);
 	@include gradientor($color, $buttonGradientOffset);
 	&:hover {
@@ -75,7 +75,8 @@ button {
 .button-big {
 	display: block;
 	width: 300px;
-	margin: 35px auto 0;
+	margin: 35px 0 0 90px;
+	float: left;
 	font-size: 25px;
 	letter-spacing: 1px;
 }
@@ -84,7 +85,7 @@ button {
 	font-size: 14px;
 }
 
-.button-right{
+.button-right {
 	float: right;
 }
 
@@ -112,35 +113,41 @@ header {
 	z-index: 100;
 }
 
-.github-icon {
+.gh-icon-blue {
+	opacity: 0;
+}
+
+.gh-icon-wrapper{
 	position: absolute;
-	left: 14px;
+	height: 63px;
+	right: 14px;
 	bottom: 14px;
-	opacity: .3;
-	@include transition( all 0.15s ease-out);
+	overflow: hidden;
+	width: 110px;
+	margin: -15px;
 
 	&:hover {
-		opacity: .7;
+
+		.gh-icon-blue {
+			opacity: 1;
+		}
+
+		.gh-icon-black {
+			opacity: 0;
+		}
+
+		.gh-icon {
+			top: 5px;
+		}
 	}
 }
 
-.rotunda-link {
+.gh-icon {
 	position: absolute;
-	right: 50px;
-	bottom: 3px;
-	color: hsl(0, 0%, 60%);
-	-webkit-font-smoothing: antialiased;
-	font-size: 18px;
-	font-weight: bold;
-
-	a {
-		color: hsl(0, 0%, 20%);
-		text-decoration: none;
-
-		&:hover {
-			text-decoration: underline;
-		}
-	}
+	top: 20px;
+	height: 70px;
+	width: 70px;
+	@include transition( all .40s ease-out);
 }
 
 h1 {
