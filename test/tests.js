@@ -351,6 +351,74 @@ $(document).ready( function() {
 
 	} );
 
+	test( "processKeyEvents", 6, function() {
+
+		function keyEvent ( code ) {
+			var keyEvent = $.Event( "keydown" );
+			keyEvent.which = code;
+			return keyEvent;
+		}
+
+		var upArrow = 38;
+		var downArrow = 40;
+
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewEl,
+			selectable : true,
+			processKeyEvents: true,
+			collection : this.employees,
+			modelView : this.EmployeeView
+		} );
+
+		myCollectionView.render();
+
+		var modelView1 = myCollectionView.viewManager.findByModel( this.emp1 );
+
+		modelView1.$el.click();
+		$( myCollectionView.$el ).trigger( keyEvent( downArrow ) );
+		var selectedModel = myCollectionView.getSelectedModel();
+		equal( selectedModel, this.emp2, "Down arrow keypress changes the selection to the item below the current" );
+
+		$( myCollectionView.$el ).trigger( keyEvent( upArrow ) );
+		var selectedModel = myCollectionView.getSelectedModel();
+		equal( selectedModel, this.emp1, "Up arrow keypress changes the selection to the item above the current" );
+
+		myCollectionView.setSelectedModel( this.emp1 );
+		$( myCollectionView.$el ).trigger( keyEvent( upArrow ) );
+		var selectedModel = myCollectionView.getSelectedModel();
+		equal( selectedModel, this.emp1, "Up arrow keypress when the first item is selected doesn't change selection" );
+
+		myCollectionView.setSelectedModel( this.emp3 );
+		$( myCollectionView.$el ).trigger( keyEvent( downArrow ) );
+		var selectedModel = myCollectionView.getSelectedModel();
+		equal( selectedModel, this.emp3, "Down arrow keypress when the last item is selected doesn't change selection" );
+
+		myCollectionView.remove();
+
+		myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewEl,
+			selectable : true,
+			processKeyEvents: false,
+			collection : this.employees,
+			modelView : this.EmployeeView
+		} );
+
+		myCollectionView.render();
+
+		var modelView1 = myCollectionView.viewManager.findByModel( this.emp1 );
+
+		modelView1.$el.click();
+		$( myCollectionView.$el ).trigger( keyEvent( downArrow ) );
+		selectedModel = myCollectionView.getSelectedModel();
+		equal( selectedModel, this.emp1, "Were not able to change selection by pressing down arrow key when processKeyEvents is false" );
+
+		myCollectionView.setSelectedModel( this.emp2 );
+		$( myCollectionView.$el ).trigger( keyEvent( upArrow ) );
+		selectedModel = myCollectionView.getSelectedModel();
+		equal( selectedModel, this.emp2, "Were not able to change selection by pressing up arrow key when processKeyEvents is false" );
+
+	} );
+
 	test( "selectable", 2, function() {
 
 		var myCollectionView = new Backbone.CollectionView( {
