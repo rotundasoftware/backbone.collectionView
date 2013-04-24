@@ -282,7 +282,7 @@ pre {
 	.current {
 		padding-bottom: 5px;
 		background: $navy;
-    color: white;
+		color: white;
 	}
 }
 
@@ -348,7 +348,12 @@ td {
 	}
 }
 
-tr {
+thead {
+	border-bottom: 1px solid darken($grey, $borderOffset);
+	font-weight: bold;
+}
+
+tbody tr {
 	cursor: pointer;
 
 	&:nth-of-type(even) {
