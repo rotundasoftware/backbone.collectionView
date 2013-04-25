@@ -752,7 +752,7 @@
 				// need to trap down and up arrows or else the browser
 				// will end up scrolling a autoscroll div.
 
-				var  currentOffset = this.getSelectedModel( { by : "offset" } );
+				var currentOffset = this.getSelectedModel( { by : "offset" } );
 				if( event.which === this._charCodes.upArrow && currentOffset !== 0 )
 				{
 					this.setSelectedModel( currentOffset - 1, { by : "offset" } );
