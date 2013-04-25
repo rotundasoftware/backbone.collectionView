@@ -13,7 +13,8 @@
 
 	var kStylesForEmptyListCaption = {
 		"background" : "transparent",
-		"border" : "none"
+		"border" : "none",
+		"box-shadow" : "none"
 	};
 	
 
