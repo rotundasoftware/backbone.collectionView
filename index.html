@@ -29,7 +29,7 @@
 		<div class="example-wrapper">
 
 		<div class="example-container">
-			<p class="intro-text">Easily render <a href="http://backbonejs.org/">backbone.js</a> collections. In addition to rendering and managing model views, this class supports automatic selection of models in response to clicks, and rearranging models (and reordering the underlying collection) through drag and drop, all through <a href="https://github.com/rotundasoftware/backbone.collectionView/">a minimalist API</a>.</p>
+			<p class="intro-text">Easily render <a href="http://backbonejs.org/">backbone.js</a> collections. In addition managing model views, this class supports automatic selection of models in response to clicks, and rearranging models (and reordering the underlying collection) via drag and drop. Get and set selected models through <a href="https://github.com/rotundasoftware/backbone.collectionView/#methods-and-properties-reference">a dead simple API</a>.</p>
 			<a href="https://github.com/rotundasoftware/backbone.collectionView/blob/master/zips/Backbone.CollectionView.zip?raw=true">
 				<button class="button-big button-orange">Download Source</button>
 			</a>
@@ -405,7 +405,7 @@ ul.collection-list li.selected {
 				</ul>
 				<div class="code-wrapper" id="code-text-7">
 					<pre class="js-code visible-code">
-<code data-language="javascript">var collectionView = new Backbone.CollectionView({
+<code data-language="javascript">var collectionView = new Backbone.CollectionView( {
   el : $( "ul#demoFilters" ),
   selectable : true,
   collection : employeeCollection,
