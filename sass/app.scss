@@ -317,8 +317,12 @@ table#demoTables {
 	font-family: "Helvetica Neue", Helvetica, arial;
 	cursor: pointer;
 
+	thead {
+		border-bottom: 1px solid darken($grey, $borderOffset);
+		font-weight: bold;
+	}
+	
 	tr {
-		
 		&:nth-child(even) {
 			background: $lightBlue;
 		}
