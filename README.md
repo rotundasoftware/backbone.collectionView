@@ -100,7 +100,7 @@ CollectionViews `trigger` the following events on themselves. You can respond to
 
 ##Styling
 
-You can style the collection view is up to you. Here are some guidelines.
+You can style the collection view is up to you. Here are some tips.
 
 The `ul` or `table` element that is used as the collection view's element will be given the `collection-list` class. Generally you will want to eliminate bullets, etc., from your collection view list elements, which you can do with these "baseline" styles:
 
@@ -114,7 +114,9 @@ ul.collection-list {
 }
 ```
 
-When using the `emptyListCaption` option, you can style the caption with the `var.empty-list-caption` selector. Here are the suggested defaults, which will center the empty list caption text near the top of the collection view.
+When a model is selected, the `li` or `tr` element that corresponds to that model will be given the `selected` class.
+
+You can style the caption created by the `emptyListCaption` option with the `var.empty-list-caption` selector. Here are the suggested defaults, which will center the empty list caption text near the top of the collection view.
 
 ```css
 var.empty-list-caption {
@@ -130,7 +132,7 @@ var.empty-list-caption {
 See the [the Backbone.CollectionView home page](http://rotundasoftware.github.com/backbone.collectionView/) for styling examples.
 
 ##Dependencies
-* Backbone.js (tested with v0.9.10)
+* Backbone.js (tested with v1.0, v0.9.10)
 * [Backbone.BabySitter](https://github.com/marionettejs/backbone.babysitter)
 * jQuery (tested with v1.9.1)
 * jQueryUI - for sorting (tested with v1.10.1)
