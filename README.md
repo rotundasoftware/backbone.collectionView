@@ -30,7 +30,7 @@ myCollectionView.setSelectedModel( employeeCollection.first() );
 ```
 
 ## Options accepted by the CollectionView constructor
-* `el` : A `<ul>` or `<table>` element. If you supply a `<ul>` element, your modelView's element can be of any type (they will be wrapped in `<li>` elements), but if you supply a `<table>` element, make sure your modelView has elements of type of `<tr>`. (If no `el` is supplied, a new `<ul>` element will be created and used). If you supply a `<table>` that contains a `<tbody>`, the modelViews will be rendered inside of it, otherwise a `<tbody>` will be created to contain the modelViews.
+* `el` : A `<ul>` or `<table>` element. If you supply a `<ul>` element, your modelView's element can be of any type (they will be wrapped in `<li>` elements), but if you supply a `<table>` element, make sure your modelView has elements of type of `<tr>`.
 * `collection` : The collection of models to be rendered.
 * `modelView` : The view constructor that will be used to create the views for each individual model in the collection.
 * `selectable` : (default: _true_) Determines whether models in the CollectionView are selectable.
@@ -39,7 +39,7 @@ myCollectionView.setSelectedModel( employeeCollection.first() );
 * `selectMultiple` : (default: _false_) In a selectable CollectionView, determines whether multiple models can be selected at once.
 * `clickToToggle` : (default: _false_) In a selectable CollectionView, determines whether clicking a model view should toggle its selected / unselected state. Only applies if selectMultiple == true.
 * `sortable` : (default: _false_) Determines whether models can be rearranged by dragging and dropping. (jQueryUI required.)
-* `emptyListCaption` : A string or a function that returns text to be displayed when there are no visible views in the CollectionView.  See [Styling the Empty List Caption](#emptyListCaptionStyling) for info on styling the caption.
+* `emptyListCaption` : A string or a function that returns text to be displayed when there are no visible views in the collection view.
 
 The following options expect a filter function that takes a single parameter, the model in question, and returns true or false.
 * `visibleModelsFilter` : (default: _all models_) Determines which models are visible. 
@@ -99,9 +99,22 @@ CollectionViews `trigger` the following events on themselves. You can respond to
 * __"reorder"__  Fired after a drag of a model view is finished and after the collection is reordered. (Sortable collection lists only.)
 
 ##Styling
-###<a name="emptyListCaptionStyling"></a>Empty List Caption
 
-The `emptyListCaption` text can be styled using the `var.empty-list-caption` selector.  Here is an example:
+You can style the collection view is up to you. Here are some guidelines.
+
+The `ul` or `table` element that is used as the collection view's element will be given the `collection-list` class. Generally you will want to eliminate bullets, etc., from your collection view list elements, which you can do with these "baseline" styles:
+
+```css
+ul.collection-list {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  outline: none;
+  cursor: pointer;
+}
+```
+
+When using the `emptyListCaption` option, you can style the caption with the `var.empty-list-caption` selector. Here are the suggested defaults, which will center the empty list caption text near the top of the collection view.
 
 ```css
 var.empty-list-caption {
@@ -113,6 +126,9 @@ var.empty-list-caption {
   line-height: 1.45;
 }
 ```
+
+See the [the Backbone.CollectionView home page](http://rotundasoftware.github.com/backbone.collectionView/) for styling examples.
+
 ##Dependencies
 * Backbone.js (tested with v0.9.10)
 * [Backbone.BabySitter](https://github.com/marionettejs/backbone.babysitter)
