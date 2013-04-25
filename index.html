@@ -5,7 +5,7 @@
 
 	<meta charset="utf-8">
 	<link href="css/blackboard.css" rel="stylesheet"/>
-	<link href="css/app.css" rel="stylesheet"/>
+	<link href="css/app.css" rel="stylesheet"/>.js
 	<link href='http://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'>
 
 </head>
@@ -29,15 +29,14 @@
 		<div class="example-wrapper">
 
 		<div class="example-container">
-			<p class="intro-text">A backbone view class that renders a collection of models. This class is similar to the collection view classes found in Backbone.Marionette and other frameworks, with added features for automatic selection of models in response to clicks, and support for rearranging models (and reordering the underlying collection) through drag and drop.</p>
+			<p class="intro-text">Easily render <a href="http://backbonejs.org/">backbone.js</a> collections. In addition to rendering and managing model views, this class supports automatic selection of models in response to clicks, and rearranging models (and reordering the underlying collection) through drag and drop, all through <a href="https://github.com/rotundasoftware/backbone.collectionView/">a minimalist API</a>.</p>
 			<a href="https://github.com/rotundasoftware/backbone.collectionView/blob/master/zips/Backbone.CollectionView.zip?raw=true"><button class="button-big button-orange">Download JS & CSS</button></a>
 		</div>
-
 
 		<div class="example-container">
 			<h2>Single Selection</h2>
 			<div class="demo-container">
-				<p>Try clicking on a row, the background of the selected row will change.  There is now way to select multiple rows.</p>
+				<p>Click an item in the list to select it.</p>
 				<ul id="demoSingleSelectionList" class="flat-border-list"></ul>
 			</div>
 			<div class="code-container">
@@ -47,45 +46,36 @@
 				</ul>
 				<div class="code-wrapper" id="code-text-1">
 					<pre class="js-code visible-code">
-<code data-language="javascript">var singleSelectionView = new Backbone.CollectionView({
-  el : $('#singleSelectionList'),
+<code data-language="javascript">var collectionView = new Backbone.CollectionView( {
+  el : $( "ul#demoSingleSelectionList" ),
   selectable : true,
-  collection : EmployeeCollection,
+  collection : employeeCollection,
   modelView : EmployeeView
-});</code>
+} );</code>
 </pre>
 <pre class="css-code">
-<code data-language="css">.flat-border-list {
+<code data-language="css">ul.collection-list {
   margin: 0;
   padding: 0;
   list-style-type: none;
-  outline: medium none;
-}
-.flat-border-list li {
-  margin: 10px 0;
-  padding: 10px;
-  border: 1px solid #C9C9C9;
-  -webkit-border-radius: 4px;
-     -moz-border-radius: 4px;
-      -ms-border-radius: 4px;
-       -o-border-radius: 4px;
-          border-radius: 4px;
-  background: #F0F0F0;
+  outline: none;
   cursor: pointer;
 }
-.flat-border-list li:hover {
-  background: #96AEE8;
-  border: 1px solid #587DDA;
+
+ul.collection-list li {
+  margin: 7px;
+  padding: 10px;
+  border: 1px solid #AAA;
+  border-radius: 4px;   /* may need vendor varients */
+  background: #FAFAFA;
 }
-.flat-border-list .selected {
-  border: 1px solid #2659D9;
-  color: #FFF;
-  background: #678BE4;
+
+ul.collection-list li.selected {
+  background: #678be4;
+  border: 1px solid #2659d9;
+  color: white;
 }
-.flat-border-list .selected:hover {
-  border: 1px solid #2659D9;
-  background: #678BE4;
-}</code>
+</code>
 					</pre>
 				</div>
 			</div>
@@ -95,7 +85,7 @@
 		<div class="example-container">
 			<h2>Multiple Selection</h2>
 			<div class="demo-container">
-				<p>Select a row.  Then hold down command or shift and click on another row.  Multiple rows are selected.  If you held down shift, all the rows in between are selected.  Using command, only the two rows you clicked on are selected.</p>
+				<p>Click while holding Command or Control (Windows). Hold Shift to select all rows in between.</p>
 				<ul id="demoMultipleSelectionList" class="light-flat-list"></ul>
 			</div>
 			<div class="code-container">
@@ -105,42 +95,35 @@
 				</ul>
 				<div class="code-wrapper" id="code-text-2">
 					<pre class="js-code visible-code">
-<code data-language="javascript">var multipleSelectionView = new Backbone.CollectionView({
-  el : $('#multipleSelectionList'),
+<code data-language="javascript">var collectionView = new Backbone.CollectionView( {
+  el : $('ul#demoMultipleSelectionList'),
   selectable : true,
   selectMultiple : true,
-  collection : EmployeeCollection,
+  collection : employeeCollection,
   modelView : EmployeeView
-});</code>
+} );</code>
 </pre>
-<pre class="css-code"><code data-language="css">.light-flat-list {
+<pre class="css-code"><code data-language="css">ul.collection-list {
   margin: 0;
   padding: 0;
   list-style-type: none;
-  webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.33);
-    -moz-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.33);
-         box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.33);
-  outline: medium none;
-}
-.light-flat-list li {
-  padding: 10px;
+  outline: none;
+  cursor: pointer;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.33);   /* may need vendor varients */
   font-family: "Helvetica Neue", Helvetica, arial;
-  -webkit-font-smoothing: antialiased;
+}
+
+ul..collection-list li {
+  padding: 10px;
   border-bottom: 1px solid #E6E6E6;
   background: #F7F7F7;
-  cursor: pointer;
 }
-.light-flat-list li:hover {
-  background: #B8CCFF;
-}
-.light-flat-list .selected {
-  color: #FFF;
+
+ul.collection-list li.selected {
+  color: white;
   background: #678BE4;
 }
-.light-flat-list .selected:hover {
-  color: #FFF;
-  border: 1px solid #2659D9;
-}</code>
+</code>
 					</pre>
 				</div>
 			</div>
@@ -148,11 +131,11 @@
 
 
 		<div class="example-container">
-			<h2>Using arrow keys to change selection</h2>
+			<h2>Tables</h2>
 			<div class="demo-container">
-				<p>Select a row.  Try using the up and down arrow keys.  The selected row will change.</p>
+				<p>Collection views can also be rendered as tables.</p>
 
-				<table id="demoUpDownArrowSelection" class="example-table">
+				<table id="demoTables" class="example-table">
 				</table>
 			</div>
 			<div class="code-container">
@@ -162,34 +145,36 @@
 				</ul>
 				<div class="code-wrapper" id="code-text-3">
 					<pre class="js-code visible-code">
-<code data-language="javascript">var arrowSelectionView = new Backbone.CollectionView({
-  el : $('#upDownArrowSelectionList'),
+<code data-language="javascript">var collectionView = new Backbone.CollectionView( {
+  el : $('table#demoTables'),
   selectable : true,
-  collection : EmployeeCollection,
+  collection : employeeCollection,
   modelView : EmployeeView
-});</code>
+} );</code>
 </pre>
 <pre class="css-code">
-<code data-language="css">.flat-table {
+<code data-language="css">table.collection-list {
   border-collapse: collapse;
   width: 350px;
-  border: 1px solid #C9C9C9;
+  border: 1px solid #AAA;
   font-family: "Helvetica Neue", Helvetica, arial;
+  cursor: pointer;
 }
-.flat-table tr:nth-of-type(even) {
+    
+table.collection-list tr:nth-child(even) {
   background: #EBF0FF;
 }
-.falt-table .selected {
+
+table.collection-list tr.selected {
   color: #FFF;
   background: #678BE4;
 }
-.flat-table td {
+
+table.collection-list tr td {
   padding: 10px 20px;
-  -webkit-font-smoothing: antialiased;
+  border-right: 1px solid #AAA;
 }
-.flat-table td:first-of-type {
-  border-right: 1px solid #C9C9C9;
-}</code>
+</code>
 					</pre>
 				</div>
 			</div>
@@ -199,7 +184,7 @@
 		<div class="example-container">
 			<h2>Sorting</h2>
 			<div class="demo-container">
-				<p>Click on a row and drag it to another location in the list.  The list re-arranges itself.  Click on the button below to see the contents of the backing collection.  You will see that that has been rearranged as well.</p>
+				<p>Click and drag. The underlying collection is automatically reordered.</p>
 				<button id="showModelSorting" class="button-small button-blue">See the collection contents</button>
 				<ul id="demoSortable" class="gradient-list"></ul>
 			</div>
@@ -210,22 +195,24 @@
 				</ul>
 				<div class="code-wrapper" id="code-text-4">
 					<pre class="js-code visible-code">
-<code data-language="javascript"> var sortableView = new Backbone.CollectionView({
-  el : $('#sortableList'),
+<code data-language="javascript">var collectionView = new Backbone.CollectionView( {
+  el : $('ul#demoSortableList'),
   selectable : true,
   sortable : true,
-  collection : EmployeeCollection,
+  collection : employeeCollection,
   modelView : EmployeeView
-});</code>
+} );</code>
 </pre>
 			<pre class="css-code">
-<code data-language="css">.gradient-list {
+<code data-language="css">ul.collection-list {
   margin: 0;
   padding: 0;
   list-style-type: none;
-  outline: medium none;
+  outline: none;
+  cursor: pointer;
 }
-.gradient-list li {
+
+ul.collection-list li {
   margin: 10px 0;
   padding: 10px;
   background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #F7F7F7), color-stop(100%, #E8E8E8));
@@ -235,33 +222,15 @@
   background:         linear-gradient(#F7F7F7, #E8E8E8);
   border: 1px solid #C9C9C9;
   background: #F0F0F0;
-  -webkit-border-radius: 4px;
-     -moz-border-radius: 4px;
-      -ms-border-radius: 4px;
-       -o-border-radius: 4px;
-          border-radius: 4px;
-  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
-     -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
+  border-radius: 4px;   /* may need vendor varients */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);   /* may need vendor varients */
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
-  cursor: pointer;
 }
-.gradient-list li:hover {
-  border: 1px solid #587DDA;
-  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #A3B7EB), color-stop(100%, #8AA4E5));
-  background: -webkit-linear-gradient(#A3B7EB, #8AA4E5);
-  background:    -moz-linear-gradient(#A3B7EB, #8AA4E5);
-  background:      -o-linear-gradient(#A3B7EB, #8AA4E5);
-  background:         linear-gradient(#A3B7EB, #8AA4E5);
-}
-.gradient-list .selected {
+
+ul.collection-list li.selected {
   border: 1px solid #2659D9;
   color: #FFF;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.8);
-  background: #678BE4;
-}
-.gradient-list .selected:hover {
-  border: 1px solid #2659D9;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.8);
   background: #678BE4;
 }</code>
 </pre>
@@ -271,12 +240,13 @@
 
 
 		<div class="example-container">
-			<h2>Adding and Removing items from the List</h2>
+			<h2>Empty list caption</h2>
 			<div class="demo-container">
-				<p>Click on the buttons below to either add an item to the end of the collection, or remove the currently selected item.  The collection is automatically re-rendered for you. The emptyListCaption option is being used to display text when the list is empty.</p>
-				<button id="demoAddToCollectionButton" class="button-small button-green">Add item</button>
-				<button id="demoRemoveFromCollectionButton" class="button-small button-right button-red">Remove selected item</button>
-				<ul id="demoAddAndRemoveFromList" class="dark-flat-list"></ul>
+				<p>The emptyListCaption option can be used to display text when the list is empty.</p>
+				<button id="demoAddToCollectionButton" class="button-small button-green">Add new item</button>
+				<button id="demoRemoveFromCollectionButton" class="button-small button-right button-red">Remove selected item(s)</button>
+				<p></p>
+        <ul id="demoEmptyListCaption"></ul>
 			</div>
 			<div class="code-container">
 				<ul class="tab-list">
@@ -285,71 +255,83 @@
 				</ul>
 				<div class="code-wrapper" id="code-text-5">
 					<pre class="js-code visible-code">
-<code data-language="javascript"> var addRemoveItemView = new Backbone.CollectionView({
-  el : $('#demoAddAndRemoveFromList'),
+<code data-language="javascript"> var collectionView = new Backbone.CollectionView( {
+  el : $( "ul#demoEmptyListCaption" ),
   selectable : true,
-  emptyListCaption : 'There are no items in this list.',
+  selectableMultiple : true,
+  sortable: true,
+  emptyListCaption : "There are no items in this list.",
   collection : new Employees(),
   modelView : EmployeeView
-});
+} );
 
-$('#demoRemoveFromCollectionButton').click(function() {
+$( "#demoRemoveFromCollectionButton" ).click( function() {
+  var selectedModels = collectionView.getSelectedModels();
+  collectionView.collection.remove( selectedModels );
+} );
 
-  var curSelectedModel = addRemoveItemView.getSelectedItem({
-    by : "model"
-  });
-
-  if (curSelectedModel) {
-    addRemoveItemView.collection.remove(curSelectedModel);
-  }
-});
-
-$('#demoAddToCollectionButton').click(function() {
-  addRemoveItemView.collection.add({
-    firstName : 'Super',lastName : 'Sleuth'
-  });
-});</code>
+$( "#demoAddToCollectionButton" ).click( function() {
+  collectionView.collection.add( {
+    firstName : 'Super', lastName : 'Sleuth'
+  } );
+} );</code>
 </pre>
 <pre class="css-code">
-<code data-language="css">.dark-flat-list {
-  margin: 10px 0;
-  padding: 0;
+<code data-language="css">ul.collection-list {
+  margin: 0;
   list-style-type: none;
-  outline: medium none;
-}
-.dark-flat-list li {
-  margin: 4px 0;
-  padding: 10px;
-  font-family: "Helvetica Neue", Helvetica, arial;
-  color: #FFF;
-  -webkit-font-smoothing: antialiased;
-  font-weight: bold;
-  background: #595959;
-  -webkit-transition: all 0.2s ease-out;
-     -moz-transition: all 0.2s ease-out;
-       -o-transition: all 0.2s ease-out;
-          transition: all 0.2s ease-out;
+  outline: none;
   cursor: pointer;
+
+  background: #FAFAFA;
+  padding: 0px 10px;
+  border: 1px solid #A0A0A0;
+  min-height: 150px;
 }
-.dark-flat-list li:hover {
-  background: #5583F6;
+
+ul.collection-list li {
+  margin: 10px 0;
+  padding: 10px;
+  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #F7F7F7), color-stop(100%, #E8E8E8));
+  background: -webkit-linear-gradient(#F7F7F7, #E8E8E8);
+  background:    -moz-linear-gradient(#F7F7F7, #E8E8E8);
+  background:      -o-linear-gradient(#F7F7F7, #E8E8E8);
+  background:         linear-gradient(#F7F7F7, #E8E8E8);
+  border: 1px solid #C9C9C9;
+  background: #F0F0F0;
+  border-radius: 4px;   /* may need vendor varients */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);   /* may need vendor varients */
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
 }
-.dark-flat-list .selected {
-  background: #4D7FFF;
+
+ul.collection-list li.selected {
+  border: 1px solid #2659D9;
+  color: #FFF;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.8);
+  background: #678BE4;
 }
-.dark-flat-list .selected:hover {
-  background: #4D7FFF;
-}</code>
+
+ul.collection-list var.empty-list-caption {
+  color: #A0A0A0;
+  padding: 30px;
+  display: block;
+  text-align: center;
+  font-style: normal;
+  line-height: 1.45;
+}
+</code>
 				</pre>
 			</div>
 			</div>
 		</div>
 
 		<div class="example-container">
-			<h2>Selected Event</h2>
+			<h2>Events</h2>
 			<div class="demo-container">
-				<p>Try selecting an element.  A popup will inform you of which item is the newly selected one and which one (if any was previously selected).</p>
-				<ul id="demoSelectedEvent" class="flat-border-list"></ul>
+				<p>Easily hook into events like selectionChanged.</p>
+				<ul id="demoEvents" class="flat-border-list"></ul>
+        <p></p>
+        <div id="demoEventsCaption"></div>
 			</div>
 			<div class="code-container">
 				<ul class="tab-list">
@@ -358,66 +340,50 @@ $('#demoAddToCollectionButton').click(function() {
 				</ul>
 				<div class="code-wrapper" id="code-text-6">
 					<pre class="js-code visible-code">
-<code data-language="javascript">selectedEventView.on("selectionChanged", function(
-  newSelectedItems,
-  oldSelectedItems
-) {
+<code data-language="javascript">var collectionView = new Backbone.CollectionView( {
+  el : $('ul#demoEvents'),
+  selectable : true,
+  collection : employeeCollection,
+  modelView : EmployeeView
+} );
 
-  if (newSelectedItems.length === 1) {
-    var newSelectedModel = this.viewManager.findByModel(
-      this.collection.get( newSelectedItems[0] )
-    ).model;
-    alert('The newly selected model: ' +
-          newSelectedModel.get('firstName') + ' ' +
-          newSelectedModel.get('lastName'));
-  }
-  else {
-    alert('All items were unselected.');
-  }
-});</code>
+collectionView.on( "selectionChanged", function() {
+  var selectedModel = collectionView.getSelectedModel();
+  $( "#demoEventsCaption" ).text(
+    "The newly selected model is: " +
+    selectedModel.get( "firstName" ) + " " +
+    selectedModel.get( "lastName" ) );
+} );
+</code>
 </pre>
 <pre class="css-code">
-<code data-language="css">.flat-border-list {
-  margin: 0;
-  padding: 0;
-  list-style-type: none;
-  outline: medium none;
+<code data-language="css">ul.collection-list {
+  background: #FDFDFD;
+  font-family: "lucida grande",tahoma,sans-serif;
+  border: 1px solid #78A9CE;
+  margin: 2px 0px 2px 0px;
+  border-radius( 4px );   /* may need vendor varients */
 }
-.flat-border-list li {
-  margin: 10px 0;
-  padding: 10px;
-  border: 1px solid #C9C9C9;
-  background: #F0F0F0;
-  -webkit-border-radius: 4px;
-     -moz-border-radius: 4px;
-      -ms-border-radius: 4px;
-       -o-border-radius: 4px;
-          border-radius: 4px;
-  cursor: pointer;
+
+ul.collection-list li {
+  padding: 6px;
 }
-.flat-border-list li:hover {
-  border: 1px solid #587DDA;
-  background: #96AEE8;
+
+ul.collection-list li.selected {
+  background: #9EADD0;
+  color: white;
 }
-.flat-border-list .selected {
-  border: 1px solid #2659D9;
-  color: #FFF;
-  background: #678BE4;
-}
-.flat-border-list .selected:hover {
-  border: 1px solid #2659D9;
-  background: #678BE4;
-}</code>
+</code>
 					</pre>
 				</div>
 			</div>
 		</div>
 
 		<div class="example-container">
-			<h2>Filtering which models are selectable</h2>
+			<h2>Filters</h2>
 			<div class="demo-container">
-				<p>A function specifying that only models with a last name of 'Holmes' can be selectable was passed to the CollectionView.  John Watson is not selectable.</p>
-				<ul id="demoSelectableFilter" class="light-flat-list"></ul>
+				<p>Filters functions can be used to control which items are selectable, sortable, or visible.</p>
+				<ul id="demoFilters"></ul>
 			</div>
 			<div class="code-container">
 				<ul class="tab-list">
@@ -426,124 +392,42 @@ $('#demoAddToCollectionButton').click(function() {
 				</ul>
 				<div class="code-wrapper" id="code-text-7">
 					<pre class="js-code visible-code">
-<code data-language="javascript">var selectableFilterView = new Backbone.CollectionView({
-  el : $('#selectableFilterList'),
+<code data-language="javascript">var collectionView = new Backbone.CollectionView({
+  el : $( "ul#demoFilters" ),
   selectable : true,
-  collection : EmployeeCollection,
+  collection : employeeCollection,
   modelView : EmployeeView,
-  selectableModelsFilter : function(model) {
-    return model.get('lastName') === 'Holmes';
+  selectableModelsFilter : function( model ) {
+    return model.get( "lastName" ) === "Holmes";
   }
-});</code>
+} );</code>
 </pre>
 <pre class="css-code">
-<code data-language="css">.light-flat-list {
+<code data-language="css">ul.collection-list {
   margin: 0;
   padding: 0;
-  webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.33);
-    -moz-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.33);
-         box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.33);
   list-style-type: none;
-  outline: medium none;
-}
-.light-flat-list li {
-  padding: 10px;
-  border-bottom: 1px solid #E6E6E6;
-  font-family: "Helvetica Neue", Helvetica, arial;
-  -webkit-font-smoothing: antialiased;
-  background: #F7F7F7;
+  outline: none;
   cursor: pointer;
 }
-.light-flat-list li:hover {
-  background: #B8CCFF;
+
+ul.collection-list li {
+  margin: 7px;
+  padding: 10px;
+  border: 1px solid #AAA;
+  border-radius: 4px;   /* may need vendor varients */
+  background: #FAFAFA;
 }
-.light-flat-list .selected {
-  color: #FFF;
-  background: #678BE4;
-}
-.light-flat-list .selected:hover {
-  border: 1px solid #2659D9;
-  color: #FFF;
+
+ul.collection-list li.selected {
+  background: #678be4;
+  border: 1px solid #2659d9;
+  color: white;
 }</code>
 					</pre>
 				</div>
 			</div>
 		</div>
-
-		<div class="example-container">
-			<h2>Filtering which models are sortable</h2>
-			<div class="demo-container">
-				<p>A function specifying that only models with a last name of 'Holmes' can be sorted (dragged and dropped) was passed to the CollectionView.  John Watson is not sortable.</p>
-				<ul id="demoSortableFilter" class="gradient-list"></ul>
-			</div>
-			<div class="code-container">
-			<ul class="tab-list">
-				<li class="js-code current">JavaScript</li>
-				<li class="css-code">CSS</li>
-			</ul>
-			<div class="code-wrapper" id="code-text-8">
-			<pre class="js-code visible-code">
-<code data-language="javascript"> var sortableFilterView = new Backbone.CollectionView({
-  el : $('#sortableFilterList'),
-  selectable : true,
-  sortable : true,
-  collection : EmployeeCollection,
-  modelView : EmployeeView,
-  sortableModelsFilter : function(model) {
-    return model.get('lastName') === 'Holmes';
-  }
-});</code>
-</pre>
-<pre class="css-code">
-<code data-language="css">.gradient-list {
-  margin: 0;
-  padding: 0;
-  list-style-type: none;
-  outline: medium none;
-}
-.gradient-list li {
-  margin: 10px 0;
-  padding: 10px;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
-  background: #F0F0F0;
-  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #F7F7F7), color-stop(100%, #E8E8E8));
-  background: -webkit-linear-gradient(#F7F7F7, #E8E8E8);
-  background:    -moz-linear-gradient(#F7F7F7, #E8E8E8);
-  background:      -o-linear-gradient(#F7F7F7, #E8E8E8);
-  background:         linear-gradient(#F7F7F7, #E8E8E8);
-  border: 1px solid #C9C9C9;
-  -webkit-border-radius: 4px;
-     -moz-border-radius: 4px;
-      -ms-border-radius: 4px;
-       -o-border-radius: 4px;
-          border-radius: 4px;
-  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
-     -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
-  cursor: pointer;
-}
-.gradient-list li:hover {
-  border: 1px solid #587DDA;
-  background: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #A3B7EB), color-stop(100%, #8AA4E5));
-  background: -webkit-linear-gradient(#A3B7EB, #8AA4E5);
-  background:    -moz-linear-gradient(#A3B7EB, #8AA4E5);
-  background:      -o-linear-gradient(#A3B7EB, #8AA4E5);
-  background:         linear-gradient(#A3B7EB, #8AA4E5);
-}
-.gradient-list .selected {
-  border: 1px solid #2659D9;
-  color: #FFF;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.8);
-  background: #678BE4;
-}
-.gradient-list .selected:hover {
-  border: 1px solid #2659D9;
-  background: #678BE4;
-}</code>
-				</pre>
-			</div>
-		</div>
-	</div>
 
 	<!--Underscore template for an employee view.  Used in a collection view rendered as a list.-->
 	<script type="text/html" id="example-template">

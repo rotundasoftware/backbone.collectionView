@@ -19,18 +19,14 @@ $brightBlue: saturate($blue, 30);
 $blueGrey:   hsl( 223,  64%,  75% );
 $grey:       hsl(   0,   0%,  94% );
 $darkGrey:   hsl(   0,   0%,  35% );
-$white:      hsl(   0, 100%, 100% );
 
 $borderOffset:  15;
 $buttonGradientOffset: 8;
 
-@mixin borderRadius() {
-	@include border-radius(4px);
-}
 @mixin borderBox($color) {
 	background: $color;
 	border: 1px solid darken($color, $borderOffset);
-	@include borderRadius();
+	@include border-radius( 4px );
 }
 
 @mixin gradientor($color, $offset){
@@ -47,24 +43,13 @@ $buttonGradientOffset: 8;
 
 //// General styles
 
-.collection-list {
-	list-style-type: none;
-	margin: 0;
-	outline: medium none;
-	padding: 0;
-
-	li {
-		cursor: pointer;
-	}
-}
-
 a {
 	text-decoration: none;
 }
 
 button {
 	padding: 10px 14px;
-	color: $white;
+	color: white;
 	@include text-shadow(0 -1px 0px hsla(0, 0%, 0%, 0.25));
 	font-family: 'PT Sans', sans-serif;
 	-webkit-font-smoothing: antialiased;
@@ -213,17 +198,13 @@ h1 {
 	}
 }
 
-.empty-list-caption {
-	display: block;
-	margin: 0 -10px;
-	padding: 30px;
-	font-size: 18px;
-	text-align: center;
-	font-style: normal;
-	line-height: 1.45;
-	@include borderRadius;
-	color: darken($grey, 20);
-	background: $grey;
+var.empty-list-caption {
+  color: #A0A0A0;
+  padding: 30px;
+  display: block;
+  text-align: center;
+  font-style: normal;
+  line-height: 1.45;
 }
 
 .code-container{
@@ -247,7 +228,7 @@ pre {
 	border: 1px solid #9c9c9c;
 	line-height: 18px;
 	font-size: 12px;
-	@include borderRadius();
+	@include border-radius(4px);
 	background: $navy;
 	cursor: pointer;
 }
@@ -282,146 +263,153 @@ pre {
 	.current {
 		padding-bottom: 5px;
 		background: $navy;
-    color: white;
+		color: white;
 	}
 }
 
-.flat-border-list {
+//**************** Styles for examples **********************//
+
+.collection-list {
+	list-style-type: none;
+	margin: 0;
+	outline: none;
+	padding: 0;
+	cursor: pointer;
+}
+
+ul#demoSingleSelectionList {
 
 	li {
+		margin: 7px;
 		padding: 10px;
-		margin: 10px 0;
-		@include borderBox($grey);
-
-		&:hover:not(.selected) {
-			@include borderBox($blueGrey);
-		}
+		border: 1px solid #AAA;
+		@include border-radius( 4px );
+		background: #FAFAFA;
 	}
 
-	.selected {
-		@include borderBox($blue);
-		color: $white;
+	li.selected {
+		background: #678be4;
+		border: 1px solid #2659d9;
+		color: white;
 	}
 }
 
-.light-flat-list {
+ul#demoMultipleSelectionList {
 	@include box-shadow(0 1px 3px 0 hsla(0, 0%, 0%, 0.33));
+	font-family: "Helvetica Neue", Helvetica, arial;
 
 	li {
 		padding: 10px;
-		background: hsl(0, 0%, 97%);
-		font-family: "Helvetica Neue", Helvetica, arial;
-		-webkit-font-smoothing: antialiased;
-		border-bottom: 1px solid hsl(0, 0%, 90%);
-
-		&:last-of-type {
-			border-bottom: 0;
-		}
-
-		&:hover{
-			background: darken($lightBlue, 10);
-		}
+		border-top: 1px solid #E0E0E0;
+		background: #F7F7F7;
 	}
 
-	.selected {
-		color: $white;
-		background: $blue;
-		&:hover {
-		background: $blue;
-		}
+	li.selected {
+		color: white;
+		background: #678be4;
 	}
 }
 
-table {
+table#demoTables {
 	border-collapse: collapse;
 	width: 350px;
-	border: 1px solid darken($grey, $borderOffset);
+	border: 1px solid #AAA;
 	font-family: "Helvetica Neue", Helvetica, arial;
-}
-
-td {
-	padding: 10px 20px;
-	-webkit-font-smoothing: antialiased;
-
-	&:first-of-type {
-		border-right: 1px solid darken($grey, $borderOffset);
-	}
-}
-
-tr {
 	cursor: pointer;
 
-	&:nth-of-type(even) {
-		background: $lightBlue;
-	}
+	tr {
+		
+		&:nth-child(even) {
+			background: $lightBlue;
+		}
 
-	&:hover{
-		background:($blueGrey);
-	}
-
-	&.selected {
-		background: $blue;
-		color: $white;
-
-		&:hover {
+		&.selected {
 			background: $blue;
+			color: white;
+		}
+
+		td {
+			padding: 10px 20px;
+			border-right: 1px solid #AAA;
 		}
 	}
 }
 
-.gradient-list {
+ul#demoSortable {
+	li {
+		padding: 10px;
+		margin: 10px 0;
+		background: #F0F0F0;
+		@include gradientor($grey, 3);
+		border: 1px solid #C9C9C9;
+		@include border-radius(4px);
+		@include box-shadow(0 1px 3px hsla(0, 0%, 0%, 0.14));
+		text-shadow: 0 1px 0 hsla(0, 100%, 100%, 0.8);
+
+		&.selected {
+			border: 1px solid #2659D9;
+			background: #678BE4;
+			color: white;
+			text-shadow: 0 -1px 0 hsla(0, 0%, 0%, 0.8);
+		}
+	}
+}
+
+ul#demoEmptyListCaption {
+	background: #FAFAFA;
+	padding: 0px 10px;
+	border: 1px solid #A0A0A0;
+	min-height: 150px;
 
 	li {
 		padding: 10px;
 		margin: 10px 0;
-		background: $grey;
+		background: #F0F0F0;
 		@include gradientor($grey, 3);
-		border: 1px solid darken($grey, $borderOffset);
-		@include borderRadius;
+		border: 1px solid #C9C9C9;
+		@include border-radius(4px);
 		@include box-shadow(0 1px 3px hsla(0, 0%, 0%, 0.14));
-		@include text-shadow(0 1px 0 hsla(0, 100%, 100%, 0.8));
+		text-shadow: 0 1px 0 hsla(0, 100%, 100%, 0.8);
 
-		&:hover{
-			@include gradientor($blueGrey, 3);
-			border: 1px solid darken($blueGrey, $borderOffset);
-		}
-	}
-
-	.selected {
-		@include borderBox($blue);
-		color: $white;
-		text-shadow: 0 1px 0 hsla(0, 0%, 0%, 0.8);
-
-		&:hover {
-			@include borderBox($blue);
+		&.selected {
+			border: 1px solid #2659D9;
+			background: #678BE4;
+			color: white;
+			text-shadow: 0 -1px 0 hsla(0, 0%, 0%, 0.8);
 		}
 	}
 }
 
-.dark-flat-list {
-
-	margin: 10px 0;
+ul#demoEvents {
+	background: #FDFDFD;
+	font-family: "lucida grande",tahoma,sans-serif;
+	border: 1px solid #78A9CE;
+	margin: 2px 0px 2px 0px;
+	@include border-radius( 4px );
 
 	li {
-		padding: 10px;
-		margin: 4px 0;
-		background: $darkGrey;
-		color: white;
-		font-family: "Helvetica Neue", Helvetica, arial;
-		-webkit-font-smoothing: antialiased;
-		font-weight: bold;
-		@include transition( all 0.20s ease-out);
+		padding: 6px;
 
-		&:hover{
-			background: desaturate($brightBlue, 10);
+		&.selected {
+			background: #9EADD0;
+			color: white;
 		}
 	}
+}
 
-	.selected {
-		background: $brightBlue;
+ul#demoFilters {
 
-		&:hover {
-			background: $brightBlue;
-		}
+	li {
+		margin: 7px;
+		padding: 10px;
+		border: 1px solid #AAA;
+		@include border-radius( 4px );
+		background: #FAFAFA;
+	}
+
+	li.selected {
+		background: #678be4;
+		border: 1px solid #2659d9;
+		color: white;
 	}
 }

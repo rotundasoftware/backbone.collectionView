@@ -32,12 +32,11 @@ $(document).ready(function() {
 		collection : new Examples([
 			new Example({example : 'Single Selection'}),
 			new Example({example : 'Multiple Selection'}),
-			new Example({example : 'Using arrow keys'}),
+			new Example({example : 'Tables'}),
 			new Example({example : 'Sorting'}),
-			new Example({example : 'Adding and Removing'}),
-			new Example({example : 'Selected Event'}),
-			new Example({example : 'Filtering by selectable'}),
-			new Example({example : 'Filtering by sortable'})
+			new Example({example : 'Empty list caption'}),
+			new Example({example : 'Events'}),
+			new Example({example : 'Filters'}),
 		]),
 		modelView : ExampleView
 	});
@@ -140,7 +139,7 @@ $(document).ready(function() {
 
 
 	viewCollectionForTableList = new Backbone.CollectionView({
-		el : $('#demoUpDownArrowSelection'),
+		el : $('#demoTables'),
 		selectable : true,
 		collection : createACollection(),
 		modelView : EmployeeViewForTableList
@@ -159,60 +158,52 @@ $(document).ready(function() {
 	sortableView.render();
 
 	$('#showModelSorting').click(function() {
-
-		var firstNames = sortableView.collection.pluck('firstName');
-		var lastNames = sortableView.collection.pluck('lastName');
-		alert(JSON.stringify(_.zip(firstNames, lastNames)));
-
+		alert(JSON.stringify( sortableView.collection.toJSON() ));
 	});
 
-	var addRemoveItemView = new Backbone.CollectionView({
-		el : $('#demoAddAndRemoveFromList'),
+	var emptyListCaptionCollectionView = new Backbone.CollectionView({
+		el : $('#demoEmptyListCaption'),
 		selectable : true,
+		selectMultiple : true,
+		sortable: true,
 		emptyListCaption : 'There are no items in this list.',
 		collection : new Employees(),
 		modelView : EmployeeView
 	});
 
-	addRemoveItemView.render();
+	emptyListCaptionCollectionView.render();
 
 	$('#demoRemoveFromCollectionButton').click(function() {
 
-		var curSelectedModel = addRemoveItemView.getSelectedModel();
-
-		if (curSelectedModel) {
-			addRemoveItemView.collection.remove(curSelectedModel);
-		}
+		var curSelectedModels = emptyListCaptionCollectionView.getSelectedModels();
+		emptyListCaptionCollectionView.collection.remove(curSelectedModels);
 	});
 
 	$('#demoAddToCollectionButton').click(function() {
 
-		addRemoveItemView.collection.add({firstName : 'Super', lastName : 'Sleuth'});
+		emptyListCaptionCollectionView.collection.add({firstName : 'Super', lastName : 'Sleuth'});
 
 	});
 
 	var selectedEventView = new Backbone.CollectionView({
-		el : $('#demoSelectedEvent'),
+		el : $('#demoEvents'),
 		selectable : true,
 		collection : createACollection(),
 		modelView : EmployeeView
 	});
 
-	selectedEventView.on('selectionChanged', function(newSelectedModels) {
-
-		if(newSelectedModels.length === 1) {
-			var newSelectedModel = newSelectedModels[0];
-			alert('The newly selected model: ' + newSelectedModel.get('firstName') + ' ' + newSelectedModel.get('lastName'));
-		}
-		else {
-			alert('All items were unselected.');
-		}
-	});
+	  selectedEventView.on( "selectionChanged", function() {
+	  	  var selectedModel = selectedEventView.getSelectedModel();
+	      $( "#demoEventsCaption" ).text(
+	        "The newly selected model is: " +
+	        selectedModel.get( "firstName" ) + " " +
+	        selectedModel.get( "lastName" ) );
+		} );
 
 	selectedEventView.render();
 
 	var selectableFilterView = new Backbone.CollectionView({
-		el : $('#demoSelectableFilter'),
+		el : $('#demoFilters'),
 		selectable : true,
 		collection : createACollection(),
 		modelView : EmployeeView,
@@ -222,19 +213,6 @@ $(document).ready(function() {
 	});
 
 	selectableFilterView.render();
-
-	var sortableFilterView = new Backbone.CollectionView({
-		el : $('#demoSortableFilter'),
-		selectable : true,
-		sortable : true,
-		collection : createACollection(),
-		modelView : EmployeeView,
-		sortableModelsFilter : function(model) {
-			return model.get('lastName') === 'Holmes';
-		}
-	});
-
-	sortableFilterView.render();
 
 	// Increase document length based on window height. This is to ensure that
 	// when you scroll to the last example, it will be at the top of the page
