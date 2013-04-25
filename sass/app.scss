@@ -92,7 +92,7 @@ header {
 	display: block;
 	top: 0;
 	width: 100%;
-	padding: 10px 0;
+	padding: 12px 0 10px 0;
 	border-bottom: 1px solid darken($lightBlue, $borderOffset);
 	background: $lightBlue;
 	z-index: 100;
@@ -121,11 +121,15 @@ header {
 			opacity: 0;
 		}
 	}
+
+	.gh-icon-black {
+		opacity: .8;
+	}
 }
 
 .gh-icon {
 	position: absolute;
-	top: 10px;
+	top: 9px;
 	right: 30px;
 	height: 42px;
 	width: 42px;
