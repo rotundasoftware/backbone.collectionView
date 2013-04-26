@@ -1,10 +1,10 @@
 # Backbone.CollectionView
 
-Easily render [backbone.js](http://backbonejs.org/) collections. In addition managing model views, this class supports automatic selection of models in response to clicks, and rearranging models (and reordering the underlying collection) via drag and drop. Get and set selected models through a <a href="#api">dead simple API</a>.
+Easily render [backbone.js](http://backbonejs.org/) collections. In addition managing model views, this class supports automatic selection of models in response to clicks, and rearranging models (and reordering the underlying collection) via drag and drop.
 
 Depends on jQuery and jQueryUI for event handling and sorting, respectively.
 
-For demos see [the Backbone.CollectionView home page](http://rotundasoftware.github.com/backbone.collectionView/).
+__For demos see [the Backbone.CollectionView home page](http://rotundasoftware.github.com/backbone.collectionView/).__
 
 ## Benefits
 
