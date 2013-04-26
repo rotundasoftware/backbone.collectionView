@@ -1,6 +1,6 @@
 # Backbone.CollectionView
 
-A backbone view class that renders a collection of models. This class is similar to the collection view classes found in [Backbone.Marionette](https://github.com/marionettejs/backbone.marionette) and other frameworks, with added features for automatic selection of models in response to clicks, and support for rearranging models (and reordering the underlying collection) through drag and drop.
+Easily render [backbone.js](http://backbonejs.org/) collections. In addition managing model views, this class supports automatic selection of models in response to clicks, and rearranging models (and reordering the underlying collection) via drag and drop. Get and set selected models through a <a href="#api">dead simple API</a>.
 
 Depends on jQuery and jQueryUI for event handling and sorting, respectively.
 
@@ -46,7 +46,7 @@ The following options expect a filter function that takes a single parameter, th
 * `selectableModelsFilter` : (default: _all models_) In a selectable CollectionView, determines which models are selectable.
 * `sortableModelsFilter` : (default: _all models_) In a sortable CollectionView, determines which models are sortable.
 
-## Methods and Properties Reference
+## <a name="api"></a>Methods and Properties Reference
 
 * __setSelectedModel( modelReference, [options] )__ Sets which model(s) are selected. (See discussion below.)
 * __getSelectedModel( [options] )__ Returns references to the selected model(s). (See discussion below.)
