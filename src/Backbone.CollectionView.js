@@ -781,7 +781,14 @@
 
 			if( clickedItemId )
 			{
-				// a list item was clicked
+				// Exit if an unselectable item was clicked
+				if( _.isFunction( this.selectableModelsFilter ) &&
+				    ! this.selectableModelsFilter.call( this, this._getModelByReferenceId( clickedItemId ) ) )
+				{
+					return;
+				}
+
+				// a selectable list item was clicked
 				if( this.selectMultiple && theEvent.shiftKey )
 				{
 					var firstSelectedItemIndex = -1;
