@@ -538,14 +538,14 @@ $(document).ready( function() {
 
 	} );
 
-	test( "selectableModelsFilter", 3, function() {
+	test( "selectableModelsFilter", 4, function() {
 
 		var myCollectionView = new Backbone.CollectionView( {
 			el : this.$collectionViewEl,
 			collection : this.employees,
 			modelView : this.EmployeeView,
 			selectable : true
-		} );	
+		} );
 
 		myCollectionView.render();
 
@@ -557,8 +557,33 @@ $(document).ready( function() {
 			return model.get( "lastName" ) === "Holmes";
 		} );
 
-		equal( myCollectionView.getSelectedModels().length, 1, "Now there is no selected items" );
+		equal( myCollectionView.getSelectedModels().length, 1, "Now there is one selected item" );
 		equal( myCollectionView.getSelectedModels()[0], this.emp1, "The remaining selected model is correct" );
+
+		var emp1View = myCollectionView.viewManager.findByModel( this.emp2 );
+
+		equal(emp1View.$el.parent().attr("class"), "not-selectable", "The non-selectable item has the 'non-selectable' class" );
+
+	} );
+
+	test( "sortableModelsFilter", 1, function() {
+
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewEl,
+			sortable: true,
+			collection : this.employees,
+			modelView : this.EmployeeView
+		} );
+
+		myCollectionView.render();
+
+		myCollectionView.setOption( "sortableModelsFilter", function( model ) {
+			return model.get( "lastName" ) === "Holmes";
+		} );
+
+		var emp1View = myCollectionView.viewManager.findByModel( this.emp2 );
+
+		equal(emp1View.$el.parent().attr("class"), "not-sortable", "The non-sortable item has the 'non-sortable' class" );
 
 	} );
 
