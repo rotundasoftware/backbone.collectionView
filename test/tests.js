@@ -308,7 +308,7 @@ $(document).ready( function() {
 		}
 	);
 
-	test( "selectableModelsFilter", 2, function() {
+	test( "selectableModelsFilter", 3, function() {
 
 		var selectableFilterView = new Backbone.CollectionView( {
 			el : this.$collectionViewEl,
@@ -329,6 +329,11 @@ $(document).ready( function() {
 		selectableFilterView.setSelectedModel( this.emp1 );
 		var selectedModel2 = selectableFilterView.getSelectedModel();
 		equal( selectedModel2, this.emp1, "Selectable item was selected" );
+
+		var modelView1 = selectableFilterView.viewManager.findByModel( this.emp2 );
+		modelView1.$el.click();
+		var selectedModel3 = selectableFilterView.getSelectedModel();
+		equal( selectedModel3, this.emp1, "Selection is unchanged by clicking on an unselectable item" );
 
 	} );
 
