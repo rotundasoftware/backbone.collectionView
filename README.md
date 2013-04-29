@@ -1,6 +1,6 @@
 # Backbone.CollectionView
 
-Easily render [backbone.js](http://backbonejs.org/) collections. In addition managing model views, this class supports automatic selection of models in response to clicks, and rearranging models (and reordering the underlying collection) via drag and drop.
+Easily render [backbone.js](http://backbonejs.org/) collections. In addition to managing model views, this class supports automatic selection of models in response to clicks, and rearranging models (and reordering the underlying collection) via drag and drop.
 
 Depends on jQuery and jQueryUI for event handling and sorting, respectively.
 
