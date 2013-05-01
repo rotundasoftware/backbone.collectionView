@@ -18,10 +18,6 @@ module.exports = function(grunt) {
 		js: {
 			src: ['src/<%= pkg.name %>.js'],
 			dest: 'dist/<%= pkg.name %>.js'
-		},
-		css: {
-			src: ['css/<%= pkg.name %>.css'],
-			dest: 'dist/<%= pkg.name %>.css'
 		}
 	},
 	uglify: {
