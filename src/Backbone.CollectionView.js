@@ -847,10 +847,6 @@
 				// the blank area of the list was clicked
 				this.setSelectedModels( [] );
 
-			if(this.sortable ) {
-				this.$el[0].focus();
-			}
-
 		},
 		
 		_listItem_onDoubleClick : function( theEvent ) {
