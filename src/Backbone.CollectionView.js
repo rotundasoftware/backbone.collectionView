@@ -15,7 +15,7 @@
 		"selectMultiple", "clickToToggle", "processKeyEvents", "sortable", "sortableModelsFilter"
 	];
 
-	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "visibleModelsFilter" ];
+	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "sortableModelsFilter", "visibleModelsFilter" ];
 
 	var kStylesForEmptyListCaption = {
 		"background" : "transparent",
@@ -485,8 +485,12 @@
 					thisModelView.modelViewEl = thisModelViewWrapped;
 
 					if( _.isFunction( this.sortableModelsFilter ) )
-						if( this.sortableModelsFilter.call( _this, thisModel ) )
-							thisModelViewWrapped.addClass( "sortable" );
+						if( ! this.sortableModelsFilter.call( _this, thisModel ) )
+							thisModelViewWrapped.addClass( "not-sortable" );
+
+					if( _.isFunction( this.selectableModelsFilter ) )
+						if( ! this.selectableModelsFilter.call( _this, thisModel ) )
+							thisModelViewWrapped.addClass( "not-selectable" );
 
 					modelViewParentElement.append( thisModelViewWrapped );
 					
@@ -535,10 +539,10 @@
 				}
 				else if( _.isFunction( this.sortableModelsFilter ) ) {
 					if( _this._isRenderedAsTable() ) {
-						sortableOptions.items = "> tbody > tr.sortable";
+						sortableOptions.items = "> tbody > tr:not(.not-sortable)";
 					}
 					else if( _this._isRenderedAsList() ) {
-						sortableOptions.items = "> li.sortable";
+						sortableOptions.items = "> li:not(.not-sortable)";
 					}
 				}
 
