@@ -1,6 +1,3 @@
-/*todo:*/
-/*make non-sortable/selectable rows differnt color and unhoverable*/
-
 //// Mixins and variables
 @import "compass/css3/images";
 @import "compass/css3/border-radius";
@@ -133,7 +130,7 @@ header {
 	right: 30px;
 	height: 42px;
 	width: 42px;
-	@include transition( all .40s ease-out);
+  border-style:none;
 }
 
 h1 {
@@ -423,5 +420,11 @@ ul#demoFilters {
 		background: #678be4;
 		border: 1px solid #2659d9;
 		color: white;
+	}
+
+	li.not-selectable {
+		border: 1px solid #AAA;
+		background: darken(#FAFAFA, 20);
+		cursor: not-allowed;
 	}
 }
