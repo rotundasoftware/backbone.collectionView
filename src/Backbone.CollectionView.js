@@ -87,25 +87,27 @@
 			this._updateItemTemplate();
 
 			_.bindAll( this );
-			
-			// spawn these events in case parent views need to rerender or take other action after we are done rendering
-			this.listenTo( this.collection, "add", function() { 
-				this.render();
-				if( this._isBackboneCourierAvailable() )
-					this.spawn( "add" );
-			} );
 
-			this.listenTo( this.collection, "remove", function() {
-				this.validateSelectionAndRender();
-				if( this._isBackboneCourierAvailable() )
-					this.spawn( "remove" );
-			} );
+			if( ! _.isUndefined( this.collection ) && ! _.isNull( this.collection ) ) {
+				// spawn these events in case parent views need to rerender or take other action after we are done rendering
+				this.listenTo( this.collection, "add", function() { 
+					this.render();
+					if( this._isBackboneCourierAvailable() )
+						this.spawn( "add" );
+				} );
 
-			this.listenTo( this.collection, "reset", function() {
-				this.validateSelectionAndRender();
-				if( this._isBackboneCourierAvailable() )
-					this.spawn( "reset" );
-			} );
+				this.listenTo( this.collection, "remove", function() {
+					this.validateSelectionAndRender();
+					if( this._isBackboneCourierAvailable() )
+						this.spawn( "remove" );
+				} );
+
+				this.listenTo( this.collection, "reset", function() {
+					this.validateSelectionAndRender();
+					if( this._isBackboneCourierAvailable() )
+						this.spawn( "reset" );
+				} );
+			}
 			//this.listenTo( this.collection, "change", function() { this.render(); this.spawn( "change" ); } ); // don't want changes to models bubbling up and triggering the list's render() function
 
 			// note we do NOT call render here anymore, because if we inherit from this class we will likely call this
