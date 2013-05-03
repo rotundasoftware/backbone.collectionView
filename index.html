@@ -101,7 +101,7 @@ ul.collection-list li.selected {
 				<div class="code-wrapper" id="code-text-2">
 					<pre class="js-code visible-code">
 <code data-language="javascript">var collectionView = new Backbone.CollectionView( {
-  el : $('ul#demoMultipleSelectionList'),
+  el : $( "ul#demoMultipleSelectionList" ),
   selectable : true,
   selectMultiple : true,
   collection : employeeCollection,
@@ -118,7 +118,7 @@ ul.collection-list li.selected {
   font-family: "Helvetica Neue", Helvetica, arial;
 }
 
-ul..collection-list li {
+ul.collection-list li {
   padding: 10px;
   border-bottom: 1px solid #E6E6E6;
   background: #F7F7F7;
@@ -159,7 +159,7 @@ ul.collection-list li.selected {
 				<div class="code-wrapper" id="code-text-3">
 					<pre class="js-code visible-code">
 <code data-language="javascript">var collectionView = new Backbone.CollectionView( {
-  el : $('table#demoTables'),
+  el : $( "able#demoTables" ),
   selectable : true,
   collection : employeeCollection,
   modelView : EmployeeView
@@ -173,7 +173,7 @@ ul.collection-list li.selected {
   font-family: "Helvetica Neue", Helvetica, arial;
   cursor: pointer;
 }
-    
+
 table.collection-list tr:nth-child(even) {
   background: #EBF0FF;
 }
@@ -209,7 +209,7 @@ table.collection-list tr td {
 				<div class="code-wrapper" id="code-text-4">
 					<pre class="js-code visible-code">
 <code data-language="javascript">var collectionView = new Backbone.CollectionView( {
-  el : $('ul#demoSortableList'),
+  el : $( "ul#demoSortableList" ),
   selectable : true,
   sortable : true,
   collection : employeeCollection,
@@ -285,7 +285,7 @@ $( "#demoRemoveFromCollectionButton" ).click( function() {
 
 $( "#demoAddToCollectionButton" ).click( function() {
   collectionView.collection.add( {
-    firstName : 'Super', lastName : 'Sleuth'
+    firstName : "Super", lastName : "Sleuth"
   } );
 } );</code>
 </pre>
@@ -354,7 +354,7 @@ ul.collection-list var.empty-list-caption {
 				<div class="code-wrapper" id="code-text-6">
 					<pre class="js-code visible-code">
 <code data-language="javascript">var collectionView = new Backbone.CollectionView( {
-  el : $('ul#demoEvents'),
+  el : $( "ul#demoEvents" ),
   selectable : true,
   collection : employeeCollection,
   modelView : EmployeeView
