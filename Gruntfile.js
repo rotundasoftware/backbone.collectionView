@@ -16,8 +16,8 @@ module.exports = function(grunt) {
 			stripBanners: true
 		},
 		js: {
-			src: ['src/<%= pkg.name %>.js'],
-			dest: 'dist/<%= pkg.name %>.js'
+			src: ['src/backbone.collectionView.js'],
+			dest: 'dist/backbone.collectionView.js'
 		}
 	},
 	uglify: {
@@ -26,7 +26,7 @@ module.exports = function(grunt) {
 		},
 		dist: {
 			src: '<%= concat.js.dest %>',
-			dest: 'dist/<%= pkg.name %>.min.js'
+			dest: 'dist/backbone.collectionView.min.js'
 		}
 	},
 	compress: {
