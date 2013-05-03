@@ -23,12 +23,10 @@
 		"border" : "none",
 		"box-shadow" : "none"
 	};
-	
 
 	Backbone.CollectionView = Backbone.View.extend({
 
 		tagName : "ul",
-		// className : "collection-list", we add this class manually so we can spawn in className when extending class
 		
 		events : {
 			"click li, td" : "_listItem_onClick",
@@ -38,7 +36,7 @@
 			"keydown" : "_onKeydown"
 		},
 
-		//only used if Backbone.Courier is available
+		// only used if Backbone.Courier is available
 		spawnMessages : {
 			"focus" : "focus"
 		},
@@ -49,7 +47,7 @@
 		initialize : function( options ){
 			var _this = this;
 	
-			//apply the defaults
+			// default options
 			options = _.extend( {},{
 					collection : null,
 					modelView : this.modelView || null,
@@ -67,18 +65,18 @@
 					emptyListCaption : null
 				}, options );
 
-			//add each of the well known/allowed options to the CollectionView
+			// add each of the white-listed options to the CollectionView object itself
 			_.each( kAllowedOptions, function( option ) {
 				_this[ option ] = options[option];
 			} );
 
 			if( _.isNull( this.collection ) ) this.collection = new Backbone.Collection();
 
-			if(this._isBackboneCourierAvailable()) {
-    		Backbone.Courier.add( this );
+			if( this._isBackboneCourierAvailable() ) {
+				Backbone.Courier.add( this );
 			}
 
-			this.$el.data( "view", this );// needed for connected sortable lists
+			this.$el.data( "view", this ); // needed for connected sortable lists
 			this.$el.addClass( "collection-list" );
 			if( this.processKeyEvents )
 				this.$el.attr( "tabindex", 0 ); // so we get keyboard events
@@ -90,7 +88,6 @@
 			_.bindAll( this );
 
 			if( ! _.isUndefined( this.collection ) && ! _.isNull( this.collection ) ) {
-				// spawn these events in case parent views need to rerender or take other action after we are done rendering
 				this.listenTo( this.collection, "add", function() { 
 					this.render();
 					if( this._isBackboneCourierAvailable() )
@@ -109,6 +106,7 @@
 						this.spawn( "reset" );
 				} );
 			}
+
 			//this.listenTo( this.collection, "change", function() { this.render(); this.spawn( "change" ); } ); // don't want changes to models bubbling up and triggering the list's render() function
 
 			// note we do NOT call render here anymore, because if we inherit from this class we will likely call this
@@ -120,11 +118,11 @@
 
 
 		_updateItemTemplate : function() {
-
 			var itemTemplateHtml;
 			if( this.itemTemplate )
 			{
-				if( $( this.itemTemplate ).length == 0 ) throw "Could not find item template from selector: " + this.itemTemplate;
+				if( $( this.itemTemplate ).length === 0 )
+					throw "Could not find item template from selector: " + this.itemTemplate;
 
 				itemTemplateHtml = $( this.itemTemplate ).html();
 			}
@@ -196,9 +194,7 @@
 		},
 
 		getSelectedModels : function ( options ) {
-
 			var _this = this;
-
 			var referenceBy;
 
 			options = _.extend( {}, {
@@ -206,7 +202,6 @@
 			}, options );
 
 			var referenceBy = options.by;
-
 			var items = [];
 
 			switch( referenceBy ) {
@@ -871,7 +866,6 @@
 			this.setSelectedModels( [] );
 		},
 
-	  //added from underscore.mixins.js
 		_convertStringsToInts : function( theArray ) { 
 			return _.map( theArray, function( thisEl ) { 
 				if( ! _.isString( thisEl ) ) return thisEl;
@@ -880,7 +874,6 @@
 			} );
 		}, 
 
-	  //added from underscore.mixins.js
 		_containSameElements : function( arrayA, arrayB ) { 
 			if( arrayA.length != arrayB.length ) return false;
 			var intersectionSize = _.intersection( arrayA, arrayB ).length;
@@ -906,9 +899,7 @@
 		}
 
 	}, {
-
 		setDefaultModelViewConstructor : function( theConstructor ) {
-
 			mDefaultModelViewConstructor = theConstructor;
 		}
 	});
