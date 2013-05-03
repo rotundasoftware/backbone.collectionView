@@ -619,16 +619,16 @@ $(document).ready( function() {
 			collection : this.employees,
 			modelView : this.EmployeeView,
 			selectable : true
-		} );	
+		} );
 
 		myCollectionView.render();
 
-		ok( myCollectionView.viewManager.findByModel( this.emp1 ).$el.html().contains( "Full name" ), "Item html contains string `Full name`" );
+		ok( myCollectionView.viewManager.findByModel( this.emp1 ).$el.is( ":contains(Full name)" ), "Item html contains string `Full name`" );
 
 		myCollectionView.setOption( "modelView", this.EmployeeView2 );
 
-		ok( ! myCollectionView.viewManager.findByModel( this.emp1 ).$el.html().contains( "Full name" ), "Item html does not contain string `Full name`" );
-		ok( myCollectionView.viewManager.findByModel( this.emp1 ).$el.html().contains( "Full 2 name" ), "Item html contains string `Full 2 name`" );
+		ok( ! myCollectionView.viewManager.findByModel( this.emp1 ).$el.is( ":contains(Full name)" ), "Item html does not contain string `Full name`" );
+		ok( myCollectionView.viewManager.findByModel( this.emp1 ).$el.is( ":contains(Full 2 name)" ), "Item html contains string `Full 2 name`" );
 
 
 	} );
@@ -818,7 +818,7 @@ $(document).ready( function() {
 		this.employees.reset();
 		myCollectionView.render();
 
-		ok( $( "var.empty-list-caption" ).html().contains( myEmptyListCaption ) , "Empty list caption contains correct text" );
+		ok( $( "var.empty-list-caption" ).is( ":contains(" + myEmptyListCaption + ")" ), "Empty list caption contains correct text" );
 
 	} );
 
@@ -842,13 +842,12 @@ $(document).ready( function() {
 		this.employees.reset();
 		myCollectionView.render();
 
-		ok( $( "var.empty-list-caption" ).html().contains( emptyCaption ), "Empty list caption contains the correct text" );
+		ok( $( "var.empty-list-caption" ).is( ":contains(" + emptyCaption + ")" ), "Empty list caption contains the correct text" );
 
 		emptyCaption = "Empty caption 2";
 		myCollectionView.render();
 
-		ok( $( "var.empty-list-caption" ).html().contains( emptyCaption ), "Empty list caption contains the correct text" );
-
+		ok( $( "var.empty-list-caption" ).is( ":contains(" + emptyCaption + ")" ), "Empty list caption contains the correct text" );
 
 	} );
 
