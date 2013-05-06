@@ -131,7 +131,6 @@ See the [the Backbone.CollectionView home page](http://rotundasoftware.github.co
 
 ##Dependencies
 * Backbone.js (tested with v1.0, v0.9.10)
-* [Backbone.BabySitter](https://github.com/marionettejs/backbone.babysitter)
 * jQuery (tested with v1.9.1)
 * jQueryUI - for sorting (tested with v1.10.1)
 * _(optional)_ [Backbone.Courier](https://github.com/rotundasoftware/backbone.courier)
