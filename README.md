@@ -9,8 +9,8 @@ Depends on jQuery and jQueryUI for event handling and sorting, respectively.
 * Provides a view that renders a collection of models, updating automatically when models are added or removed.
 * Keeps track of selected model(s) and fires events when the selection is changed.
 * Adds "selected" css class to selected `<li>` or `<tr>`, allowing you to easily style selected model views.
-* Supports single and multiple selection through meta-key and shift clicks, as you would expect from a multi-SELECT element.
-* Allows a user to reorder the collection by dragging and dropping and automatically applies the new order to the collection.
+* Supports single and multiple selection through meta-key and shift clicks, just like a multi-SELECT element.
+* Allows a user to reorder the collection by dragging and dropping.
 * Supports changing the currently selected model(s) through up and down arrow key presses.
 * Allows you to filter which models are visible, selectable, and sortable.
 * Integrates with [Backboune.Courier](https://github.com/rotundasoftware/backbone.courier) out of the box.
