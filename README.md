@@ -98,7 +98,7 @@ CollectionViews `trigger` the following events on themselves. You can respond to
 
 ##Styling
 
-You can style the collection view is up to you. Here are some tips.
+You can style the collection view is up to you.
 
 The `ul` or `table` element that is used as the collection view's element will be given the `collection-list` class. Generally you will want to eliminate bullets, etc., from your collection view list elements, which you can do with these "baseline" styles:
 
