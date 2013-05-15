@@ -33,11 +33,11 @@ myCollectionView.setSelectedModel( employeeCollection.first() );
 * `modelView` : The view constructor that will be used to create the views for each individual model in the collection.
 * `selectable` : (default: _true_) Determines whether models in the CollectionView are selectable.
 * `clickToSelect` : (default: _true_) In a selectable CollectionView, determines whether mouse clicks should select models as would be appropriate in a standard HTML mutli-SELECT element.
-* `processKeyEvents` : (default: _true_) In a selectable CollectionView, determines whether the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-SELECT element.
-* `selectMultiple` : (default: _false_) In a selectable CollectionView, determines whether multiple models can be selected at once.
-* `clickToToggle` : (default: _false_) In a selectable CollectionView, determines whether clicking a model view should toggle its selected / unselected state. Only applies if selectMultiple == true.
-* `sortable` : (default: _false_) Determines whether models can be rearranged by dragging and dropping. (jQueryUI required.)
-* `emptyListCaption` : A string or a function that returns text to be displayed when there are no visible views in the collection view.
+* `processKeyEvents` : (default: _true_) In a selectable CollectionView, determines if the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-SELECT element.
+* `selectMultiple` : (default: _false_) In a selectable CollectionView, determines if multiple models can be selected at once.
+* `clickToToggle` : (default: _false_) In a selectable CollectionView, determines if clicking a model view should toggle its selected / unselected state. Only applies if selectMultiple == true.
+* `sortable` : (default: _false_) Determines if models can be rearranged by dragging and dropping. (jQueryUI required.)
+* `emptyListCaption` : A string or a function that returns text to be displayed when there are no (visible) model views.
 
 The following options expect a filter function that takes a single parameter, the model in question, and returns true or false.
 * `visibleModelsFilter` : (default: _all models_) Determines which models are visible. 
