@@ -159,7 +159,7 @@ ul.collection-list li.selected {
 				<div class="code-wrapper" id="code-text-3">
 					<pre class="js-code visible-code">
 <code data-language="javascript">var collectionView = new Backbone.CollectionView( {
-  el : $( "able#demoTables" ),
+  el : $( "table#demoTables" ),
   selectable : true,
   collection : employeeCollection,
   modelView : EmployeeView
@@ -291,15 +291,14 @@ $( "#demoAddToCollectionButton" ).click( function() {
 </pre>
 <pre class="css-code">
 <code data-language="css">ul.collection-list {
+  min-height: 150px;
   margin: 0;
+  border: 1px solid #A0A0A0;
+  padding: 0px 10px;
+  background: #FAFAFA;
   list-style-type: none;
   outline: none;
   cursor: pointer;
-
-  background: #FAFAFA;
-  padding: 0px 10px;
-  border: 1px solid #A0A0A0;
-  min-height: 150px;
 }
 
 ul.collection-list li {
@@ -375,7 +374,7 @@ collectionView.on( "selectionChanged", function() {
   font-family: "lucida grande",tahoma,sans-serif;
   border: 1px solid #78A9CE;
   margin: 2px 0px 2px 0px;
-  border-radius( 4px );   /* may need vendor varients */
+  border-radius: 4px;   /* may need vendor varients */
 }
 
 ul.collection-list li {
