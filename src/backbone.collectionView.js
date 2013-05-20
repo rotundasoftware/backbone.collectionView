@@ -42,29 +42,29 @@
 
 			// default options
 			options = _.extend( {},{
-					collection : null,
-					modelView : this.modelView || null,
-					modelViewOptions : {},
-					itemTemplate : null,
-					itemTemplateFunction : null,
-					selectable : true,
-					clickToSelect : true,
-					selectableModelsFilter : null,
-					visibleModelsFilter : null,
-					sortableModelsFilter : null,
-					selectMultiple : false,
-					clickToToggle : false,
-					processKeyEvents : true,
-					sortable : false,
-					emptyListCaption : null
-				}, options );
+				collection : null,
+				modelView : this.modelView || null,
+				modelViewOptions : {},
+				itemTemplate : null,
+				itemTemplateFunction : null,
+				selectable : true,
+				clickToSelect : true,
+				selectableModelsFilter : null,
+				visibleModelsFilter : null,
+				sortableModelsFilter : null,
+				selectMultiple : false,
+				clickToToggle : false,
+				processKeyEvents : true,
+				sortable : false,
+				emptyListCaption : null
+			}, options );
 
 			// add each of the white-listed options to the CollectionView object itself
 			_.each( kAllowedOptions, function( option ) {
 				_this[ option ] = options[option];
 			} );
 
-			if( _.isNull( this.collection ) ) this.collection = new Backbone.Collection();
+			if( ! this.collection ) this.collection = new Backbone.Collection();
 
 			if( this._isBackboneCourierAvailable() ) {
 				Backbone.Courier.add( this );
@@ -684,7 +684,7 @@
 
 
 		_isRenderedAsList : function() {
-			return !this._isRenderedAsTable();
+			return ! this._isRenderedAsTable();
 		},
 
 		_charCodes : {
@@ -693,7 +693,7 @@
 		},
 
 		_isBackboneCourierAvailable : function() {
-			return !_.isUndefined(Backbone.Courier);
+			return !_.isUndefined( Backbone.Courier );
 		},
 
 		_sortStart : function( event, ui ) {
