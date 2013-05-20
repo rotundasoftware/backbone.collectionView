@@ -9,8 +9,8 @@ Depends on jQuery and jQueryUI for event handling and sorting, respectively.
 * Provides a view that renders a collection of models, updating automatically when models are added or removed.
 * Keeps track of selected model(s) and fires events when the selection is changed.
 * Adds "selected" css class to selected `<li>` or `<tr>`, allowing you to easily style selected model views.
-* Supports single and multiple selection through meta-key and shift clicks, as you would expect from a multi-SELECT element.
-* Allows a user to reorder the collection by dragging and dropping and automatically applies the new order to the collection.
+* Supports single and multiple selection through meta-key and shift clicks, just like a multi-SELECT element.
+* Allows a user to reorder the collection by dragging and dropping.
 * Supports changing the currently selected model(s) through up and down arrow key presses.
 * Allows you to filter which models are visible, selectable, and sortable.
 * Integrates with [Backboune.Courier](https://github.com/rotundasoftware/backbone.courier) out of the box.
@@ -28,16 +28,16 @@ myCollectionView.setSelectedModel( employeeCollection.first() );
 ```
 
 ## Options accepted by the CollectionView constructor
-* `el` : A `<ul>` or `<table>` element. If you supply a `<ul>` element, your modelView's element can be of any type (they will be wrapped in `<li>` elements), but if you supply a `<table>` element, make sure your modelView has elements of type of `<tr>`.
+* `el` : A `<ul>` or `<table>` element. If you supply a `<ul>` element, your modelView's element can be of any type, but if you supply a `<table>` element, make sure your modelView has elements of type of `<tr>`.
 * `collection` : The collection of models to be rendered.
 * `modelView` : The view constructor that will be used to create the views for each individual model in the collection.
 * `selectable` : (default: _true_) Determines whether models in the CollectionView are selectable.
 * `clickToSelect` : (default: _true_) In a selectable CollectionView, determines whether mouse clicks should select models as would be appropriate in a standard HTML mutli-SELECT element.
-* `processKeyEvents` : (default: _true_) In a selectable CollectionView, determines whether the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-SELECT element.
-* `selectMultiple` : (default: _false_) In a selectable CollectionView, determines whether multiple models can be selected at once.
-* `clickToToggle` : (default: _false_) In a selectable CollectionView, determines whether clicking a model view should toggle its selected / unselected state. Only applies if selectMultiple == true.
-* `sortable` : (default: _false_) Determines whether models can be rearranged by dragging and dropping. (jQueryUI required.)
-* `emptyListCaption` : A string or a function that returns text to be displayed when there are no visible views in the collection view.
+* `processKeyEvents` : (default: _true_) In a selectable CollectionView, determines if the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-SELECT element.
+* `selectMultiple` : (default: _false_) In a selectable CollectionView, determines if multiple models can be selected at once.
+* `clickToToggle` : (default: _false_) In a selectable CollectionView, determines if clicking a model view should toggle its selected / unselected state. Only applies if selectMultiple == true.
+* `sortable` : (default: _false_) Determines if models can be rearranged by dragging and dropping. (jQueryUI required.)
+* `emptyListCaption` : A string or a function that returns text to be displayed when there are no (visible) model views.
 
 The following options expect a filter function that takes a single parameter, the model in question, and returns true or false.
 * `visibleModelsFilter` : (default: _all models_) Determines which models are visible. 
@@ -79,7 +79,7 @@ As shown in the examples, the plural versions of the methods expect / return an 
 There are four valid values for `by` option, which correspond to the type of "model reference" expected / returned.
 * `"id"` : The `id` of the model.
 * `"cid"` : The `cid` of the model.
-* `"offset"` : The zero-based index of the model in the collection, only counting models currently visible in the CollectionView.
+* `"offset"` : The zero-based index of the model in the collection, only counting models that have visible views.
 * `"view"` : The view that was created to represent the model when the CollectionView was rendered.
 
 If no `by` option is provided the model object itself is expected / returned. Additionally, the `setSelectedModel(s)` function accepts one additional option, `silent`, which, when true, will prevent the `selectionChanged` event from being fired.
@@ -93,12 +93,12 @@ CollectionViews `trigger` the following events on themselves. You can respond to
 * __"updateDependentControls"__ ( _selectedModels_ ) Fired whenever controls that are dependent on the selection should be updated (e.g. buttons that should be disabled on no selection). This event is always fired just after `selectionChanged` is fired. In addition, it is fired after rendering and sorting.
 * __"doubleClick"__ ( _clickedModel_ ) Fired when a model view is double clicked.
 * __"sortStart"__  Fired just as a model view is starting to be dragged. (Sortable collection lists only.)
-* __"sortStop"__  Fired when a drag of a model view is finished, but before the collection is reordered. (Sortable collection lists only.)
-* __"reorder"__  Fired after a drag of a model view is finished and after the collection is reordered. (Sortable collection lists only.)
+* __"sortStop"__  Fired when a drag is finished, but before the collection is reordered. (Sortable collection lists only.)
+* __"reorder"__  Fired after a drag is finished and after the collection is reordered. (Sortable collection lists only.)
 
 ##Styling
 
-You can style the collection view is up to you. Here are some tips.
+How you style the collection view is up to you.
 
 The `ul` or `table` element that is used as the collection view's element will be given the `collection-list` class. Generally you will want to eliminate bullets, etc., from your collection view list elements, which you can do with these "baseline" styles:
 
@@ -131,7 +131,6 @@ See the [the Backbone.CollectionView home page](http://rotundasoftware.github.co
 
 ##Dependencies
 * Backbone.js (tested with v1.0, v0.9.10)
-* [Backbone.BabySitter](https://github.com/marionettejs/backbone.babysitter)
 * jQuery (tested with v1.9.1)
 * jQueryUI - for sorting (tested with v1.10.1)
 * _(optional)_ [Backbone.Courier](https://github.com/rotundasoftware/backbone.courier)
