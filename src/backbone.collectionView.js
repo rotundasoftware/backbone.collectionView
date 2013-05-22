@@ -687,7 +687,7 @@
 			if( newIndex == -1 ) {
 				// the element was removed from this list. can happen if this sortable is connected
 				// to another sortable, and the item was dropped into the other sortable.
-				this.collection.remove( modelBeingSorted, { silent : true } );
+				this.collection.remove( modelBeingSorted );
 			}
 
 			this._reorderCollectionBasedOnHTML();
@@ -705,7 +705,7 @@
 			var newIndex = this.$el.children().index( ui.item );
 			var modelReceived = senderCollectionListView.collection.get( ui.item.attr( "data-item-id" ) );
 			this.collection.add( modelReceived, { at : newIndex } );
-			this.setSelectedItem( modelReceived, { by : "model" } );
+			this.setSelectedModel( modelReceived );
 		},
 
 		_onKeydown : function( event ) {
