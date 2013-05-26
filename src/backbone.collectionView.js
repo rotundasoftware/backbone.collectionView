@@ -79,7 +79,9 @@
 
 			this._updateItemTemplate();
 
-			_.bindAll( this );
+            // Bind all except constructor functions (as explained on underscore site "In short: don't _.bind your constructors")
+            var allFunctions = _.without( _.functions( this ), 'modelView', 'constructor' )
+            _.bindAll.apply( this , [this].concat(allFunctions) );
 
 			if( ! _.isUndefined( this.collection ) && ! _.isNull( this.collection ) ) {
 				this.listenTo( this.collection, "add", function() {
