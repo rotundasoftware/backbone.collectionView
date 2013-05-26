@@ -1,9 +1,10 @@
 $(document).ready( function() {
 
+    var Employee = Backbone.Model.extend( { } );
+    var Employees = Backbone.Collection.extend( { model : Employee } );
+    
 	function commonSetup() {
 
-		var Employee = Backbone.Model.extend( { } );
-		var Employees = Backbone.Collection.extend( { model : Employee } );
 		this.emp1 = new Employee( { id : 1, firstName : 'Sherlock', lastName : 'Holmes' } );
 		this.emp2 = new Employee( { id : 2, firstName : 'John', lastName : 'Watson' } );
 		this.emp3 = new Employee( { id : 3, firstName : 'Mycroft', lastName : 'Holmes' } );
@@ -863,6 +864,102 @@ $(document).ready( function() {
 		emp2View.$el.dblclick();
 
 	} );
+
+    test( "collection add preserves selection", 1, function() {
+
+        var myCollectionView = new Backbone.CollectionView( {
+            el : this.$collectionViewEl,
+            collection : this.employees,
+            modelView : this.EmployeeView,
+            selectable : true
+        } );
+
+        myCollectionView.render();
+
+        myCollectionView.setSelectedModel( this.emp2 );
+
+        this.emp4 = new Employee( { id : 4, firstName : 'Tracy', lastName : 'Johnson' } );
+        this.employees.add( this.emp4 );
+
+        var selectedCid = myCollectionView.getSelectedModel( { by : "cid" } );
+        equal( selectedCid, this.emp2.cid, "Selected item is the correct cid" );
+    } );
+
+    test( "collection remove preserves selection", 1, function() {
+
+        var myCollectionView = new Backbone.CollectionView( {
+            el : this.$collectionViewEl,
+            collection : this.employees,
+            modelView : this.EmployeeView,
+            selectable : true
+        } );
+
+        myCollectionView.render();
+
+        myCollectionView.setSelectedModel( this.emp2 );
+
+        this.employees.remove( this.emp3 );
+
+        var selectedCid = myCollectionView.getSelectedModel( { by : "cid" } );
+        equal( selectedCid, this.emp2.cid, "Selected item is the correct cid" );
+    } );
+
+    test( "collection remove when selected model is removed", 1, function() {
+
+        var myCollectionView = new Backbone.CollectionView( {
+            el : this.$collectionViewEl,
+            collection : this.employees,
+            modelView : this.EmployeeView,
+            selectable : true,
+        } );
+
+        myCollectionView.render();
+
+        myCollectionView.setSelectedModel( this.emp3 );
+
+        this.employees.remove( this.emp3 );
+
+        var selectedCid = myCollectionView.getSelectedModel( { by : "cid" } );
+        equal( selectedCid, this.emp2.cid, "Selected item is the correct cid" );
+    } );
+
+    test( "collection reset preserves selection", 1, function() {
+
+        var myCollectionView = new Backbone.CollectionView( {
+            el : this.$collectionViewEl,
+            collection : this.employees,
+            modelView : this.EmployeeView,
+            selectable : true
+        } );
+
+        myCollectionView.render();
+
+        myCollectionView.setSelectedModel( this.emp2 );
+
+        this.employees.reset( [this.emp2, this.emp3] );
+
+        var selectedCid = myCollectionView.getSelectedModel( { by : "cid" } );
+        equal( selectedCid, this.emp2.cid, "Selected item is the correct cid" );
+    } );
+
+    test( "collection reset when the selected model is removed", 1, function() {
+
+        var myCollectionView = new Backbone.CollectionView( {
+            el : this.$collectionViewEl,
+            collection : this.employees,
+            modelView : this.EmployeeView,
+            selectable : true
+        } );
+
+        myCollectionView.render();
+
+        myCollectionView.setSelectedModel( this.emp3 );
+
+        this.employees.reset( [this.emp1, this.emp2] );
+
+        var selectedCid = myCollectionView.getSelectedModel( { by : "cid" } );
+        equal( selectedCid, this.emp2.cid, "Selected item is the correct cid" );
+    } );
 
 	module( "Empty List Caption",
 		{

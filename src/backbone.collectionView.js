@@ -604,9 +604,15 @@
 				// all the items with the saved reference ids have been removed from the list.
 				// ok. try to restore the selection based on the offset that used to be selected.
 				// this is the expected behavior after a item is deleted from a list (i.e. select
-				// the line that immediately follows the deleted line).
+				// the line that immediately follows the deleted line or the last item 
+                // if the last item was selected).
 				if( this.selectedItems.length === 0 )
-					this.setSelectedModel( this.savedSelection.offset, { by : "offset" } );
+				{
+                    var targetOffset = ( this.savedSelection.offset >= this.collection.length ) ?
+                        this.collection.length - 1 :
+				        this.savedSelection.offset;
+                    this.setSelectedModel( targetOffset, { by : "offset" } );
+                }
 			}
             
             // Trigger a selection changed if the previously selected items were not all found
