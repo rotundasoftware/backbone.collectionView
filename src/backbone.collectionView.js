@@ -91,13 +91,13 @@
 				} );
 
 				this.listenTo( this.collection, "remove", function() {
-					this._validateSelectionAndRender();
+                    this.render();
 					if( this._isBackboneCourierAvailable() )
 						this.spawn( "remove" );
 				} );
 
 				this.listenTo( this.collection, "reset", function() {
-					this._validateSelectionAndRender();
+                    this.render();
 					if( this._isBackboneCourierAvailable() )
 						this.spawn( "reset" );
 				} );
@@ -594,12 +594,12 @@
 			// reset selectedItems to empty so that we "redraw" all "selected" classes
 			// when we set our new selection. We do this because it is likely that our
 			// contents have been refreshed, and we have thus lost all old "selected" classes.
-			this.setSelectedModels( [] );
+			this.setSelectedModels( [], { silent: true } );
 
 			if( this.savedSelection.items.length > 0 )
 			{
 				// first try to restore the old selected items using their reference ids.
-				this.setSelectedModels( this.savedSelection.items, { by : "cid" } );
+				this.setSelectedModels( this.savedSelection.items, { by : "cid", silent: true } );
 
 				// all the items with the saved reference ids have been removed from the list.
 				// ok. try to restore the selection based on the offset that used to be selected.
@@ -607,6 +607,18 @@
 				// the line that immediately follows the deleted line).
 				if( this.selectedItems.length === 0 )
 					this.setSelectedModel( this.savedSelection.offset, { by : "offset" } );
+			}
+            
+            // Trigger a selection changed if the previously selected items were not all found
+            if (this.selectedItems.length !== this.savedSelection.items.length)
+            {
+                this.trigger( "selectionChanged", this.getSelectedModels(), [] );
+                if( this._isBackboneCourierAvailable() ) {
+                    this.spawn( "selectionChanged", {
+                        selectedModels : this.selectedItems,
+                        oldSelectedModels : this.savedSelection.items
+                    } );
+                }
 			}
 
 			delete this.savedSelection;
