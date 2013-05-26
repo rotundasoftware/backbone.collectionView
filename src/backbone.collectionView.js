@@ -79,7 +79,9 @@
 
 			this._updateItemTemplate();
 
-			_.bindAll( this );
+            // Bind all except constructor functions (as explained on underscore site "In short: don't _.bind your constructors")
+            var allFunctions = _.without( _.functions( this ), 'modelView', 'constructor' )
+            _.bindAll.apply( this , [this].concat(allFunctions) );
 
 			if( ! _.isUndefined( this.collection ) && ! _.isNull( this.collection ) ) {
 				this.listenTo( this.collection, "add", function() {
@@ -89,13 +91,13 @@
 				} );
 
 				this.listenTo( this.collection, "remove", function() {
-					this._validateSelectionAndRender();
+                    this.render();
 					if( this._isBackboneCourierAvailable() )
 						this.spawn( "remove" );
 				} );
 
 				this.listenTo( this.collection, "reset", function() {
-					this._validateSelectionAndRender();
+                    this.render();
 					if( this._isBackboneCourierAvailable() )
 						this.spawn( "reset" );
 				} );
@@ -592,19 +594,37 @@
 			// reset selectedItems to empty so that we "redraw" all "selected" classes
 			// when we set our new selection. We do this because it is likely that our
 			// contents have been refreshed, and we have thus lost all old "selected" classes.
-			this.setSelectedModels( [] );
+			this.setSelectedModels( [], { silent: true } );
 
 			if( this.savedSelection.items.length > 0 )
 			{
 				// first try to restore the old selected items using their reference ids.
-				this.setSelectedModels( this.savedSelection.items, { by : "cid" } );
+				this.setSelectedModels( this.savedSelection.items, { by : "cid", silent: true } );
 
 				// all the items with the saved reference ids have been removed from the list.
 				// ok. try to restore the selection based on the offset that used to be selected.
 				// this is the expected behavior after a item is deleted from a list (i.e. select
-				// the line that immediately follows the deleted line).
+				// the line that immediately follows the deleted line or the last item 
+                // if the last item was selected).
 				if( this.selectedItems.length === 0 )
-					this.setSelectedModel( this.savedSelection.offset, { by : "offset" } );
+				{
+                    var targetOffset = ( this.savedSelection.offset >= this.collection.length ) ?
+                        this.collection.length - 1 :
+				        this.savedSelection.offset;
+                    this.setSelectedModel( targetOffset, { by : "offset" } );
+                }
+			}
+            
+            // Trigger a selection changed if the previously selected items were not all found
+            if (this.selectedItems.length !== this.savedSelection.items.length)
+            {
+                this.trigger( "selectionChanged", this.getSelectedModels(), [] );
+                if( this._isBackboneCourierAvailable() ) {
+                    this.spawn( "selectionChanged", {
+                        selectedModels : this.selectedItems,
+                        oldSelectedModels : this.savedSelection.items
+                    } );
+                }
 			}
 
 			delete this.savedSelection;
