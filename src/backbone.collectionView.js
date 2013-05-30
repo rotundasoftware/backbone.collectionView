@@ -80,8 +80,6 @@
 
 			this._updateItemTemplate();
 
-			_.bindAll( this );
-
 			if( ! _.isUndefined( this.collection ) && ! _.isNull( this.collection ) ) {
 				this.listenTo( this.collection, "add", function() {
 					this.render();
@@ -404,10 +402,10 @@
 					axis: "y",
 					distance: 10,
 					forcePlaceholderSize : true,
-					start : this._sortStart,
-					change : this._sortChange,
-					stop : this._sortStop,
-					receive : this._receive
+					start : _.bind( this._sortStart, this ),
+					change : _.bind( this._sortChange, this ),
+					stop : _.bind( this._sortStop, this ),
+					receive : _.bind( this._receive, this )
 				}, _.result( this, "sortableOptions" ) );
 
 				if( this.sortableModelsFilter === null ) {
