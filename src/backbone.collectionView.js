@@ -1,3 +1,4 @@
+
 (function(){
 	var mDefaultModelViewConstructor = Backbone.View;
 
@@ -114,6 +115,8 @@
 
 		setOption : function( name, value ) {
 
+			var _this = this;
+
 			if( name === "collection" ) {
 				this._setCollection( value );
 			}
@@ -143,6 +146,13 @@
 						case "processKeyEvents" :
 							this[ name ] = value;
 							if( value )  this.$el.attr( "tabindex", 0 ); // so we get keyboard events
+							break;
+						case "modelView" :
+							this[ name ] = value;
+							//need to remove all old view instances
+							this.viewManager.each( function( view ) {
+								_this.viewManager.remove( view );
+							} );
 							break;
 						default :
 							this[ name ] = value;
@@ -221,24 +231,24 @@
 			}, options );
 
 			var referenceBy = options.by;
-			var newSelectedItemsTemp = [];
+			var newSelectedCids = [];
 
 			switch( referenceBy ) {
 				case "cid" :
-					newSelectedItemsTemp = newSelectedItems;
+					newSelectedCids = newSelectedItems;
 					break;
 				case "id" :
-					this.viewManager.each(function ( view ) {
-						if( _.contains( newSelectedItems, view.model.id ) ) newSelectedItemsTemp.push( view.model.cid );
-					});
+					this.viewManager.each( function( view ) {
+						if( _.contains( newSelectedItems, view.model.id ) ) newSelectedCids.push( view.model.cid );
+					} );
 					break;
 				case "model" :
-					newSelectedItemsTemp = _.pluck( newSelectedItems, "cid" );
+					newSelectedCids = _.pluck( newSelectedItems, "cid" );
 					break;
 				case "view" :
-					_.each(newSelectedItems, function ( item ) {
-						newSelectedItemsTemp.push( item.model.cid );
-					});
+					_.each( newSelectedItems, function( item ) {
+						newSelectedCids.push( item.model.cid );
+					} );
 					break;
 				case "offset" :
 					var curLineNumber = 0;
@@ -253,7 +263,7 @@
 					itemElements.each( function() {
 						var thisItemEl = $( this );
 						if( _.contains( newSelectedItems, curLineNumber ) )
-							newSelectedItemsTemp.push( thisItemEl.attr( "data-item-id" ) );
+							newSelectedCids.push( thisItemEl.attr( "data-item-id" ) );
 						curLineNumber++;
 					} );
 					break;
@@ -264,7 +274,7 @@
 			var oldSelectedModels = this.getSelectedModels();
 			var oldSelectedCids = _.clone( this.selectedItems );
 
-			this.selectedItems = this._convertStringsToInts( newSelectedItemsTemp );
+			this.selectedItems = this._convertStringsToInts( newSelectedCids );
 			this._validateSelection();
 
 			var newSelectedModels = this.getSelectedModels();
@@ -337,13 +347,8 @@
 					// if the model view was not already created on previous render,
 					// then create and initialize it now.
 
-					var thisModelViewConstructor = this._getModelViewConstructor( thisModel );
-
-					if( _.isUndefined( thisModelViewConstructor ) )
-						throw "Could not find modelView for model";
-
 					var modelViewOptions = this._getModelViewOptions( thisModel );
-					thisModelView = new ( thisModelViewConstructor )( modelViewOptions );
+					thisModelView = this._createNewModelView( thisModel, modelViewOptions );
 
 					thisModelView.collectionListView = _this;
 					thisModelView.model = thisModel;
@@ -534,8 +539,8 @@
 		},
 
 		_validateSelection : function() {
-			// note can't use the collection's proxy to underscore because "cid" and "id" are not attributes,
-			// but elements of the model object itself.
+			// note can't use the collection's proxy to underscore because "cid" ais not an attribute,
+			// but an element of the model object itself.
 			var modelReferenceIds = _.pluck( this.collection.models, "cid" );
 			this.selectedItems = _.intersection( modelReferenceIds, this.selectedItems );
 
@@ -634,6 +639,13 @@
 			return _.extend( { model : thisModel }, this.modelViewOptions );
 		},
 
+		_createNewModelView : function( model, modelViewOptions ) {
+			var modelViewConstructor = this._getModelViewConstructor( model );
+			if( _.isUndefined( modelViewConstructor ) ) throw "Could not find modelView constructor for model";
+
+			return new ( modelViewConstructor )( modelViewOptions );
+		},
+
 		_convertStringsToInts : function( theArray ) {
 			return _.map( theArray, function( thisEl ) {
 				if( ! _.isString( thisEl ) ) return thisEl;
@@ -705,6 +717,7 @@
 			var newIndex = this.$el.children().index( ui.item );
 			var modelReceived = senderCollectionListView.collection.get( ui.item.attr( "data-item-id" ) );
 			this.collection.add( modelReceived, { at : newIndex } );
+			modelReceived.collection = this.collection; // otherwise will not get properly set, since modelReceived.collection might already have a value.
 			this.setSelectedModel( modelReceived );
 		},
 
