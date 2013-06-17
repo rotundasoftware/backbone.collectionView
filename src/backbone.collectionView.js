@@ -80,8 +80,6 @@
 
 			this._updateItemTemplate();
 
-			_.bindAll( this );
-
 			if( ! _.isUndefined( this.collection ) && ! _.isNull( this.collection ) ) {
 				this.listenTo( this.collection, "add", function() {
 					this.render();
@@ -90,13 +88,13 @@
 				} );
 
 				this.listenTo( this.collection, "remove", function() {
-					this._validateSelectionAndRender();
+					this.render();
 					if( this._isBackboneCourierAvailable() )
 						this.spawn( "remove" );
 				} );
 
 				this.listenTo( this.collection, "reset", function() {
-					this._validateSelectionAndRender();
+					this.render();
 					if( this._isBackboneCourierAvailable() )
 						this.spawn( "reset" );
 				} );
@@ -114,6 +112,8 @@
 		},
 
 		setOption : function( name, value ) {
+
+			var _this = this;
 
 			if( name === "collection" ) {
 				this._setCollection( value );
@@ -144,6 +144,13 @@
 						case "processKeyEvents" :
 							this[ name ] = value;
 							if( value )  this.$el.attr( "tabindex", 0 ); // so we get keyboard events
+							break;
+						case "modelView" :
+							this[ name ] = value;
+							//need to remove all old view instances
+							this.viewManager.each( function( view ) {
+								_this.viewManager.remove( view );
+							} );
 							break;
 						default :
 							this[ name ] = value;
@@ -395,10 +402,10 @@
 					axis: "y",
 					distance: 10,
 					forcePlaceholderSize : true,
-					start : this._sortStart,
-					change : this._sortChange,
-					stop : this._sortStop,
-					receive : this._receive
+					start : _.bind( this._sortStart, this ),
+					change : _.bind( this._sortChange, this ),
+					stop : _.bind( this._sortStop, this ),
+					receive : _.bind( this._receive, this )
 				}, _.result( this, "sortableOptions" ) );
 
 				if( this.sortableModelsFilter === null ) {
@@ -563,7 +570,7 @@
 			if( this.savedSelection.items.length > 0 )
 			{
 				// first try to restore the old selected items using their reference ids.
-				this.setSelectedModels( this.savedSelection.items, { by : "cid" }, { silent : true } );
+				this.setSelectedModels( this.savedSelection.items, { by : "cid", silent : true } );
 
 				// all the items with the saved reference ids have been removed from the list.
 				// ok. try to restore the selection based on the offset that used to be selected.
@@ -571,6 +578,18 @@
 				// the line that immediately follows the deleted line).
 				if( this.selectedItems.length === 0 )
 					this.setSelectedModel( this.savedSelection.offset, { by : "offset" } );
+
+				// Trigger a selection changed if the previously selected items were not all found
+				if (this.selectedItems.length !== this.savedSelection.items.length)
+				{
+					this.trigger( "selectionChanged", this.getSelectedModels(), [] );
+					if( this._isBackboneCourierAvailable() ) {
+						this.spawn( "selectionChanged", {
+							selectedModels : this.selectedItems,
+							oldSelectedModels : this.savedSelection.items
+						} );
+					}
+				}
 			}
 
 			delete this.savedSelection;
