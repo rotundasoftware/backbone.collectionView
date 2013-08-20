@@ -79,7 +79,7 @@
 
 			this._updateItemTemplate();
 
-			_.bindAll( this );
+			_.bindAll.apply(_, [this].concat(_.functions(this)));
 
 			if( ! _.isUndefined( this.collection ) && ! _.isNull( this.collection ) ) {
 				this.listenTo( this.collection, "add", function() {
