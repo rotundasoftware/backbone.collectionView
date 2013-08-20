@@ -5,6 +5,7 @@
 * http://github.com/rotundasoftware/backbone-collection-view
 */
 
+
 (function(){
 	var mDefaultModelViewConstructor = Backbone.View;
 
@@ -29,7 +30,7 @@
 		tagName : "ul",
 
 		events : {
-			"click li, td" : "_listItem_onClick",
+			"mousedown li, td" : "_listItem_onMousedown",
 			"dblclick li, td" : "_listItem_onDoubleClick",
 			"click" : "_listBackground_onClick",
 			"click ul.collection-list, table.collection-list" : "_listBackground_onClick",
@@ -48,7 +49,7 @@
 			var _this = this;
 
 			// default options
-			options = _.extend( {},{
+			options = _.extend( {}, {
 				collection : null,
 				modelView : this.modelView || null,
 				modelViewOptions : {},
@@ -86,8 +87,6 @@
 
 			this._updateItemTemplate();
 
-			_.bindAll( this );
-
 			if( ! _.isUndefined( this.collection ) && ! _.isNull( this.collection ) ) {
 				this.listenTo( this.collection, "add", function() {
 					this.render();
@@ -96,13 +95,13 @@
 				} );
 
 				this.listenTo( this.collection, "remove", function() {
-					this._validateSelectionAndRender();
+					this.render();
 					if( this._isBackboneCourierAvailable() )
 						this.spawn( "remove" );
 				} );
 
 				this.listenTo( this.collection, "reset", function() {
-					this._validateSelectionAndRender();
+					this.render();
 					if( this._isBackboneCourierAvailable() )
 						this.spawn( "reset" );
 				} );
@@ -120,6 +119,8 @@
 		},
 
 		setOption : function( name, value ) {
+
+			var _this = this;
 
 			if( name === "collection" ) {
 				this._setCollection( value );
@@ -151,6 +152,13 @@
 							this[ name ] = value;
 							if( value )  this.$el.attr( "tabindex", 0 ); // so we get keyboard events
 							break;
+						case "modelView" :
+							this[ name ] = value;
+							//need to remove all old view instances
+							this.viewManager.each( function( view ) {
+								_this.viewManager.remove( view );
+							} );
+							break;
 						default :
 							this[ name ] = value;
 					}
@@ -177,9 +185,9 @@
 
 			switch( referenceBy ) {
 				case "id" :
-					_.each(this.selectedItems, function ( item ) {
+					_.each( this.selectedItems, function ( item ) {
 						items.push( _this.collection.get( item ).id );
-					});
+					} );
 					break;
 				case "cid" :
 					items = items.concat( this.selectedItems );
@@ -201,17 +209,18 @@
 					} );
 					break;
 				case "model" :
-					_.each(this.selectedItems, function ( item ) {
+					_.each( this.selectedItems, function ( item ) {
 						items.push( _this.collection.get( item ) );
-					});
+					} );
 					break;
 				case "view" :
-					_.each(this.selectedItems, function ( item ) {
+					_.each( this.selectedItems, function ( item ) {
 						items.push( _this.viewManager.findByModel( _this.collection.get( item ) ) );
-					});
+					} );
 					break;
 				default :
 					throw "The referenceBy property was not properly set";
+					break;
 			}
 
 			return items;
@@ -228,24 +237,24 @@
 			}, options );
 
 			var referenceBy = options.by;
-			var newSelectedItemsTemp = [];
+			var newSelectedCids = [];
 
 			switch( referenceBy ) {
 				case "cid" :
-					newSelectedItemsTemp = newSelectedItems;
+					newSelectedCids = newSelectedItems;
 					break;
 				case "id" :
-					this.viewManager.each(function ( view ) {
-						if( _.contains( newSelectedItems, view.model.id ) ) newSelectedItemsTemp.push( view.model.cid );
-					});
+					this.collection.each( function( thisModel ) {
+						if( _.contains( newSelectedItems, thisModel.id ) ) newSelectedCids.push( thisModel.cid );
+					} );
 					break;
 				case "model" :
-					newSelectedItemsTemp = _.pluck( newSelectedItems, "cid" );
+					newSelectedCids = _.pluck( newSelectedItems, "cid" );
 					break;
 				case "view" :
-					_.each(newSelectedItems, function ( item ) {
-						newSelectedItemsTemp.push( item.model.cid );
-					});
+					_.each( newSelectedItems, function( item ) {
+						newSelectedCids.push( item.model.cid );
+					} );
 					break;
 				case "offset" :
 					var curLineNumber = 0;
@@ -260,7 +269,7 @@
 					itemElements.each( function() {
 						var thisItemEl = $( this );
 						if( _.contains( newSelectedItems, curLineNumber ) )
-							newSelectedItemsTemp.push( thisItemEl.attr( "data-item-id" ) );
+							newSelectedCids.push( thisItemEl.attr( "data-item-id" ) );
 						curLineNumber++;
 					} );
 					break;
@@ -271,7 +280,7 @@
 			var oldSelectedModels = this.getSelectedModels();
 			var oldSelectedCids = _.clone( this.selectedItems );
 
-			this.selectedItems = this._convertStringsToInts( newSelectedItemsTemp );
+			this.selectedItems = this._convertStringsToInts( newSelectedCids );
 			this._validateSelection();
 
 			var newSelectedModels = this.getSelectedModels();
@@ -344,41 +353,14 @@
 					// if the model view was not already created on previous render,
 					// then create and initialize it now.
 
-					var thisModelViewConstructor = this._getModelViewConstructor( thisModel );
-
-					if( _.isUndefined( thisModelViewConstructor ) )
-						throw "Could not find modelView for model";
-
 					var modelViewOptions = this._getModelViewOptions( thisModel );
-					thisModelView = new ( thisModelViewConstructor )( modelViewOptions );
+					thisModelView = this._createNewModelView( thisModel, modelViewOptions );
 
 					thisModelView.collectionListView = _this;
 					thisModelView.model = thisModel;
 				}
 
-				// we use items client ids as opposed to real ids, since we may not have a representation
-				// of these models on the server
-				var thisModelViewWrapped;
-
-				if( this._isRenderedAsTable() ) {
-					// if we are rendering the collection in a table, the template $el is a tr so we just need to set the data-item-id
-					thisModelViewWrapped = thisModelView.$el.attr( "data-item-id", thisModel.cid );
-				}
-				else if( this._isRenderedAsList() ) {
-					// if we are rendering the collection in a list, we need wrap each item in an <li></li> and set the data-item-id
-					thisModelViewWrapped = thisModelView.$el.wrapAll( "<li data-item-id='" + thisModel.cid + "'></li>" ).parent();
-				}
-
-				thisModelView.modelViewEl = thisModelViewWrapped;
-
-				if( _.isFunction( this.sortableModelsFilter ) )
-					if( ! this.sortableModelsFilter.call( _this, thisModel ) )
-						thisModelViewWrapped.addClass( "not-sortable" );
-
-				if( _.isFunction( this.selectableModelsFilter ) )
-					if( ! this.selectableModelsFilter.call( _this, thisModel ) )
-						thisModelViewWrapped.addClass( "not-selectable" );
-
+				var thisModelViewWrapped = this._wrapModelView( thisModelView );
 				modelViewContainerEl.append( thisModelViewWrapped );
 
 				// we have to render the modelView after it has been put in context, as opposed to in the 
@@ -391,9 +373,11 @@
 				if( renderResult === false )
 					thisModelViewWrapped.hide();
 
-				if( _.isFunction(this.visibleModelsFilter) ) {
-					if( !this.visibleModelsFilter(thisModel) ) {
-						thisModelViewWrapped.hide();
+				if( _.isFunction( this.visibleModelsFilter ) ) {
+					if( ! this.visibleModelsFilter( thisModel ) ) {
+						if( thisModelViewWrapped.children().length === 1 )
+							thisModelViewWrapped.hide();
+						else thisModelView.$el.hide();
 					}
 				}
 
@@ -406,10 +390,10 @@
 					axis: "y",
 					distance: 10,
 					forcePlaceholderSize : true,
-					start : this._sortStart,
-					change : this._sortChange,
-					stop : this._sortStop,
-					receive : this._receive
+					start : _.bind( this._sortStart, this ),
+					change : _.bind( this._sortChange, this ),
+					stop : _.bind( this._sortStop, this ),
+					receive : _.bind( this._receive, this )
 				}, _.result( this, "sortableOptions" ) );
 
 				if( this.sortableModelsFilter === null ) {
@@ -435,7 +419,7 @@
 				this.$el = this.$el.sortable( sortableOptions );
 			}
 
-			if( ! _.isNull( this.emptyListCaption ) ) {
+			if( this.emptyListCaption ) {
 				var visibleView = this.viewManager.find( function( view ) {
 					return view.$el.is( ":visible" );
 				} );
@@ -453,9 +437,9 @@
 
 					//need to wrap the empty caption to make it fit the rendered list structure (either with an li or a tr td)
 					if( this._isRenderedAsList() )
-						$emptyListCaptionEl = $varEl.wrapAll( "<li></li>" ).parent().css( kStylesForEmptyListCaption );
+						$emptyListCaptionEl = $varEl.wrapAll( "<li class='not-sortable'></li>" ).parent().css( kStylesForEmptyListCaption );
 					else
-						$emptyListCaptionEl = $varEl.wrapAll( "<tr><td></td></tr>" ).parent().parent().css( kStylesForEmptyListCaption );
+						$emptyListCaptionEl = $varEl.wrapAll( "<tr class='not-sortable'><td></td></tr>" ).parent().parent().css( kStylesForEmptyListCaption );
 
 					this.$el.append( $emptyListCaptionEl );
 				}
@@ -541,8 +525,8 @@
 		},
 
 		_validateSelection : function() {
-			// note can't use the collection's proxy to underscore because "cid" and "id" are not attributes,
-			// but elements of the model object itself.
+			// note can't use the collection's proxy to underscore because "cid" ais not an attribute,
+			// but an element of the model object itself.
 			var modelReferenceIds = _.pluck( this.collection.models, "cid" );
 			this.selectedItems = _.intersection( modelReferenceIds, this.selectedItems );
 
@@ -574,7 +558,7 @@
 			if( this.savedSelection.items.length > 0 )
 			{
 				// first try to restore the old selected items using their reference ids.
-				this.setSelectedModels( this.savedSelection.items, { by : "cid" }, { silent : true } );
+				this.setSelectedModels( this.savedSelection.items, { by : "cid", silent : true } );
 
 				// all the items with the saved reference ids have been removed from the list.
 				// ok. try to restore the selection based on the offset that used to be selected.
@@ -582,6 +566,18 @@
 				// the line that immediately follows the deleted line).
 				if( this.selectedItems.length === 0 )
 					this.setSelectedModel( this.savedSelection.offset, { by : "offset" } );
+
+				// Trigger a selection changed if the previously selected items were not all found
+				if (this.selectedItems.length !== this.savedSelection.items.length)
+				{
+					this.trigger( "selectionChanged", this.getSelectedModels(), [] );
+					if( this._isBackboneCourierAvailable() ) {
+						this.spawn( "selectionChanged", {
+							selectedModels : this.selectedItems,
+							oldSelectedModels : this.savedSelection.items
+						} );
+					}
+				}
 			}
 
 			delete this.savedSelection;
@@ -639,6 +635,40 @@
 
 		_getModelViewOptions : function( thisModel ) {
 			return _.extend( { model : thisModel }, this.modelViewOptions );
+		},
+
+		_createNewModelView : function( model, modelViewOptions ) {
+			var modelViewConstructor = this._getModelViewConstructor( model );
+			if( _.isUndefined( modelViewConstructor ) ) throw "Could not find modelView constructor for model";
+
+			return new ( modelViewConstructor )( modelViewOptions );
+		},
+
+		_wrapModelView : function( modelView ) {
+			var _this = this;
+
+			// we use items client ids as opposed to real ids, since we may not have a representation
+			// of these models on the server
+			var wrappedModelView;
+
+			if( this._isRenderedAsTable() ) {
+				// if we are rendering the collection in a table, the template $el is a tr so we just need to set the data-item-id
+				wrappedModelView = modelView.$el.attr( "data-item-id", modelView.model.cid );
+			}
+			else if( this._isRenderedAsList() ) {
+				// if we are rendering the collection in a list, we need wrap each item in an <li></li> and set the data-item-id
+				wrappedModelView = modelView.$el.wrapAll( "<li data-item-id='" + modelView.model.cid + "'></li>" ).parent();
+			}
+
+			if( _.isFunction( this.sortableModelsFilter ) )
+				if( ! this.sortableModelsFilter.call( _this, modelView.model ) )
+					wrappedModelView.addClass( "not-sortable" );
+
+			if( _.isFunction( this.selectableModelsFilter ) )
+				if( ! this.selectableModelsFilter.call( _this, modelView.model ) )
+					wrappedModelView.addClass( "not-selectable" );
+
+			return wrappedModelView;
 		},
 
 		_convertStringsToInts : function( theArray ) {
@@ -712,6 +742,7 @@
 			var newIndex = this.$el.children().index( ui.item );
 			var modelReceived = senderCollectionListView.collection.get( ui.item.attr( "data-item-id" ) );
 			this.collection.add( modelReceived, { at : newIndex } );
+			modelReceived.collection = this.collection; // otherwise will not get properly set, since modelReceived.collection might already have a value.
 			this.setSelectedModel( modelReceived );
 		},
 
@@ -741,7 +772,7 @@
 			return ! trap;
 		},
 
-		_listItem_onClick : function( theEvent ) {
+		_listItem_onMousedown : function( theEvent ) {
 			if( ! this.selectable || ! this.clickToSelect ) return;
 
 			var clickedItemId = this._getClickedItemId( theEvent );

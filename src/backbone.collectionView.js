@@ -23,7 +23,7 @@
 		tagName : "ul",
 
 		events : {
-			"click li, td" : "_listItem_onClick",
+			"mousedown li, td" : "_listItem_onMousedown",
 			"dblclick li, td" : "_listItem_onDoubleClick",
 			"click" : "_listBackground_onClick",
 			"click ul.collection-list, table.collection-list" : "_listBackground_onClick",
@@ -42,7 +42,7 @@
 			var _this = this;
 
 			// default options
-			options = _.extend( {},{
+			options = _.extend( {}, {
 				collection : null,
 				modelView : this.modelView || null,
 				modelViewOptions : {},
@@ -178,9 +178,9 @@
 
 			switch( referenceBy ) {
 				case "id" :
-					_.each(this.selectedItems, function ( item ) {
+					_.each( this.selectedItems, function ( item ) {
 						items.push( _this.collection.get( item ).id );
-					});
+					} );
 					break;
 				case "cid" :
 					items = items.concat( this.selectedItems );
@@ -202,17 +202,18 @@
 					} );
 					break;
 				case "model" :
-					_.each(this.selectedItems, function ( item ) {
+					_.each( this.selectedItems, function ( item ) {
 						items.push( _this.collection.get( item ) );
-					});
+					} );
 					break;
 				case "view" :
-					_.each(this.selectedItems, function ( item ) {
+					_.each( this.selectedItems, function ( item ) {
 						items.push( _this.viewManager.findByModel( _this.collection.get( item ) ) );
-					});
+					} );
 					break;
 				default :
 					throw "The referenceBy property was not properly set";
+					break;
 			}
 
 			return items;
@@ -236,8 +237,8 @@
 					newSelectedCids = newSelectedItems;
 					break;
 				case "id" :
-					this.viewManager.each( function( view ) {
-						if( _.contains( newSelectedItems, view.model.id ) ) newSelectedCids.push( view.model.cid );
+					this.collection.each( function( thisModel ) {
+						if( _.contains( newSelectedItems, thisModel.id ) ) newSelectedCids.push( thisModel.cid );
 					} );
 					break;
 				case "model" :
@@ -352,29 +353,7 @@
 					thisModelView.model = thisModel;
 				}
 
-				// we use items client ids as opposed to real ids, since we may not have a representation
-				// of these models on the server
-				var thisModelViewWrapped;
-
-				if( this._isRenderedAsTable() ) {
-					// if we are rendering the collection in a table, the template $el is a tr so we just need to set the data-item-id
-					thisModelViewWrapped = thisModelView.$el.attr( "data-item-id", thisModel.cid );
-				}
-				else if( this._isRenderedAsList() ) {
-					// if we are rendering the collection in a list, we need wrap each item in an <li></li> and set the data-item-id
-					thisModelViewWrapped = thisModelView.$el.wrapAll( "<li data-item-id='" + thisModel.cid + "'></li>" ).parent();
-				}
-
-				thisModelView.modelViewEl = thisModelViewWrapped;
-
-				if( _.isFunction( this.sortableModelsFilter ) )
-					if( ! this.sortableModelsFilter.call( _this, thisModel ) )
-						thisModelViewWrapped.addClass( "not-sortable" );
-
-				if( _.isFunction( this.selectableModelsFilter ) )
-					if( ! this.selectableModelsFilter.call( _this, thisModel ) )
-						thisModelViewWrapped.addClass( "not-selectable" );
-
+				var thisModelViewWrapped = this._wrapModelView( thisModelView );
 				modelViewContainerEl.append( thisModelViewWrapped );
 
 				// we have to render the modelView after it has been put in context, as opposed to in the 
@@ -387,9 +366,11 @@
 				if( renderResult === false )
 					thisModelViewWrapped.hide();
 
-				if( _.isFunction(this.visibleModelsFilter) ) {
-					if( !this.visibleModelsFilter(thisModel) ) {
-						thisModelViewWrapped.hide();
+				if( _.isFunction( this.visibleModelsFilter ) ) {
+					if( ! this.visibleModelsFilter( thisModel ) ) {
+						if( thisModelViewWrapped.children().length === 1 )
+							thisModelViewWrapped.hide();
+						else thisModelView.$el.hide();
 					}
 				}
 
@@ -431,7 +412,7 @@
 				this.$el = this.$el.sortable( sortableOptions );
 			}
 
-			if( ! _.isNull( this.emptyListCaption ) ) {
+			if( this.emptyListCaption ) {
 				var visibleView = this.viewManager.find( function( view ) {
 					return view.$el.is( ":visible" );
 				} );
@@ -449,9 +430,9 @@
 
 					//need to wrap the empty caption to make it fit the rendered list structure (either with an li or a tr td)
 					if( this._isRenderedAsList() )
-						$emptyListCaptionEl = $varEl.wrapAll( "<li></li>" ).parent().css( kStylesForEmptyListCaption );
+						$emptyListCaptionEl = $varEl.wrapAll( "<li class='not-sortable'></li>" ).parent().css( kStylesForEmptyListCaption );
 					else
-						$emptyListCaptionEl = $varEl.wrapAll( "<tr><td></td></tr>" ).parent().parent().css( kStylesForEmptyListCaption );
+						$emptyListCaptionEl = $varEl.wrapAll( "<tr class='not-sortable'><td></td></tr>" ).parent().parent().css( kStylesForEmptyListCaption );
 
 					this.$el.append( $emptyListCaptionEl );
 				}
@@ -656,6 +637,33 @@
 			return new ( modelViewConstructor )( modelViewOptions );
 		},
 
+		_wrapModelView : function( modelView ) {
+			var _this = this;
+
+			// we use items client ids as opposed to real ids, since we may not have a representation
+			// of these models on the server
+			var wrappedModelView;
+
+			if( this._isRenderedAsTable() ) {
+				// if we are rendering the collection in a table, the template $el is a tr so we just need to set the data-item-id
+				wrappedModelView = modelView.$el.attr( "data-item-id", modelView.model.cid );
+			}
+			else if( this._isRenderedAsList() ) {
+				// if we are rendering the collection in a list, we need wrap each item in an <li></li> and set the data-item-id
+				wrappedModelView = modelView.$el.wrapAll( "<li data-item-id='" + modelView.model.cid + "'></li>" ).parent();
+			}
+
+			if( _.isFunction( this.sortableModelsFilter ) )
+				if( ! this.sortableModelsFilter.call( _this, modelView.model ) )
+					wrappedModelView.addClass( "not-sortable" );
+
+			if( _.isFunction( this.selectableModelsFilter ) )
+				if( ! this.selectableModelsFilter.call( _this, modelView.model ) )
+					wrappedModelView.addClass( "not-selectable" );
+
+			return wrappedModelView;
+		},
+
 		_convertStringsToInts : function( theArray ) {
 			return _.map( theArray, function( thisEl ) {
 				if( ! _.isString( thisEl ) ) return thisEl;
@@ -757,7 +765,7 @@
 			return ! trap;
 		},
 
-		_listItem_onClick : function( theEvent ) {
+		_listItem_onMousedown : function( theEvent ) {
 			if( ! this.selectable || ! this.clickToSelect ) return;
 
 			var clickedItemId = this._getClickedItemId( theEvent );

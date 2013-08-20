@@ -332,7 +332,7 @@ $(document).ready( function() {
 		equal( selectedModel2, this.emp1, "Selectable item was selected" );
 
 		var modelView1 = selectableFilterView.viewManager.findByModel( this.emp2 );
-		modelView1.$el.click();
+		modelView1.$el.mousedown();
 		var selectedModel3 = selectableFilterView.getSelectedModel();
 		equal( selectedModel3, this.emp1, "Selection is unchanged by clicking on an unselectable item" );
 
@@ -373,7 +373,7 @@ $(document).ready( function() {
 
 		var modelView1 = myCollectionView.viewManager.findByModel( this.emp1 );
 
-		modelView1.$el.click();
+		modelView1.$el.mousedown();
 		var selectedModel = myCollectionView.getSelectedModel();
 		equal( selectedModel, this.emp1, "Successfully selected an item by clicking on it" );
 
@@ -418,7 +418,7 @@ $(document).ready( function() {
 
 		var modelView1 = myCollectionView.viewManager.findByModel( this.emp1 );
 
-		modelView1.$el.click();
+		modelView1.$el.mousedown();
 		$( myCollectionView.$el ).trigger( keyEvent( downArrow ) );
 		var selectedModel = myCollectionView.getSelectedModel();
 		equal( selectedModel, this.emp2, "Down arrow keypress changes the selection to the item below the current" );
@@ -451,7 +451,7 @@ $(document).ready( function() {
 
 		var modelView1 = myCollectionView.viewManager.findByModel( this.emp1 );
 
-		modelView1.$el.click();
+		modelView1.$el.mousedown();
 		$( myCollectionView.$el ).trigger( keyEvent( downArrow ) );
 		selectedModel = myCollectionView.getSelectedModel();
 		equal( selectedModel, this.emp1, "Were not able to change selection by pressing down arrow key when processKeyEvents is false" );
