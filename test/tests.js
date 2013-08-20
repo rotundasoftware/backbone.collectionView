@@ -1,9 +1,10 @@
 $(document).ready( function() {
 
+	var Employee = Backbone.Model.extend( { } );
+	var Employees = Backbone.Collection.extend( { model : Employee } );
+
 	function commonSetup() {
 
-		var Employee = Backbone.Model.extend( { } );
-		var Employees = Backbone.Collection.extend( { model : Employee } );
 		this.emp1 = new Employee( { id : 1, firstName : 'Sherlock', lastName : 'Holmes' } );
 		this.emp2 = new Employee( { id : 2, firstName : 'John', lastName : 'Watson' } );
 		this.emp3 = new Employee( { id : 3, firstName : 'Mycroft', lastName : 'Holmes' } );
@@ -331,7 +332,7 @@ $(document).ready( function() {
 		equal( selectedModel2, this.emp1, "Selectable item was selected" );
 
 		var modelView1 = selectableFilterView.viewManager.findByModel( this.emp2 );
-		modelView1.$el.click();
+		modelView1.$el.mousedown();
 		var selectedModel3 = selectableFilterView.getSelectedModel();
 		equal( selectedModel3, this.emp1, "Selection is unchanged by clicking on an unselectable item" );
 
@@ -372,7 +373,7 @@ $(document).ready( function() {
 
 		var modelView1 = myCollectionView.viewManager.findByModel( this.emp1 );
 
-		modelView1.$el.click();
+		modelView1.$el.mousedown();
 		var selectedModel = myCollectionView.getSelectedModel();
 		equal( selectedModel, this.emp1, "Successfully selected an item by clicking on it" );
 
@@ -417,7 +418,7 @@ $(document).ready( function() {
 
 		var modelView1 = myCollectionView.viewManager.findByModel( this.emp1 );
 
-		modelView1.$el.click();
+		modelView1.$el.mousedown();
 		$( myCollectionView.$el ).trigger( keyEvent( downArrow ) );
 		var selectedModel = myCollectionView.getSelectedModel();
 		equal( selectedModel, this.emp2, "Down arrow keypress changes the selection to the item below the current" );
@@ -450,7 +451,7 @@ $(document).ready( function() {
 
 		var modelView1 = myCollectionView.viewManager.findByModel( this.emp1 );
 
-		modelView1.$el.click();
+		modelView1.$el.mousedown();
 		$( myCollectionView.$el ).trigger( keyEvent( downArrow ) );
 		selectedModel = myCollectionView.getSelectedModel();
 		equal( selectedModel, this.emp1, "Were not able to change selection by pressing down arrow key when processKeyEvents is false" );
@@ -688,6 +689,133 @@ $(document).ready( function() {
 
 	} );
 
+    asyncTest( "selectionChanged when re-rendering", 0, function() {
+
+        var myCollectionView = new Backbone.CollectionView( {
+            el : this.$collectionViewEl,
+            collection : this.employees,
+            modelView : this.EmployeeView,
+            selectable : true
+        } );
+
+        myCollectionView.render();
+
+        myCollectionView.setSelectedModel( this.emp1 );
+
+        var selectionChangedHandler = function( newSelectedModels, oldSelectedModels ) {
+            ok( false,  "This selectionChanged handler should not have been called because the selection can be restored intact. " );
+        };
+
+        myCollectionView.on( "selectionChanged", selectionChangedHandler );
+
+        myCollectionView.render();
+
+        setTimeout( function() { start(); }, 100 );
+
+    } );
+
+    asyncTest( "selectionChanged when selected item is removed", 2, function() {
+
+        var _this = this;
+
+        var myCollectionView = new Backbone.CollectionView( {
+            el : this.$collectionViewEl,
+            collection : this.employees,
+            modelView : this.EmployeeView,
+            selectable : true
+        } );
+
+        myCollectionView.render();
+
+        myCollectionView.setSelectedModel( this.emp1 );
+
+        var selectionChangedHandler = function( newSelectedModels, oldSelectedModels ) {
+
+            start();
+
+            equal( oldSelectedModels[0], null, "Old selected model is null since it is no longer available" );
+            equal( newSelectedModels[0], _this.emp2, "New selected model is correct" );
+
+            stop();
+
+        };
+
+        myCollectionView.on( "selectionChanged", selectionChangedHandler );
+
+        this.employees.remove( this.emp1 );
+
+        setTimeout( function() { start(); }, 100 );
+
+    } );
+
+    asyncTest( "selectionChanged when selected item is removed with selectMultiple", 3, function() {
+
+        var _this = this;
+
+        var myCollectionView = new Backbone.CollectionView( {
+            el : this.$collectionViewEl,
+            collection : this.employees,
+            modelView : this.EmployeeView,
+            selectable : true,
+            selectMultiple : true
+        } );
+
+        myCollectionView.render();
+
+        myCollectionView.setSelectedModels( [this.emp1, this.emp2] );
+
+        var selectionChangedHandler = function( newSelectedModels, oldSelectedModels ) {
+
+            start();
+
+            equal( oldSelectedModels[0], null, "Old selected model is null since it is no longer available" );
+            equal( newSelectedModels.length, 1, "New selected models contains one model" );
+            equal( newSelectedModels[0], _this.emp2, "New selected model is correct" );
+
+            stop();
+
+        };
+
+        myCollectionView.on( "selectionChanged", selectionChangedHandler );
+
+        this.employees.remove( this.emp1 );
+
+        setTimeout( function() { start(); }, 100 );
+
+    } );
+
+    asyncTest( "selectionChanged when selected item is removed and nothing to re-select", 2, function() {
+
+        var myCollectionView = new Backbone.CollectionView( {
+            el : this.$collectionViewEl,
+            collection : this.employees,
+            modelView : this.EmployeeView,
+            selectable : true
+        } );
+
+        myCollectionView.render();
+
+        myCollectionView.setSelectedModel( this.emp1 );
+
+        var selectionChangedHandler = function( newSelectedModels, oldSelectedModels ) {
+
+            start();
+
+            equal( oldSelectedModels[0], null, "Old selected model is null since it is no longer available" );
+            equal( newSelectedModels[0], null, "New selected model is null since there is nothing to select" );
+
+            stop();
+
+        };
+
+        myCollectionView.on( "selectionChanged", selectionChangedHandler );
+
+        this.employees.reset( [] );
+
+        setTimeout( function() { start(); }, 100 );
+
+    } );
+
 	asyncTest( "updateDependentControls", 1, function() {
 
 		var _this = this;
@@ -735,6 +863,102 @@ $(document).ready( function() {
 
 		emp2View.$el.dblclick();
 
+	} );
+
+    test( "collection add preserves selection", 1, function() {
+
+        var myCollectionView = new Backbone.CollectionView( {
+            el : this.$collectionViewEl,
+            collection : this.employees,
+            modelView : this.EmployeeView,
+            selectable : true
+        } );
+
+        myCollectionView.render();
+
+        myCollectionView.setSelectedModel( this.emp2 );
+
+        this.emp4 = new Employee( { id : 4, firstName : 'Tracy', lastName : 'Johnson' } );
+        this.employees.add( this.emp4 );
+
+        var selectedCid = myCollectionView.getSelectedModel( { by : "cid" } );
+        equal( selectedCid, this.emp2.cid, "Selected item is the correct cid" );
+    } );
+
+    test( "collection remove preserves selection", 1, function() {
+
+        var myCollectionView = new Backbone.CollectionView( {
+            el : this.$collectionViewEl,
+            collection : this.employees,
+            modelView : this.EmployeeView,
+            selectable : true
+        } );
+
+        myCollectionView.render();
+
+        myCollectionView.setSelectedModel( this.emp2 );
+
+        this.employees.remove( this.emp3 );
+
+        var selectedCid = myCollectionView.getSelectedModel( { by : "cid" } );
+        equal( selectedCid, this.emp2.cid, "Selected item is the correct cid" );
+    } );
+
+    test( "collection remove when selected model is removed", 1, function() {
+
+        var myCollectionView = new Backbone.CollectionView( {
+            el : this.$collectionViewEl,
+            collection : this.employees,
+            modelView : this.EmployeeView,
+            selectable : true
+        } );
+
+        myCollectionView.render();
+
+        myCollectionView.setSelectedModel( this.emp2 );
+
+        this.employees.remove( this.emp2 );
+
+        var selectedCid = myCollectionView.getSelectedModel( { by : "cid" } );
+        equal( selectedCid, this.emp3.cid, "Selected item is the correct cid" );
+    } );
+
+    test( "collection reset preserves selection", 1, function() {
+
+        var myCollectionView = new Backbone.CollectionView( {
+            el : this.$collectionViewEl,
+            collection : this.employees,
+            modelView : this.EmployeeView,
+            selectable : true
+        } );
+
+        myCollectionView.render();
+
+        myCollectionView.setSelectedModel( this.emp2 );
+
+        this.employees.reset( [this.emp2, this.emp3] );
+
+        var selectedCid = myCollectionView.getSelectedModel( { by : "cid" } );
+        equal( selectedCid, this.emp2.cid, "Selected item is the correct cid" );
+    } );
+
+    test( "collection reset when the selected model is removed", 1, function() {
+
+        var myCollectionView = new Backbone.CollectionView( {
+            el : this.$collectionViewEl,
+            collection : this.employees,
+            modelView : this.EmployeeView,
+            selectable : true
+        } );
+
+        myCollectionView.render();
+
+        myCollectionView.setSelectedModel( this.emp2 );
+
+        this.employees.reset( [this.emp1, this.emp3] );
+
+        var selectedCid = myCollectionView.getSelectedModel( { by : "cid" } );
+        equal( selectedCid, this.emp3.cid, "Selected item is the correct cid" );
 	} );
 
 	module( "Empty List Caption",
