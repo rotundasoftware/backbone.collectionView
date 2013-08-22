@@ -23,7 +23,7 @@
 		tagName : "ul",
 
 		events : {
-			"mousedown li, td" : "_listItem_onClick",
+			"mousedown li, td" : "_listItem_onMousedown",
 			"dblclick li, td" : "_listItem_onDoubleClick",
 			"click" : "_listBackground_onClick",
 			"click ul.collection-list, table.collection-list" : "_listBackground_onClick",
@@ -772,7 +772,7 @@
 			return ! trap;
 		},
 
-		_listItem_onClick : function( theEvent ) {
+		_listItem_onMousedown : function( theEvent ) {
 			if( ! this.selectable || ! this.clickToSelect ) return;
 
 			var clickedItemId = this._getClickedItemId( theEvent );
