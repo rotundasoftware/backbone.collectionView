@@ -23,7 +23,7 @@
 		tagName : "ul",
 
 		events : {
-			"mousedown li, td" : "_listItem_onMousedown",
+			"mousedown li, td" : "_listItem_onClick",
 			"dblclick li, td" : "_listItem_onDoubleClick",
 			"click" : "_listBackground_onClick",
 			"click ul.collection-list, table.collection-list" : "_listBackground_onClick",
@@ -385,7 +385,8 @@
 					start : _.bind( this._sortStart, this ),
 					change : _.bind( this._sortChange, this ),
 					stop : _.bind( this._sortStop, this ),
-					receive : _.bind( this._receive, this )
+					receive : _.bind( this._receive, this ),
+					over : _.bind( this._over, this )
 				}, _.result( this, "sortableOptions" ) );
 
 				if( this.sortableModelsFilter === null ) {
@@ -434,6 +435,7 @@
 						$emptyListCaptionEl = $varEl.wrapAll( "<tr class='not-sortable'><td></td></tr>" ).parent().parent().css( kStylesForEmptyListCaption );
 
 					this.$el.append( $emptyListCaptionEl );
+
 				}
 			}
 
@@ -738,6 +740,12 @@
 			this.setSelectedModel( modelReceived );
 		},
 
+		_over : function( event, ui ) {
+			// when an item is being dragged into the sortable,
+			// hide the empty list caption if it exists
+			this.$el.find( ".empty-list-caption" ).hide();
+		},
+
 		_onKeydown : function( event ) {
 			if( ! this.processKeyEvents ) return true;
 
@@ -764,7 +772,7 @@
 			return ! trap;
 		},
 
-		_listItem_onMousedown : function( theEvent ) {
+		_listItem_onClick : function( theEvent ) {
 			if( ! this.selectable || ! this.clickToSelect ) return;
 
 			var clickedItemId = this._getClickedItemId( theEvent );
