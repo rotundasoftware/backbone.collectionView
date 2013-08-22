@@ -350,7 +350,6 @@
 					thisModelView = this._createNewModelView( thisModel, modelViewOptions );
 
 					thisModelView.collectionListView = _this;
-					thisModelView.model = thisModel;
 				}
 
 				var thisModelViewWrapped = this._wrapModelView( thisModelView );
@@ -386,7 +385,8 @@
 					start : _.bind( this._sortStart, this ),
 					change : _.bind( this._sortChange, this ),
 					stop : _.bind( this._sortStop, this ),
-					receive : _.bind( this._receive, this )
+					receive : _.bind( this._receive, this ),
+					over : _.bind( this._over, this )
 				}, _.result( this, "sortableOptions" ) );
 
 				if( this.sortableModelsFilter === null ) {
@@ -435,6 +435,7 @@
 						$emptyListCaptionEl = $varEl.wrapAll( "<tr class='not-sortable'><td></td></tr>" ).parent().parent().css( kStylesForEmptyListCaption );
 
 					this.$el.append( $emptyListCaptionEl );
+
 				}
 			}
 
@@ -737,6 +738,12 @@
 			this.collection.add( modelReceived, { at : newIndex } );
 			modelReceived.collection = this.collection; // otherwise will not get properly set, since modelReceived.collection might already have a value.
 			this.setSelectedModel( modelReceived );
+		},
+
+		_over : function( event, ui ) {
+			// when an item is being dragged into the sortable,
+			// hide the empty list caption if it exists
+			this.$el.find( ".empty-list-caption" ).hide();
 		},
 
 		_onKeydown : function( event ) {
