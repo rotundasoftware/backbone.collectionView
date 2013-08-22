@@ -350,7 +350,6 @@
 					thisModelView = this._createNewModelView( thisModel, modelViewOptions );
 
 					thisModelView.collectionListView = _this;
-					thisModelView.model = thisModel;
 				}
 
 				var thisModelViewWrapped = this._wrapModelView( thisModelView );
