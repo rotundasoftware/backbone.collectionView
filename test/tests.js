@@ -15,7 +15,7 @@ $(document).ready( function() {
 			render : function() {
 				var emp = this.model.toJSON();
 				var html = this.template(emp);
-				this.$el.append(html);
+				this.$el.html(html);
 			}
 		} );
 
@@ -25,7 +25,7 @@ $(document).ready( function() {
 			render : function() {
 				var emp = this.model.toJSON();
 				var html = this.template(emp);
-				this.$el.append(html);
+				this.$el.html(html);
 			}
 		} );
 
@@ -34,7 +34,7 @@ $(document).ready( function() {
 			render : function() {
 				var emp = this.model.toJSON();
 				var html = this.template(emp);
-				this.$el.append(html);
+				this.$el.html(html);
 			}
 		} );
 

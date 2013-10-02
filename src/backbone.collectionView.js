@@ -341,6 +341,7 @@
 			} );
 
 			modelViewContainerEl.empty();
+			var fragmentContainer = document.createDocumentFragment();
 
 			this.collection.each( function( thisModel ) {
 				var thisModelView;
@@ -357,7 +358,8 @@
 				}
 
 				var thisModelViewWrapped = this._wrapModelView( thisModelView );
-				modelViewContainerEl.append( thisModelViewWrapped );
+
+				fragmentContainer.appendChild(thisModelViewWrapped[0]);
 
 				// we have to render the modelView after it has been put in context, as opposed to in the 
 				// initialize function of the modelView, because some rendering might be dependent on
@@ -383,6 +385,8 @@
 
 				this.viewManager.add( thisModelView );
 			}, this );
+
+			modelViewContainerEl.append( fragmentContainer );
 
 			if( this.sortable )
 			{
