@@ -588,8 +588,8 @@
 					this.trigger( "selectionChanged", this.getSelectedModels(), [] );
 					if( this._isBackboneCourierAvailable() ) {
 						this.spawn( "selectionChanged", {
-							selectedModels : this.selectedItems,
-							oldSelectedModels : this.savedSelection.items
+							selectedModels : this.getSelectedModels(),
+							oldSelectedModels : []
 						} );
 					}
 				}
