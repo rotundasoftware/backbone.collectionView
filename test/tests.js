@@ -942,23 +942,71 @@ $(document).ready( function() {
         equal( selectedCid, this.emp2.cid, "Selected item is the correct cid" );
     } );
 
-    test( "collection reset when the selected model is removed", 1, function() {
+	test( "collection subviews should stopListening when removed", function () {
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewEl,
+			collection : this.employees,
+			modelView : this.EmployeeView
+		} );
+		myCollectionView.render();
+		var view = myCollectionView.viewManager.findByModel( this.emp2 );
+		var didGetEvent = false;
+		view.listenTo( this.emp2, 'fnord', function(){ didGetEvent = true; } );
+		this.employees.remove( this.emp2 );
+		this.emp2.trigger( 'fnord' );
+		equal( didGetEvent, false );
+	});
 
-        var myCollectionView = new Backbone.CollectionView( {
-            el : this.$collectionViewEl,
-            collection : this.employees,
-            modelView : this.EmployeeView,
-            selectable : true
-        } );
+	test( "all subviews of collection should stop listening", function () {
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewEl,
+			collection : this.employees,
+			modelView : this.EmployeeView
+		} );
+		myCollectionView.render();
+		var view = myCollectionView.viewManager.findByModel( this.emp2 );
+		var didGetEvent = false;
+		view.listenTo( this.emp2, 'fnord', function(){ didGetEvent = true; } );
 
-        myCollectionView.render();
+		myCollectionView.remove();
+		this.emp2.trigger( 'fnord' );
+		equal( didGetEvent, false );
+	});
 
-        myCollectionView.setSelectedModel( this.emp2 );
+	test( "should stop listening on already created subviews when changing modelView option", function () {
+		var myCollectionView = new Backbone.CollectionView({
+			el : this.$collectionViewEl,
+			collection : this.employees,
+			modelView : this.EmployeeView
+		});
+		myCollectionView.render();
+		var view = myCollectionView.viewManager.findByModel(this.emp2);
+		var didGetEvent = false;
+		view.listenTo(this.emp2, 'fnord', function(){ didGetEvent = true; });
 
-        this.employees.reset( [this.emp1, this.emp3] );
+		myCollectionView.setOption( "modelView", this.EmployeeView2 );
 
-        var selectedCid = myCollectionView.getSelectedModel( { by : "cid" } );
-        equal( selectedCid, this.emp3.cid, "Selected item is the correct cid" );
+		this.emp2.trigger('fnord');
+		equal(didGetEvent, false);
+	});
+
+	test( "collection reset when the selected model is removed", 1, function() {
+
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewEl,
+			collection : this.employees,
+			modelView : this.EmployeeView,
+			selectable : true
+		} );
+
+		myCollectionView.render();
+
+		myCollectionView.setSelectedModel( this.emp2 );
+
+		this.employees.reset( [this.emp1, this.emp3] );
+
+		var selectedCid = myCollectionView.getSelectedModel( { by : "cid" } );
+		equal( selectedCid, this.emp3.cid, "Selected item is the correct cid" );
 	} );
 
 	module( "Empty List Caption",

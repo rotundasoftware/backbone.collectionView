@@ -150,6 +150,8 @@
 							//need to remove all old view instances
 							this.viewManager.each( function( view ) {
 								_this.viewManager.remove( view );
+								// destroy the View itself
+								view.remove();
 							} );
 							break;
 						default :
@@ -334,6 +336,8 @@
 				// we won't need the other ones later, so no need to detach them individually.
 				if( _this.collection.get( thisModelView.model.cid ) )
 					thisModelView.$el.detach();
+				else
+					thisModelView.remove();
 			} );
 
 			modelViewContainerEl.empty();
@@ -362,14 +366,18 @@
 				var renderResult = thisModelView.render();
 
 				// return false from the view's render function to hide this item
-				if( renderResult === false )
+				if( renderResult === false ) {
 					thisModelViewWrapped.hide();
+					thisModelViewWrapped.addClass( "not-visible" );
+				}
 
 				if( _.isFunction( this.visibleModelsFilter ) ) {
 					if( ! this.visibleModelsFilter( thisModel ) ) {
 						if( thisModelViewWrapped.children().length === 1 )
 							thisModelViewWrapped.hide();
 						else thisModelView.$el.hide();
+
+						thisModelViewWrapped.addClass( "not-visible" );
 					}
 				}
 
@@ -414,7 +422,7 @@
 
 			if( this.emptyListCaption ) {
 				var visibleView = this.viewManager.find( function( view ) {
-					return view.$el.is( ":visible" );
+					return ! view.$el.hasClass( "not-visible" );
 				} );
 
 				if( _.isUndefined( visibleView ) ) {
@@ -459,6 +467,15 @@
 					selectedModels : this.getSelectedModels()
 				} );
 			}
+		},
+
+		// Override `Backbone.View.remove` to also destroy all Views in `viewManager`
+		remove : function() {
+			this.viewManager.each( function( view ) {
+				view.remove();
+			} );
+
+			Backbone.View.prototype.remove.apply( this, arguments );
 		},
 
 		_validateSelectionAndRender : function() {
