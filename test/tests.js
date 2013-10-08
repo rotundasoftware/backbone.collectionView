@@ -58,7 +58,7 @@ $(document).ready( function() {
 		}
 	);
 
-	test( "Rendering with an empty table element", 2, function() {
+	test( "Rendering with an empty table element", 3, function() {
 
 		var myCollectionView = new Backbone.CollectionView( {
 			el : this.$collectionViewForTableEl,
@@ -70,9 +70,10 @@ $(document).ready( function() {
 
 		equal( myCollectionView.$el.find( "tbody" ).length, 1, "Tbody is created" );
 		equal( myCollectionView.$el.find( "tbody > tr" ).length, 3, "Model views are added inside the tbody" );
+		ok( myCollectionView.$el.html().indexOf( "Sherlock Holmes" ) !== -1, "Rendered table contains 'Sherlock Holmes'");
 	} );
 
-	test( "Rendering with a tbody and thead inside the table element", 2, function() {
+	test( "Rendering with a tbody and thead inside the table element", 3, function() {
 
 		var myCollectionView = new Backbone.CollectionView( {
 			el : this.$collectionViewForTableWithContentsEl,
@@ -84,6 +85,23 @@ $(document).ready( function() {
 
 		equal( myCollectionView.$el.find( "thead" ).length, 1, "Thead remains after rendering" );
 		equal( myCollectionView.$el.find( "tbody > tr" ).length, 3, "Model views are added inside the tbody" );
+		ok( myCollectionView.$el.html().indexOf( "Sherlock Holmes" ) !== -1, "Rendered table contains 'Sherlock Holmes'");
+	} );
+
+	test( "Rendering with an empty table element (detached rendering)", 3, function() {
+
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewForTableEl,
+			collection : this.employees,
+			modelView : this.EmployeeViewForTable,
+			detachedRendering : true
+		} );
+
+		myCollectionView.render();
+
+		equal( myCollectionView.$el.find( "tbody" ).length, 1, "Tbody is created" );
+		equal( myCollectionView.$el.find( "tbody > tr" ).length, 3, "Model views are added inside the tbody" );
+		ok( myCollectionView.$el.html().indexOf( "Sherlock Holmes" ) !== -1, "Rendered table contains 'Sherlock Holmes'");
 	} );
 
 	module( "Item Selection",

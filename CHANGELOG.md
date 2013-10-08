@@ -4,6 +4,7 @@
 
 * Use css classes to keep track of and determine visibility of an item
 * Call remove() on views in viewManager when they are removed (so they stop listening to events)
+* Add `detachedRendering` option (defaults to `false`) to improve performance by rendering all modelViews before inserting into the DOM.
 
 ### v0.7.0
 

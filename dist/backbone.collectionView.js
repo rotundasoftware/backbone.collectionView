@@ -14,10 +14,10 @@
 	var kAllowedOptions = [
 		"collection", "modelView", "modelViewOptions", "itemTemplate", "emptyListCaption",
 		"selectable", "clickToSelect", "selectableModelsFilter", "visibleModelsFilter",
-		"selectMultiple", "clickToToggle", "processKeyEvents", "sortable", "sortableModelsFilter", "itemTemplateFunction"
+		"selectMultiple", "clickToToggle", "processKeyEvents", "sortable", "sortableModelsFilter", "itemTemplateFunction", "detachedRendering"
 	];
 
-	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "sortableModelsFilter", "visibleModelsFilter", "itemTemplateFunction" ];
+	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "sortableModelsFilter", "visibleModelsFilter", "itemTemplateFunction", "detachedRendering" ];
 
 	var kStylesForEmptyListCaption = {
 		"background" : "transparent",
@@ -64,6 +64,7 @@
 				clickToToggle : false,
 				processKeyEvents : true,
 				sortable : false,
+				detachedRendering : false,
 				emptyListCaption : null
 			}, options );
 
@@ -349,6 +350,9 @@
 
 			modelViewContainerEl.empty();
 
+			if( this.detachedRendering )
+				var fragmentContainer = document.createDocumentFragment();
+
 			this.collection.each( function( thisModel ) {
 				var thisModelView;
 
@@ -364,7 +368,10 @@
 				}
 
 				var thisModelViewWrapped = this._wrapModelView( thisModelView );
-				modelViewContainerEl.append( thisModelViewWrapped );
+				if( this.detachedRendering )
+					fragmentContainer.appendChild( thisModelViewWrapped[0] );
+				else
+					modelViewContainerEl.append( thisModelViewWrapped );
 
 				// we have to render the modelView after it has been put in context, as opposed to in the 
 				// initialize function of the modelView, because some rendering might be dependent on
@@ -390,6 +397,9 @@
 
 				this.viewManager.add( thisModelView );
 			}, this );
+
+			if( this.detachedRendering )
+				modelViewContainerEl.append( fragmentContainer );
 
 			if( this.sortable )
 			{
