@@ -1,5 +1,5 @@
 /*!
-* Backbone.CollectionView, v0.6.1
+* Backbone.CollectionView, v0.7.1
 * Copyright (c)2013 Rotunda Software, LLC.
 * Distributed under MIT license
 * http://github.com/rotundasoftware/backbone-collection-view
@@ -14,10 +14,10 @@
 	var kAllowedOptions = [
 		"collection", "modelView", "modelViewOptions", "itemTemplate", "emptyListCaption",
 		"selectable", "clickToSelect", "selectableModelsFilter", "visibleModelsFilter",
-		"selectMultiple", "clickToToggle", "processKeyEvents", "sortable", "sortableModelsFilter", "itemTemplateFunction"
+		"selectMultiple", "clickToToggle", "processKeyEvents", "sortable", "sortableModelsFilter", "itemTemplateFunction", "detachedRendering"
 	];
 
-	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "sortableModelsFilter", "visibleModelsFilter", "itemTemplateFunction" ];
+	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "sortableModelsFilter", "visibleModelsFilter", "itemTemplateFunction", "detachedRendering" ];
 
 	var kStylesForEmptyListCaption = {
 		"background" : "transparent",
@@ -64,6 +64,7 @@
 				clickToToggle : false,
 				processKeyEvents : true,
 				sortable : false,
+				detachedRendering : false,
 				emptyListCaption : null
 			}, options );
 
@@ -157,6 +158,8 @@
 							//need to remove all old view instances
 							this.viewManager.each( function( view ) {
 								_this.viewManager.remove( view );
+								// destroy the View itself
+								view.remove();
 							} );
 							break;
 						default :
@@ -341,9 +344,14 @@
 				// we won't need the other ones later, so no need to detach them individually.
 				if( _this.collection.get( thisModelView.model.cid ) )
 					thisModelView.$el.detach();
+				else
+					thisModelView.remove();
 			} );
 
 			modelViewContainerEl.empty();
+
+			if( this.detachedRendering )
+				var fragmentContainer = document.createDocumentFragment();
 
 			this.collection.each( function( thisModel ) {
 				var thisModelView;
@@ -357,11 +365,13 @@
 					thisModelView = this._createNewModelView( thisModel, modelViewOptions );
 
 					thisModelView.collectionListView = _this;
-					thisModelView.model = thisModel;
 				}
 
 				var thisModelViewWrapped = this._wrapModelView( thisModelView );
-				modelViewContainerEl.append( thisModelViewWrapped );
+				if( this.detachedRendering )
+					fragmentContainer.appendChild( thisModelViewWrapped[0] );
+				else
+					modelViewContainerEl.append( thisModelViewWrapped );
 
 				// we have to render the modelView after it has been put in context, as opposed to in the 
 				// initialize function of the modelView, because some rendering might be dependent on
@@ -370,19 +380,26 @@
 				var renderResult = thisModelView.render();
 
 				// return false from the view's render function to hide this item
-				if( renderResult === false )
+				if( renderResult === false ) {
 					thisModelViewWrapped.hide();
+					thisModelViewWrapped.addClass( "not-visible" );
+				}
 
 				if( _.isFunction( this.visibleModelsFilter ) ) {
 					if( ! this.visibleModelsFilter( thisModel ) ) {
 						if( thisModelViewWrapped.children().length === 1 )
 							thisModelViewWrapped.hide();
 						else thisModelView.$el.hide();
+
+						thisModelViewWrapped.addClass( "not-visible" );
 					}
 				}
 
 				this.viewManager.add( thisModelView );
 			}, this );
+
+			if( this.detachedRendering )
+				modelViewContainerEl.append( fragmentContainer );
 
 			if( this.sortable )
 			{
@@ -393,7 +410,8 @@
 					start : _.bind( this._sortStart, this ),
 					change : _.bind( this._sortChange, this ),
 					stop : _.bind( this._sortStop, this ),
-					receive : _.bind( this._receive, this )
+					receive : _.bind( this._receive, this ),
+					over : _.bind( this._over, this )
 				}, _.result( this, "sortableOptions" ) );
 
 				if( this.sortableModelsFilter === null ) {
@@ -421,7 +439,7 @@
 
 			if( this.emptyListCaption ) {
 				var visibleView = this.viewManager.find( function( view ) {
-					return view.$el.is( ":visible" );
+					return ! view.$el.hasClass( "not-visible" );
 				} );
 
 				if( _.isUndefined( visibleView ) ) {
@@ -442,6 +460,7 @@
 						$emptyListCaptionEl = $varEl.wrapAll( "<tr class='not-sortable'><td></td></tr>" ).parent().parent().css( kStylesForEmptyListCaption );
 
 					this.$el.append( $emptyListCaptionEl );
+
 				}
 			}
 
@@ -465,6 +484,15 @@
 					selectedModels : this.getSelectedModels()
 				} );
 			}
+		},
+
+		// Override `Backbone.View.remove` to also destroy all Views in `viewManager`
+		remove : function() {
+			this.viewManager.each( function( view ) {
+				view.remove();
+			} );
+
+			Backbone.View.prototype.remove.apply( this, arguments );
 		},
 
 		_validateSelectionAndRender : function() {
@@ -573,8 +601,8 @@
 					this.trigger( "selectionChanged", this.getSelectedModels(), [] );
 					if( this._isBackboneCourierAvailable() ) {
 						this.spawn( "selectionChanged", {
-							selectedModels : this.selectedItems,
-							oldSelectedModels : this.savedSelection.items
+							selectedModels : this.getSelectedModels(),
+							oldSelectedModels : []
 						} );
 					}
 				}
@@ -744,6 +772,12 @@
 			this.collection.add( modelReceived, { at : newIndex } );
 			modelReceived.collection = this.collection; // otherwise will not get properly set, since modelReceived.collection might already have a value.
 			this.setSelectedModel( modelReceived );
+		},
+
+		_over : function( event, ui ) {
+			// when an item is being dragged into the sortable,
+			// hide the empty list caption if it exists
+			this.$el.find( ".empty-list-caption" ).hide();
 		},
 
 		_onKeydown : function( event ) {

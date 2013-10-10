@@ -15,7 +15,7 @@ $(document).ready( function() {
 			render : function() {
 				var emp = this.model.toJSON();
 				var html = this.template(emp);
-				this.$el.append(html);
+				this.$el.html(html);
 			}
 		} );
 
@@ -25,7 +25,7 @@ $(document).ready( function() {
 			render : function() {
 				var emp = this.model.toJSON();
 				var html = this.template(emp);
-				this.$el.append(html);
+				this.$el.html(html);
 			}
 		} );
 
@@ -34,7 +34,7 @@ $(document).ready( function() {
 			render : function() {
 				var emp = this.model.toJSON();
 				var html = this.template(emp);
-				this.$el.append(html);
+				this.$el.html(html);
 			}
 		} );
 
@@ -58,7 +58,7 @@ $(document).ready( function() {
 		}
 	);
 
-	test( "Rendering with an empty table element", 2, function() {
+	test( "Rendering with an empty table element", 3, function() {
 
 		var myCollectionView = new Backbone.CollectionView( {
 			el : this.$collectionViewForTableEl,
@@ -70,9 +70,10 @@ $(document).ready( function() {
 
 		equal( myCollectionView.$el.find( "tbody" ).length, 1, "Tbody is created" );
 		equal( myCollectionView.$el.find( "tbody > tr" ).length, 3, "Model views are added inside the tbody" );
+		ok( myCollectionView.$el.html().indexOf( "Sherlock Holmes" ) !== -1, "Rendered table contains 'Sherlock Holmes'");
 	} );
 
-	test( "Rendering with a tbody and thead inside the table element", 2, function() {
+	test( "Rendering with a tbody and thead inside the table element", 3, function() {
 
 		var myCollectionView = new Backbone.CollectionView( {
 			el : this.$collectionViewForTableWithContentsEl,
@@ -84,6 +85,23 @@ $(document).ready( function() {
 
 		equal( myCollectionView.$el.find( "thead" ).length, 1, "Thead remains after rendering" );
 		equal( myCollectionView.$el.find( "tbody > tr" ).length, 3, "Model views are added inside the tbody" );
+		ok( myCollectionView.$el.html().indexOf( "Sherlock Holmes" ) !== -1, "Rendered table contains 'Sherlock Holmes'");
+	} );
+
+	test( "Rendering with an empty table element (detached rendering)", 3, function() {
+
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewForTableEl,
+			collection : this.employees,
+			modelView : this.EmployeeViewForTable,
+			detachedRendering : true
+		} );
+
+		myCollectionView.render();
+
+		equal( myCollectionView.$el.find( "tbody" ).length, 1, "Tbody is created" );
+		equal( myCollectionView.$el.find( "tbody > tr" ).length, 3, "Model views are added inside the tbody" );
+		ok( myCollectionView.$el.html().indexOf( "Sherlock Holmes" ) !== -1, "Rendered table contains 'Sherlock Holmes'");
 	} );
 
 	module( "Item Selection",
@@ -942,23 +960,71 @@ $(document).ready( function() {
         equal( selectedCid, this.emp2.cid, "Selected item is the correct cid" );
     } );
 
-    test( "collection reset when the selected model is removed", 1, function() {
+	test( "collection subviews should stopListening when removed", function () {
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewEl,
+			collection : this.employees,
+			modelView : this.EmployeeView
+		} );
+		myCollectionView.render();
+		var view = myCollectionView.viewManager.findByModel( this.emp2 );
+		var didGetEvent = false;
+		view.listenTo( this.emp2, 'fnord', function(){ didGetEvent = true; } );
+		this.employees.remove( this.emp2 );
+		this.emp2.trigger( 'fnord' );
+		equal( didGetEvent, false );
+	});
 
-        var myCollectionView = new Backbone.CollectionView( {
-            el : this.$collectionViewEl,
-            collection : this.employees,
-            modelView : this.EmployeeView,
-            selectable : true
-        } );
+	test( "all subviews of collection should stop listening", function () {
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewEl,
+			collection : this.employees,
+			modelView : this.EmployeeView
+		} );
+		myCollectionView.render();
+		var view = myCollectionView.viewManager.findByModel( this.emp2 );
+		var didGetEvent = false;
+		view.listenTo( this.emp2, 'fnord', function(){ didGetEvent = true; } );
 
-        myCollectionView.render();
+		myCollectionView.remove();
+		this.emp2.trigger( 'fnord' );
+		equal( didGetEvent, false );
+	});
 
-        myCollectionView.setSelectedModel( this.emp2 );
+	test( "should stop listening on already created subviews when changing modelView option", function () {
+		var myCollectionView = new Backbone.CollectionView({
+			el : this.$collectionViewEl,
+			collection : this.employees,
+			modelView : this.EmployeeView
+		});
+		myCollectionView.render();
+		var view = myCollectionView.viewManager.findByModel(this.emp2);
+		var didGetEvent = false;
+		view.listenTo(this.emp2, 'fnord', function(){ didGetEvent = true; });
 
-        this.employees.reset( [this.emp1, this.emp3] );
+		myCollectionView.setOption( "modelView", this.EmployeeView2 );
 
-        var selectedCid = myCollectionView.getSelectedModel( { by : "cid" } );
-        equal( selectedCid, this.emp3.cid, "Selected item is the correct cid" );
+		this.emp2.trigger('fnord');
+		equal(didGetEvent, false);
+	});
+
+	test( "collection reset when the selected model is removed", 1, function() {
+
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewEl,
+			collection : this.employees,
+			modelView : this.EmployeeView,
+			selectable : true
+		} );
+
+		myCollectionView.render();
+
+		myCollectionView.setSelectedModel( this.emp2 );
+
+		this.employees.reset( [this.emp1, this.emp3] );
+
+		var selectedCid = myCollectionView.getSelectedModel( { by : "cid" } );
+		equal( selectedCid, this.emp3.cid, "Selected item is the correct cid" );
 	} );
 
 	module( "Empty List Caption",

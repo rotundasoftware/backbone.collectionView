@@ -7,10 +7,10 @@
 	var kAllowedOptions = [
 		"collection", "modelView", "modelViewOptions", "itemTemplate", "emptyListCaption",
 		"selectable", "clickToSelect", "selectableModelsFilter", "visibleModelsFilter",
-		"selectMultiple", "clickToToggle", "processKeyEvents", "sortable", "sortableModelsFilter", "itemTemplateFunction"
+		"selectMultiple", "clickToToggle", "processKeyEvents", "sortable", "sortableModelsFilter", "itemTemplateFunction", "detachedRendering"
 	];
 
-	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "sortableModelsFilter", "visibleModelsFilter", "itemTemplateFunction" ];
+	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "sortableModelsFilter", "visibleModelsFilter", "itemTemplateFunction", "detachedRendering" ];
 
 	var kStylesForEmptyListCaption = {
 		"background" : "transparent",
@@ -57,6 +57,7 @@
 				clickToToggle : false,
 				processKeyEvents : true,
 				sortable : false,
+				detachedRendering : false,
 				emptyListCaption : null
 			}, options );
 
@@ -150,6 +151,8 @@
 							//need to remove all old view instances
 							this.viewManager.each( function( view ) {
 								_this.viewManager.remove( view );
+								// destroy the View itself
+								view.remove();
 							} );
 							break;
 						default :
@@ -334,9 +337,14 @@
 				// we won't need the other ones later, so no need to detach them individually.
 				if( _this.collection.get( thisModelView.model.cid ) )
 					thisModelView.$el.detach();
+				else
+					thisModelView.remove();
 			} );
 
 			modelViewContainerEl.empty();
+
+			if( this.detachedRendering )
+				var fragmentContainer = document.createDocumentFragment();
 
 			this.collection.each( function( thisModel ) {
 				var thisModelView;
@@ -353,7 +361,10 @@
 				}
 
 				var thisModelViewWrapped = this._wrapModelView( thisModelView );
-				modelViewContainerEl.append( thisModelViewWrapped );
+				if( this.detachedRendering )
+					fragmentContainer.appendChild( thisModelViewWrapped[0] );
+				else
+					modelViewContainerEl.append( thisModelViewWrapped );
 
 				// we have to render the modelView after it has been put in context, as opposed to in the 
 				// initialize function of the modelView, because some rendering might be dependent on
@@ -362,19 +373,26 @@
 				var renderResult = thisModelView.render();
 
 				// return false from the view's render function to hide this item
-				if( renderResult === false )
+				if( renderResult === false ) {
 					thisModelViewWrapped.hide();
+					thisModelViewWrapped.addClass( "not-visible" );
+				}
 
 				if( _.isFunction( this.visibleModelsFilter ) ) {
 					if( ! this.visibleModelsFilter( thisModel ) ) {
 						if( thisModelViewWrapped.children().length === 1 )
 							thisModelViewWrapped.hide();
 						else thisModelView.$el.hide();
+
+						thisModelViewWrapped.addClass( "not-visible" );
 					}
 				}
 
 				this.viewManager.add( thisModelView );
 			}, this );
+
+			if( this.detachedRendering )
+				modelViewContainerEl.append( fragmentContainer );
 
 			if( this.sortable )
 			{
@@ -414,7 +432,7 @@
 
 			if( this.emptyListCaption ) {
 				var visibleView = this.viewManager.find( function( view ) {
-					return view.$el.is( ":visible" );
+					return ! view.$el.hasClass( "not-visible" );
 				} );
 
 				if( _.isUndefined( visibleView ) ) {
@@ -459,6 +477,15 @@
 					selectedModels : this.getSelectedModels()
 				} );
 			}
+		},
+
+		// Override `Backbone.View.remove` to also destroy all Views in `viewManager`
+		remove : function() {
+			this.viewManager.each( function( view ) {
+				view.remove();
+			} );
+
+			Backbone.View.prototype.remove.apply( this, arguments );
 		},
 
 		_validateSelectionAndRender : function() {
@@ -567,8 +594,8 @@
 					this.trigger( "selectionChanged", this.getSelectedModels(), [] );
 					if( this._isBackboneCourierAvailable() ) {
 						this.spawn( "selectionChanged", {
-							selectedModels : this.selectedItems,
-							oldSelectedModels : this.savedSelection.items
+							selectedModels : this.getSelectedModels(),
+							oldSelectedModels : []
 						} );
 					}
 				}

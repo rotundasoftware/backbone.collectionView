@@ -1,5 +1,11 @@
 # Change log
 
+### v0.7.1
+
+* Use css classes to keep track of and determine visibility of an item
+* Call remove() on views in viewManager when they are removed (so they stop listening to events)
+* Add `detachedRendering` option (defaults to `false`) to improve performance by rendering all modelViews before inserting into the DOM.
+
 ### v0.7.0
 
 * Fix to work with underscore.js 1.5.1 (remove `_.bindAll` and use `.bind` where necessary).
