@@ -646,7 +646,7 @@
 					if( thisModel )
 					{
 						_this.collection.remove( thisModel, { silent : true } );
-						_this.collection.add( thisModel, { silent : true } );
+						_this.collection.add( thisModel, { silent : true, sort : ! _this.collection.comparator } );
 					}
 				}
 			} );
@@ -654,6 +654,8 @@
 			this.collection.trigger( "reorder" );
 
 			if( this._isBackboneCourierAvailable() ) this.spawn( "reorder" );
+
+			if( this.collection.comparator ) this.collection.sort();
 
 		},
 

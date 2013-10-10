@@ -1,5 +1,7 @@
 # Change log
 
+### v0.7.2
+* After the collection view is reordered via dragging: if the collection has a comparator, sort after adding all the models in the visual order.
 ### v0.7.1
 
 * Use css classes to keep track of and determine visibility of an item
