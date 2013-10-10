@@ -940,6 +940,54 @@ $(document).ready( function() {
         var selectedCid = myCollectionView.getSelectedModel( { by : "cid" } );
         equal( selectedCid, this.emp3.cid, "Selected item is the correct cid" );
     } );
+    
+    test("collection subviews should stopListening when removed", function () {
+        var myCollectionView = new Backbone.CollectionView({
+            el : this.$collectionViewEl,
+            collection : this.employees,
+            modelView : this.EmployeeView
+        });
+        myCollectionView.render();
+        var view = myCollectionView.viewManager.findByModel(this.emp2);
+        var didGetEvent = false;
+        view.listenTo(this.emp2, 'fnord', function(){ didGetEvent = true; })
+        this.employees.remove(this.emp2);
+        this.emp2.trigger('fnord')
+        equal(didGetEvent, false)
+    });
+    
+    test("all subviews of collection should stop listening", function () {
+        var myCollectionView = new Backbone.CollectionView({
+            el : this.$collectionViewEl,
+            collection : this.employees,
+            modelView : this.EmployeeView
+        });
+        myCollectionView.render();
+        var view = myCollectionView.viewManager.findByModel(this.emp2);
+        var didGetEvent = false;
+        view.listenTo(this.emp2, 'fnord', function(){ didGetEvent = true; })
+        
+        myCollectionView.remove();
+        this.emp2.trigger('fnord')
+        equal(didGetEvent, false)
+    });
+    
+    test("should stop listening on already created subviews when changing modelView option", function () {
+        var myCollectionView = new Backbone.CollectionView({
+            el : this.$collectionViewEl,
+            collection : this.employees,
+            modelView : this.EmployeeView
+        });
+        myCollectionView.render();
+        var view = myCollectionView.viewManager.findByModel(this.emp2);
+        var didGetEvent = false;
+        view.listenTo(this.emp2, 'fnord', function(){ didGetEvent = true; })
+        
+        myCollectionView.setOption( "modelView", this.EmployeeView2 );
+        
+        this.emp2.trigger('fnord')
+        equal(didGetEvent, false)
+    });
 
     test( "collection reset preserves selection", 1, function() {
 

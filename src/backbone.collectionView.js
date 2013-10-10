@@ -111,7 +111,12 @@
 			// to be done already. so we have to make sure to not jump the gun and start rending at this point.
 			// this.render();
 		},
-
+		
+		stopListening: function () {
+			Backbone.View.prototype.stopListening.apply(this, arguments);
+			this.viewManager.apply('stopListening', arguments);
+		},
+		
 		setOption : function( name, value ) {
 
 			var _this = this;
@@ -150,6 +155,7 @@
 							this[ name ] = value;
 							//need to remove all old view instances
 							this.viewManager.each( function( view ) {
+								view.stopListening();
 								_this.viewManager.remove( view );
 								// destroy the View itself
 								view.remove();
