@@ -652,6 +652,78 @@ $(document).ready( function() {
 
 	} );
 
+	test( "collection - render if already rendered", 1, function() {
+
+		var collection1 = this.employees;
+
+		var collection2 = new Employees( [ this.emp1, this.emp2, this.emp3 ] );
+
+		collection2.add( new Employee( { firstName : "New", lastName : "Addition" } ) );
+
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewEl,
+			collection : this.employees,
+			modelView : this.EmployeeView,
+			selectable : true
+		} );
+
+		myCollectionView.render();
+		myCollectionView.setOption( "collection", collection2 );
+
+		ok( myCollectionView.$el.html().indexOf( "New Addition" ) !== -1, "New collection rendered." );
+	} );
+
+	test( "collection - don't render unless already rendered", 1, function() {
+
+		var collection1 = this.employees;
+
+		var collection2 = new Employees( [ this.emp1, this.emp2, this.emp3 ] );
+
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewEl,
+			collection : this.employees,
+			modelView : this.EmployeeView,
+			selectable : true
+		} );
+
+		myCollectionView.setOption( "collection", collection2 );
+
+		equal( myCollectionView.$el.html(), "", "Collection View not rendered after calling setOption(collection) because it was never rendered to begin with." );
+	} );
+
+	asyncTest( "collection - don't listen to old collection", 1, function() {
+
+		var collection1 = this.employees;
+
+		var collection2 = new Employees( [ this.emp1, this.emp2, this.emp3 ] );
+
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewEl,
+			collection : this.employees,
+			modelView : this.EmployeeView,
+			selectable : true
+		} );
+
+		myCollectionView.listenTo( collection1, "add", function() {
+			start();
+			ok( false, "Collection View should not hear add event from old collection" );
+			stop();
+		} );
+
+		myCollectionView.setOption( "collection", collection2 );
+
+		collection1.add( new Employee( { firstName : "Extra", lastName : "1" } ) );
+
+		myCollectionView.listenTo( collection2, "add", function() {
+			start();
+			ok( true, "Collection View heard add event from new collection" );
+		} );
+
+		collection2.add( new Employee( { firstName : "Extra", lastName : "1" } ) );
+
+		myCollectionView.render();
+	} );
+
 	module( "Events",
 		{
 			setup: function() {
@@ -762,7 +834,7 @@ $(document).ready( function() {
 
         this.employees.remove( this.emp1 );
 
-        setTimeout( function() { start(); }, 100 );
+        setTimeout( function() { start(); }, 200 );
 
     } );
 

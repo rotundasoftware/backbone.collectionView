@@ -48,6 +48,8 @@
 		initialize : function( options ){
 			var _this = this;
 
+			this._hasBeenRendered = false;
+
 			// default options
 			options = _.extend( {}, {
 				collection : null,
@@ -88,25 +90,8 @@
 
 			this._updateItemTemplate();
 
-			if( ! _.isUndefined( this.collection ) && ! _.isNull( this.collection ) ) {
-				this.listenTo( this.collection, "add", function() {
-					this.render();
-					if( this._isBackboneCourierAvailable() )
-						this.spawn( "add" );
-				} );
-
-				this.listenTo( this.collection, "remove", function() {
-					this.render();
-					if( this._isBackboneCourierAvailable() )
-						this.spawn( "remove" );
-				} );
-
-				this.listenTo( this.collection, "reset", function() {
-					this.render();
-					if( this._isBackboneCourierAvailable() )
-						this.spawn( "reset" );
-				} );
-			}
+			if( ! _.isUndefined( this.collection ) && ! _.isNull( this.collection ) )
+				this._registerCollectionEvents();
 
 			this.viewManager = new ChildViewContainer();
 
@@ -317,6 +302,8 @@
 		render : function(){
 			var _this = this;
 
+			this._hasBeenRendered = true;
+
 			if( this.selectable ) this._saveSelection();
 
 			var modelViewContainerEl;
@@ -500,6 +487,26 @@
 			this.render();
 		},
 
+		_registerCollectionEvents : function() {
+			this.listenTo( this.collection, "add", function() {
+				if( this._hasBeenRendered ) this.render();
+				if( this._isBackboneCourierAvailable() )
+					this.spawn( "add" );
+			} );
+
+			this.listenTo( this.collection, "remove", function() {
+				if( this._hasBeenRendered ) this.render();
+				if( this._isBackboneCourierAvailable() )
+					this.spawn( "remove" );
+			} );
+
+			this.listenTo( this.collection, "reset", function() {
+				if( this._hasBeenRendered ) this.render();
+				if( this._isBackboneCourierAvailable() )
+					this.spawn( "reset" );
+			} );
+		},
+
 		_getClickedItemId : function( theEvent ) {
 			var clickedItemId = null;
 
@@ -525,15 +532,12 @@
 		_setCollection : function( newCollection ) {
 			if( newCollection !== this.collection )
 			{
+				this.stopListening( this.collection );
 				this.collection = newCollection;
-
-				this.collection.bind( "add", this.render, this );
-				this.collection.bind( "remove", this._validateSelectionAndRender, this );
-				this.collection.bind( "reset", this._validateSelectionAndRender, this );
-				//this.collection.bind( "change", this.render, this ); //don't want changes to models bubbling up to force re-render of entire list
+				this._registerCollectionEvents();
 			}
 
-			this.render();
+			if( this._hasBeenRendered ) this.render();
 		},
 
 		_updateItemTemplate : function() {
