@@ -13,7 +13,7 @@ Depends on jQuery and jQueryUI for event handling and sorting, respectively.
 * Allows a user to reorder the collection by dragging and dropping.
 * Supports changing the currently selected model(s) through up and down arrow key presses.
 * Allows you to filter which models are visible, selectable, and sortable.
-* Integrates with [Backboune.Courier](https://github.com/rotundasoftware/backbone.courier) out of the box.
+* Integrates with [Backbone.Courier](https://github.com/rotundasoftware/backbone.courier) out of the box.
 
 ## Sample Usage
 ```javascript
