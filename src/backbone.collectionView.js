@@ -324,7 +324,6 @@
 			} );
 
 			modelViewContainerEl.empty();
-
 			var fragmentContainer;
 			
 			if( this.detachedRendering )
