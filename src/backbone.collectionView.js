@@ -1,5 +1,5 @@
 
-(function(){
+(function() {
 	var mDefaultModelViewConstructor = Backbone.View;
 
 	var kDefaultReferenceBy = "model";
@@ -7,10 +7,10 @@
 	var kAllowedOptions = [
 		"collection", "modelView", "modelViewOptions", "itemTemplate", "emptyListCaption",
 		"selectable", "clickToSelect", "selectableModelsFilter", "visibleModelsFilter",
-		"selectMultiple", "clickToToggle", "processKeyEvents", "sortable", "sortableModelsFilter", "itemTemplateFunction"
+		"selectMultiple", "clickToToggle", "processKeyEvents", "sortable", "sortableModelsFilter", "itemTemplateFunction", "detachedRendering"
 	];
 
-	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "sortableModelsFilter", "visibleModelsFilter", "itemTemplateFunction" ];
+	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "sortableModelsFilter", "visibleModelsFilter", "itemTemplateFunction", "detachedRendering" ];
 
 	var kStylesForEmptyListCaption = {
 		"background" : "transparent",
@@ -18,12 +18,12 @@
 		"box-shadow" : "none"
 	};
 
-	Backbone.CollectionView = Backbone.View.extend({
+	Backbone.CollectionView = Backbone.View.extend( {
 
 		tagName : "ul",
 
 		events : {
-			"click li, td" : "_listItem_onClick",
+			"mousedown li, td" : "_listItem_onMousedown",
 			"dblclick li, td" : "_listItem_onDoubleClick",
 			"click" : "_listBackground_onClick",
 			"click ul.collection-list, table.collection-list" : "_listBackground_onClick",
@@ -38,11 +38,13 @@
 		//only used if Backbone.Courier is available
 		passMessages : { "*" : "." },
 
-		initialize : function( options ){
+		initialize : function( options ) {
 			var _this = this;
 
+			this._hasBeenRendered = false;
+
 			// default options
-			options = _.extend( {},{
+			options = _.extend( {}, {
 				collection : null,
 				modelView : this.modelView || null,
 				modelViewOptions : {},
@@ -57,6 +59,7 @@
 				clickToToggle : false,
 				processKeyEvents : true,
 				sortable : false,
+				detachedRendering : false,
 				emptyListCaption : null
 			}, options );
 
@@ -80,33 +83,16 @@
 
 			this._updateItemTemplate();
 
-			if( this.collection ) {
-				this.listenTo( this.collection, "add", function() {
-					this.render();
-					if( this._isBackboneCourierAvailable() )
-						this.spawn( "add" );
-				} );
-
-				this.listenTo( this.collection, "remove", function() {
-					this.render();
-					if( this._isBackboneCourierAvailable() )
-						this.spawn( "remove" );
-				} );
-
-				this.listenTo( this.collection, "reset", function() {
-					this.render();
-					if( this._isBackboneCourierAvailable() )
-						this.spawn( "reset" );
-				} );
-			}
+			if( this.collection )
+				this._registerCollectionEvents();
 
 			this.viewManager = new ChildViewContainer();
 
 			//this.listenTo( this.collection, "change", function() { this.render(); this.spawn( "change" ); } ); // don't want changes to models bubbling up and triggering the list's render() function
 
 			// note we do NOT call render here anymore, because if we inherit from this class we will likely call this
-			// function using __super__ before the rest of the initialization logic for the decendent class. however, we may
-			// override the render() function in that decendent class as well, and that will certainly expect all the initialization
+			// function using __super__ before the rest of the initialization logic for the decedent class. however, we may
+			// override the render() function in that decedent class as well, and that will certainly expect all the initialization
 			// to be done already. so we have to make sure to not jump the gun and start rending at this point.
 			// this.render();
 		},
@@ -150,6 +136,8 @@
 							//need to remove all old view instances
 							this.viewManager.each( function( view ) {
 								_this.viewManager.remove( view );
+								// destroy the View itself
+								view.remove();
 							} );
 							break;
 						default :
@@ -178,9 +166,9 @@
 
 			switch( referenceBy ) {
 				case "id" :
-					_.each(this.selectedItems, function ( item ) {
+					_.each( this.selectedItems, function ( item ) {
 						items.push( _this.collection.get( item ).id );
-					});
+					} );
 					break;
 				case "cid" :
 					items = items.concat( this.selectedItems );
@@ -202,17 +190,15 @@
 					} );
 					break;
 				case "model" :
-					_.each(this.selectedItems, function ( item ) {
+					_.each( this.selectedItems, function ( item ) {
 						items.push( _this.collection.get( item ) );
-					});
+					} );
 					break;
 				case "view" :
-					_.each(this.selectedItems, function ( item ) {
+					_.each( this.selectedItems, function ( item ) {
 						items.push( _this.viewManager.findByModel( _this.collection.get( item ) ) );
-					});
+					} );
 					break;
-				default :
-					throw "The referenceBy property was not properly set";
 			}
 
 			return items;
@@ -236,8 +222,8 @@
 					newSelectedCids = newSelectedItems;
 					break;
 				case "id" :
-					this.viewManager.each( function( view ) {
-						if( _.contains( newSelectedItems, view.model.id ) ) newSelectedCids.push( view.model.cid );
+					this.collection.each( function( thisModel ) {
+						if( _.contains( newSelectedItems, thisModel.id ) ) newSelectedCids.push( thisModel.cid );
 					} );
 					break;
 				case "model" :
@@ -265,8 +251,6 @@
 						curLineNumber++;
 					} );
 					break;
-				default :
-					throw "The referenceBy property was not properly set";
 			}
 
 			var oldSelectedModels = this.getSelectedModels();
@@ -306,6 +290,8 @@
 		render : function(){
 			var _this = this;
 
+			this._hasBeenRendered = true;
+
 			if( this.selectable ) this._saveSelection();
 
 			var modelViewContainerEl;
@@ -333,9 +319,16 @@
 				// we won't need the other ones later, so no need to detach them individually.
 				if( _this.collection.get( thisModelView.model.cid ) )
 					thisModelView.$el.detach();
+				else
+					thisModelView.remove();
 			} );
 
 			modelViewContainerEl.empty();
+
+			var fragmentContainer;
+			
+			if( this.detachedRendering )
+				fragmentContainer = document.createDocumentFragment();
 
 			this.collection.each( function( thisModel ) {
 				var thisModelView;
@@ -349,33 +342,13 @@
 					thisModelView = this._createNewModelView( thisModel, modelViewOptions );
 
 					thisModelView.collectionListView = _this;
-					thisModelView.model = thisModel;
 				}
 
-				// we use items client ids as opposed to real ids, since we may not have a representation
-				// of these models on the server
-				var thisModelViewWrapped;
-
-				if( this._isRenderedAsTable() ) {
-					// if we are rendering the collection in a table, the template $el is a tr so we just need to set the data-item-id
-					thisModelViewWrapped = thisModelView.$el.attr( "data-item-id", thisModel.cid );
-				}
-				else if( this._isRenderedAsList() ) {
-					// if we are rendering the collection in a list, we need wrap each item in an <li></li> and set the data-item-id
-					thisModelViewWrapped = thisModelView.$el.wrapAll( "<li data-item-id='" + thisModel.cid + "'></li>" ).parent();
-				}
-
-				thisModelView.modelViewEl = thisModelViewWrapped;
-
-				if( _.isFunction( this.sortableModelsFilter ) )
-					if( ! this.sortableModelsFilter.call( _this, thisModel ) )
-						thisModelViewWrapped.addClass( "not-sortable" );
-
-				if( _.isFunction( this.selectableModelsFilter ) )
-					if( ! this.selectableModelsFilter.call( _this, thisModel ) )
-						thisModelViewWrapped.addClass( "not-selectable" );
-
-				modelViewContainerEl.append( thisModelViewWrapped );
+				var thisModelViewWrapped = this._wrapModelView( thisModelView );
+				if( this.detachedRendering )
+					fragmentContainer.appendChild( thisModelViewWrapped[0] );
+				else
+					modelViewContainerEl.append( thisModelViewWrapped );
 
 				// we have to render the modelView after it has been put in context, as opposed to in the 
 				// initialize function of the modelView, because some rendering might be dependent on
@@ -384,17 +357,26 @@
 				var renderResult = thisModelView.render();
 
 				// return false from the view's render function to hide this item
-				if( renderResult === false )
+				if( renderResult === false ) {
 					thisModelViewWrapped.hide();
+					thisModelViewWrapped.addClass( "not-visible" );
+				}
 
-				if( _.isFunction(this.visibleModelsFilter) ) {
-					if( !this.visibleModelsFilter(thisModel) ) {
-						thisModelViewWrapped.hide();
+				if( _.isFunction( this.visibleModelsFilter ) ) {
+					if( ! this.visibleModelsFilter( thisModel ) ) {
+						if( thisModelViewWrapped.children().length === 1 )
+							thisModelViewWrapped.hide();
+						else thisModelView.$el.hide();
+
+						thisModelViewWrapped.addClass( "not-visible" );
 					}
 				}
 
 				this.viewManager.add( thisModelView );
 			}, this );
+
+			if( this.detachedRendering )
+				modelViewContainerEl.append( fragmentContainer );
 
 			if( this.sortable )
 			{
@@ -405,7 +387,8 @@
 					start : _.bind( this._sortStart, this ),
 					change : _.bind( this._sortChange, this ),
 					stop : _.bind( this._sortStop, this ),
-					receive : _.bind( this._receive, this )
+					receive : _.bind( this._receive, this ),
+					over : _.bind( this._over, this )
 				}, _.result( this, "sortableOptions" ) );
 
 				if( this.sortableModelsFilter === null ) {
@@ -433,7 +416,7 @@
 
 			if( this.emptyListCaption ) {
 				var visibleView = this.viewManager.find( function( view ) {
-					return view.$el.is( ":visible" );
+					return ! view.$el.hasClass( "not-visible" );
 				} );
 
 				if( _.isUndefined( visibleView ) ) {
@@ -454,6 +437,7 @@
 						$emptyListCaptionEl = $varEl.wrapAll( "<tr class='not-sortable'><td></td></tr>" ).parent().parent().css( kStylesForEmptyListCaption );
 
 					this.$el.append( $emptyListCaptionEl );
+
 				}
 			}
 
@@ -479,9 +463,38 @@
 			}
 		},
 
+		// Override `Backbone.View.remove` to also destroy all Views in `viewManager`
+		remove : function() {
+			this.viewManager.each( function( view ) {
+				view.remove();
+			} );
+
+			Backbone.View.prototype.remove.apply( this, arguments );
+		},
+
 		_validateSelectionAndRender : function() {
 			this._validateSelection();
 			this.render();
+		},
+
+		_registerCollectionEvents : function() {
+			this.listenTo( this.collection, "add", function() {
+				if( this._hasBeenRendered ) this.render();
+				if( this._isBackboneCourierAvailable() )
+					this.spawn( "add" );
+			} );
+
+			this.listenTo( this.collection, "remove", function() {
+				if( this._hasBeenRendered ) this.render();
+				if( this._isBackboneCourierAvailable() )
+					this.spawn( "remove" );
+			} );
+
+			this.listenTo( this.collection, "reset", function() {
+				if( this._hasBeenRendered ) this.render();
+				if( this._isBackboneCourierAvailable() )
+					this.spawn( "reset" );
+			} );
 		},
 
 		_getClickedItemId : function( theEvent ) {
@@ -509,15 +522,12 @@
 		_setCollection : function( newCollection ) {
 			if( newCollection !== this.collection )
 			{
+				this.stopListening( this.collection );
 				this.collection = newCollection;
-
-				this.collection.bind( "add", this.render, this );
-				this.collection.bind( "remove", this._validateSelectionAndRender, this );
-				this.collection.bind( "reset", this._validateSelectionAndRender, this );
-				//this.collection.bind( "change", this.render, this ); //don't want changes to models bubbling up to force re-render of entire list
+				this._registerCollectionEvents();
 			}
 
-			this.render();
+			if( this._hasBeenRendered ) this.render();
 		},
 
 		_updateItemTemplate : function() {
@@ -585,8 +595,8 @@
 					this.trigger( "selectionChanged", this.getSelectedModels(), [] );
 					if( this._isBackboneCourierAvailable() ) {
 						this.spawn( "selectionChanged", {
-							selectedModels : this.selectedItems,
-							oldSelectedModels : this.savedSelection.items
+							selectedModels : this.getSelectedModels(),
+							oldSelectedModels : []
 						} );
 					}
 				}
@@ -630,7 +640,7 @@
 					if( thisModel )
 					{
 						_this.collection.remove( thisModel, { silent : true } );
-						_this.collection.add( thisModel, { silent : true } );
+						_this.collection.add( thisModel, { silent : true, sort : ! _this.collection.comparator } );
 					}
 				}
 			} );
@@ -638,6 +648,8 @@
 			this.collection.trigger( "reorder" );
 
 			if( this._isBackboneCourierAvailable() ) this.spawn( "reorder" );
+
+			if( this.collection.comparator ) this.collection.sort();
 
 		},
 
@@ -654,6 +666,33 @@
 			if( _.isUndefined( modelViewConstructor ) ) throw "Could not find modelView constructor for model";
 
 			return new ( modelViewConstructor )( modelViewOptions );
+		},
+
+		_wrapModelView : function( modelView ) {
+			var _this = this;
+
+			// we use items client ids as opposed to real ids, since we may not have a representation
+			// of these models on the server
+			var wrappedModelView;
+
+			if( this._isRenderedAsTable() ) {
+				// if we are rendering the collection in a table, the template $el is a tr so we just need to set the data-item-id
+				wrappedModelView = modelView.$el.attr( "data-item-id", modelView.model.cid );
+			}
+			else if( this._isRenderedAsList() ) {
+				// if we are rendering the collection in a list, we need wrap each item in an <li></li> and set the data-item-id
+				wrappedModelView = modelView.$el.wrapAll( "<li data-item-id='" + modelView.model.cid + "'></li>" ).parent();
+			}
+
+			if( _.isFunction( this.sortableModelsFilter ) )
+				if( ! this.sortableModelsFilter.call( _this, modelView.model ) )
+					wrappedModelView.addClass( "not-sortable" );
+
+			if( _.isFunction( this.selectableModelsFilter ) )
+				if( ! this.selectableModelsFilter.call( _this, modelView.model ) )
+					wrappedModelView.addClass( "not-selectable" );
+
+			return wrappedModelView;
 		},
 
 		_convertStringsToInts : function( theArray ) {
@@ -731,6 +770,12 @@
 			this.setSelectedModel( modelReceived );
 		},
 
+		_over : function( event, ui ) {
+			// when an item is being dragged into the sortable,
+			// hide the empty list caption if it exists
+			this.$el.find( ".empty-list-caption" ).hide();
+		},
+
 		_onKeydown : function( event ) {
 			if( ! this.processKeyEvents ) return true;
 
@@ -757,7 +802,7 @@
 			return ! trap;
 		},
 
-		_listItem_onClick : function( theEvent ) {
+		_listItem_onMousedown : function( theEvent ) {
 			if( ! this.selectable || ! this.clickToSelect ) return;
 
 			var clickedItemId = this._getClickedItemId( theEvent );
