@@ -238,7 +238,7 @@
 		},
 
 		setSelectedModels : function( newSelectedItems, options ) {
-			if( ! this.selectable ) throw "Attempt to set selected items on non-selectable list";
+			if( ! this.selectable ) return; // used to throw error, but there are some circumstances in which a list can be selectable at times and not at others, don't want to have to worry about catching errors
 			if( ! _.isArray( newSelectedItems ) ) throw "Invalid parameter value";
 
 			options = _.extend( {}, {
@@ -412,24 +412,11 @@
 					over : _.bind( this._over, this )
 				}, _.result( this, "sortableOptions" ) );
 
-				if( this.sortableModelsFilter === null ) {
-					if( _this._isRenderedAsTable() ) {
-						sortableOptions.items = "> tbody > *";
-					}
-					else if( _this._isRenderedAsList() ) {
-						sortableOptions.items = "> *";
-					}
+				if( _this._isRenderedAsTable() ) {
+					sortableOptions.items = "> tbody > tr:not(.not-sortable)";
 				}
-				else if( _.isString( this.sortableModelsFilter ) ) {
-					sortableOptions.items = this.sortableModelsFilter;
-				}
-				else if( _.isFunction( this.sortableModelsFilter ) ) {
-					if( _this._isRenderedAsTable() ) {
-						sortableOptions.items = "> tbody > tr:not(.not-sortable)";
-					}
-					else if( _this._isRenderedAsList() ) {
-						sortableOptions.items = "> li:not(.not-sortable)";
-					}
+				else if( _this._isRenderedAsList() ) {
+					sortableOptions.items = "> li:not(.not-sortable)";
 				}
 
 				this.$el = this.$el.sortable( sortableOptions );
