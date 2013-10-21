@@ -80,7 +80,7 @@
 
 			this._updateItemTemplate();
 
-			if( ! _.isUndefined( this.collection ) && ! _.isNull( this.collection ) ) {
+			if( this.collection ) {
 				this.listenTo( this.collection, "add", function() {
 					this.render();
 					if( this._isBackboneCourierAvailable() )
@@ -297,7 +297,7 @@
 		},
 
 		setSelectedModel : function( newSelectedItem, options ) {
-			if( _.isUndefined( newSelectedItem ) || _.isNull( newSelectedItem) )
+			if( ! newSelectedItem )
 				this.setSelectedModels( [], options );
 			else
 				this.setSelectedModels( [ newSelectedItem ], options );
@@ -431,7 +431,7 @@
 				this.$el = this.$el.sortable( sortableOptions );
 			}
 
-			if( ! _.isNull( this.emptyListCaption ) ) {
+			if( this.emptyListCaption ) {
 				var visibleView = this.viewManager.find( function( view ) {
 					return view.$el.is( ":visible" );
 				} );
