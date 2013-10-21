@@ -1,5 +1,14 @@
 # Change log
 
+### v0.8
+
+* data-item-id attribute has been changed to data-model-cid for clarity
+* selectableModelsFilter can no longer be a string.
+* After the collection view is reordered via dragging: if the collection has a comparator, sort after adding all the models in the visual order.
+* Never "rerender" the collection view unless it has already been rendered.  For example, adding models to the collection should not render the collection view if it was not previously rendered.
+* Don't listen to events from old collection when setOptions( "collection", newCollection ) is called
+=======
+
 ### v0.7.1
 
 * Use css classes to keep track of and determine visibility of an item

@@ -6,7 +6,7 @@
 */
 
 
-(function(){
+(function() {
 	var mDefaultModelViewConstructor = Backbone.View;
 
 	var kDefaultReferenceBy = "model";
@@ -25,7 +25,7 @@
 		"box-shadow" : "none"
 	};
 
-	Backbone.CollectionView = Backbone.View.extend({
+	Backbone.CollectionView = Backbone.View.extend( {
 
 		tagName : "ul",
 
@@ -45,8 +45,10 @@
 		//only used if Backbone.Courier is available
 		passMessages : { "*" : "." },
 
-		initialize : function( options ){
+		initialize : function( options ) {
 			var _this = this;
+
+			this._hasBeenRendered = false;
 
 			// default options
 			options = _.extend( {}, {
@@ -88,33 +90,16 @@
 
 			this._updateItemTemplate();
 
-			if( ! _.isUndefined( this.collection ) && ! _.isNull( this.collection ) ) {
-				this.listenTo( this.collection, "add", function() {
-					this.render();
-					if( this._isBackboneCourierAvailable() )
-						this.spawn( "add" );
-				} );
-
-				this.listenTo( this.collection, "remove", function() {
-					this.render();
-					if( this._isBackboneCourierAvailable() )
-						this.spawn( "remove" );
-				} );
-
-				this.listenTo( this.collection, "reset", function() {
-					this.render();
-					if( this._isBackboneCourierAvailable() )
-						this.spawn( "reset" );
-				} );
-			}
+			if( this.collection )
+				this._registerCollectionEvents();
 
 			this.viewManager = new ChildViewContainer();
 
 			//this.listenTo( this.collection, "change", function() { this.render(); this.spawn( "change" ); } ); // don't want changes to models bubbling up and triggering the list's render() function
 
 			// note we do NOT call render here anymore, because if we inherit from this class we will likely call this
-			// function using __super__ before the rest of the initialization logic for the decendent class. however, we may
-			// override the render() function in that decendent class as well, and that will certainly expect all the initialization
+			// function using __super__ before the rest of the initialization logic for the decedent class. however, we may
+			// override the render() function in that decedent class as well, and that will certainly expect all the initialization
 			// to be done already. so we have to make sure to not jump the gun and start rending at this point.
 			// this.render();
 		},
@@ -200,9 +185,9 @@
 
 					var itemElements;
 					if( this._isRenderedAsTable() )
-						itemElements = this.$el.find( "> tbody > [data-item-id]:visible" );
+						itemElements = this.$el.find( "> tbody > [data-model-cid]:not(.not-visible)" );
 					else if( this._isRenderedAsList() )
-						itemElements = this.$el.find( "> [data-item-id]:visible" );
+						itemElements = this.$el.find( "> [data-model-cid]:not(.not-visible)" );
 
 					itemElements.each( function() {
 						var thisItemEl = $( this );
@@ -221,9 +206,6 @@
 						items.push( _this.viewManager.findByModel( _this.collection.get( item ) ) );
 					} );
 					break;
-				default :
-					throw "The referenceBy property was not properly set";
-					break;
 			}
 
 			return items;
@@ -231,7 +213,7 @@
 		},
 
 		setSelectedModels : function( newSelectedItems, options ) {
-			if( ! this.selectable ) throw "Attempt to set selected items on non-selectable list";
+			if( ! this.selectable ) return; // used to throw error, but there are some circumstances in which a list can be selectable at times and not at others, don't want to have to worry about catching errors
 			if( ! _.isArray( newSelectedItems ) ) throw "Invalid parameter value";
 
 			options = _.extend( {}, {
@@ -265,19 +247,17 @@
 
 					var itemElements;
 					if( this._isRenderedAsTable() )
-						itemElements = this.$el.find( "> tbody > [data-item-id]:visible" );
+						itemElements = this.$el.find( "> tbody > [data-model-cid]:not(.not-visible)" );
 					else if( this._isRenderedAsList() )
-						itemElements = this.$el.find( "> [data-item-id]:visible" );
+						itemElements = this.$el.find( "> [data-model-cid]:not(.not-visible)" );
 
 					itemElements.each( function() {
 						var thisItemEl = $( this );
 						if( _.contains( newSelectedItems, curLineNumber ) )
-							newSelectedCids.push( thisItemEl.attr( "data-item-id" ) );
+							newSelectedCids.push( thisItemEl.attr( "data-model-cid" ) );
 						curLineNumber++;
 					} );
 					break;
-				default :
-					throw "The referenceBy property was not properly set";
 			}
 
 			var oldSelectedModels = this.getSelectedModels();
@@ -308,7 +288,7 @@
 		},
 
 		setSelectedModel : function( newSelectedItem, options ) {
-			if( _.isUndefined( newSelectedItem ) || _.isNull( newSelectedItem) )
+			if( _.isNull( newSelectedItem ) )
 				this.setSelectedModels( [], options );
 			else
 				this.setSelectedModels( [ newSelectedItem ], options );
@@ -316,6 +296,8 @@
 
 		render : function(){
 			var _this = this;
+
+			this._hasBeenRendered = true;
 
 			if( this.selectable ) this._saveSelection();
 
@@ -349,9 +331,10 @@
 			} );
 
 			modelViewContainerEl.empty();
-
+			var fragmentContainer;
+			
 			if( this.detachedRendering )
-				var fragmentContainer = document.createDocumentFragment();
+				fragmentContainer = document.createDocumentFragment();
 
 			this.collection.each( function( thisModel ) {
 				var thisModelView;
@@ -414,24 +397,11 @@
 					over : _.bind( this._over, this )
 				}, _.result( this, "sortableOptions" ) );
 
-				if( this.sortableModelsFilter === null ) {
-					if( _this._isRenderedAsTable() ) {
-						sortableOptions.items = "> tbody > *";
-					}
-					else if( _this._isRenderedAsList() ) {
-						sortableOptions.items = "> *";
-					}
+				if( _this._isRenderedAsTable() ) {
+					sortableOptions.items = "> tbody > tr:not(.not-sortable)";
 				}
-				else if( _.isString( this.sortableModelsFilter ) ) {
-					sortableOptions.items = this.sortableModelsFilter;
-				}
-				else if( _.isFunction( this.sortableModelsFilter ) ) {
-					if( _this._isRenderedAsTable() ) {
-						sortableOptions.items = "> tbody > tr:not(.not-sortable)";
-					}
-					else if( _this._isRenderedAsList() ) {
-						sortableOptions.items = "> li:not(.not-sortable)";
-					}
+				else if( _this._isRenderedAsList() ) {
+					sortableOptions.items = "> li:not(.not-sortable)";
 				}
 
 				this.$el = this.$el.sortable( sortableOptions );
@@ -500,6 +470,38 @@
 			this.render();
 		},
 
+		_registerCollectionEvents : function() {
+			this.listenTo( this.collection, "add", function() {
+				if( this._hasBeenRendered ) this.render();
+				if( this._isBackboneCourierAvailable() )
+					this.spawn( "add" );
+			} );
+
+			this.listenTo( this.collection, "remove", function() {
+				if( this._hasBeenRendered ) this.render();
+				if( this._isBackboneCourierAvailable() )
+					this.spawn( "remove" );
+			} );
+
+			this.listenTo( this.collection, "reset", function() {
+				if( this._hasBeenRendered ) this.render();
+				if( this._isBackboneCourierAvailable() )
+					this.spawn( "reset" );
+			} );
+
+			this.listenTo( this.collection, "change", function( model ) {
+				if( this._hasBeenRendered ) this.viewManager.findByModel( model ).render();
+				if( this._isBackboneCourierAvailable() )
+					this.spawn( "change", { model : model } );
+			} );
+
+			this.listenTo( this.collection, "sort", function() {
+				if( this._hasBeenRendered ) this.render();
+				if( this._isBackboneCourierAvailable() )
+					this.spawn( "sort" );
+			} );
+		},
+
 		_getClickedItemId : function( theEvent ) {
 			var clickedItemId = null;
 
@@ -512,10 +514,10 @@
 			// underneath all the elements, we want to know that too, since in this
 			// case we will want to deselect all elements. so check to see if the clicked
 			// DOM element is the list itself to find that out.
-			var clickedItem = clickedItemEl.closest( "[data-item-id]" );
+			var clickedItem = clickedItemEl.closest( "[data-model-cid]" );
 			if( clickedItem.length > 0 )
 			{
-				clickedItemId = clickedItem.attr('data-item-id');
+				clickedItemId = clickedItem.attr( "data-model-cid" );
 				if( $.isNumeric( clickedItemId ) ) clickedItemId = parseInt( clickedItemId, 10 );
 			}
 
@@ -525,15 +527,12 @@
 		_setCollection : function( newCollection ) {
 			if( newCollection !== this.collection )
 			{
+				this.stopListening( this.collection );
 				this.collection = newCollection;
-
-				this.collection.bind( "add", this.render, this );
-				this.collection.bind( "remove", this._validateSelectionAndRender, this );
-				this.collection.bind( "reset", this._validateSelectionAndRender, this );
-				//this.collection.bind( "change", this.render, this ); //don't want changes to models bubbling up to force re-render of entire list
+				this._registerCollectionEvents();
 			}
 
-			this.render();
+			if( this._hasBeenRendered ) this.render();
 		},
 
 		_updateItemTemplate : function() {
@@ -621,14 +620,14 @@
 			itemsIdsFromWhichSelectedClassNeedsToBeRemoved = _.without( itemsIdsFromWhichSelectedClassNeedsToBeRemoved, this.selectedItems );
 
 			_.each( itemsIdsFromWhichSelectedClassNeedsToBeRemoved, function( thisItemId ) {
-				this.$el.find( "[data-item-id=" + thisItemId + "]" ).removeClass( "selected" );
+				this.$el.find( "[data-model-cid=" + thisItemId + "]" ).removeClass( "selected" );
 			}, this );
 
 			var itemsIdsFromWhichSelectedClassNeedsToBeAdded = this.selectedItems;
 			itemsIdsFromWhichSelectedClassNeedsToBeAdded = _.without( itemsIdsFromWhichSelectedClassNeedsToBeAdded, oldItemsIdsWithSelectedClass );
 
 			_.each( itemsIdsFromWhichSelectedClassNeedsToBeAdded, function( thisItemId ) {
-				this.$el.find( "[data-item-id=" + thisItemId + "]" ).addClass( "selected" );
+				this.$el.find( "[data-model-cid=" + thisItemId + "]" ).addClass( "selected" );
 			}, this );
 		},
 
@@ -636,17 +635,17 @@
 			var _this = this;
 
 			this.$el.children().each( function() {
-				var thisModelId = $( this ).attr( "data-item-id" );
+				var thisModelCid = $( this ).attr( "data-model-cid" );
 
-				if( thisModelId )
+				if( thisModelCid )
 				{
 					// remove the current model and then add it back (at the end of the collection).
 					// When we are done looping through all models, they will be in the correct order.
-					var thisModel = _this.collection.get( thisModelId );
+					var thisModel = _this.collection.get( thisModelCid );
 					if( thisModel )
 					{
 						_this.collection.remove( thisModel, { silent : true } );
-						_this.collection.add( thisModel, { silent : true } );
+						_this.collection.add( thisModel, { silent : true, sort : ! _this.collection.comparator } );
 					}
 				}
 			} );
@@ -654,6 +653,8 @@
 			this.collection.trigger( "reorder" );
 
 			if( this._isBackboneCourierAvailable() ) this.spawn( "reorder" );
+
+			if( this.collection.comparator ) this.collection.sort();
 
 		},
 
@@ -680,12 +681,12 @@
 			var wrappedModelView;
 
 			if( this._isRenderedAsTable() ) {
-				// if we are rendering the collection in a table, the template $el is a tr so we just need to set the data-item-id
-				wrappedModelView = modelView.$el.attr( "data-item-id", modelView.model.cid );
+				// if we are rendering the collection in a table, the template $el is a tr so we just need to set the data-model-cid
+				wrappedModelView = modelView.$el.attr( "data-model-cid", modelView.model.cid );
 			}
 			else if( this._isRenderedAsList() ) {
-				// if we are rendering the collection in a list, we need wrap each item in an <li></li> and set the data-item-id
-				wrappedModelView = modelView.$el.wrapAll( "<li data-item-id='" + modelView.model.cid + "'></li>" ).parent();
+				// if we are rendering the collection in a list, we need wrap each item in an <li></li> and set the data-model-cid
+				wrappedModelView = modelView.$el.wrapAll( "<li data-model-cid='" + modelView.model.cid + "'></li>" ).parent();
 			}
 
 			if( _.isFunction( this.sortableModelsFilter ) )
@@ -732,21 +733,21 @@
 		},
 
 		_sortStart : function( event, ui ) {
-			var modelBeingSorted = this.collection.get( ui.item.attr( "data-item-id" ) );
+			var modelBeingSorted = this.collection.get( ui.item.attr( "data-model-cid" ) );
 			this.trigger( "sortStart", modelBeingSorted );
 			if( this._isBackboneCourierAvailable() )
 				this.spawn( "sortStart", { modelBeingSorted : modelBeingSorted } );
 		},
 
 		_sortChange : function( event, ui ) {
-			var modelBeingSorted = this.collection.get( ui.item.attr( "data-item-id" ) );
+			var modelBeingSorted = this.collection.get( ui.item.attr( "data-model-cid" ) );
 			this.trigger( "sortChange", modelBeingSorted );
 			if( this._isBackboneCourierAvailable() )
 				this.spawn( "sortChange", { modelBeingSorted : modelBeingSorted } );
 		},
 
 		_sortStop : function( event, ui ) {
-			var modelBeingSorted = this.collection.get( ui.item.attr( "data-item-id" ) );
+			var modelBeingSorted = this.collection.get( ui.item.attr( "data-model-cid" ) );
 			var newIndex = this.$el.children().index( ui.item );
 
 			if( newIndex == -1 ) {
@@ -768,7 +769,7 @@
 			if( ! senderCollectionListView || ! senderCollectionListView.collection ) return;
 
 			var newIndex = this.$el.children().index( ui.item );
-			var modelReceived = senderCollectionListView.collection.get( ui.item.attr( "data-item-id" ) );
+			var modelReceived = senderCollectionListView.collection.get( ui.item.attr( "data-model-cid" ) );
 			this.collection.add( modelReceived, { at : newIndex } );
 			modelReceived.collection = this.collection; // otherwise will not get properly set, since modelReceived.collection might already have a value.
 			this.setSelectedModel( modelReceived );
