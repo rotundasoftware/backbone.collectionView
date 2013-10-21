@@ -1,5 +1,10 @@
 # Change log
 
+### v0.8
+
+* data-item-id attribute has been changed to data-model-cid for clarity
+* selectableModelsFilter can no longer be a string.
+
 ### v0.7.1
 
 * Use css classes to keep track of and determine visibility of an item
