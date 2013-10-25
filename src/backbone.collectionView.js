@@ -281,7 +281,7 @@
 		},
 
 		setSelectedModel : function( newSelectedItem, options ) {
-			if( _.isNull( newSelectedItem ) )
+			if( ! newSelectedItem && newSelectedItem !== 0 )
 				this.setSelectedModels( [], options );
 			else
 				this.setSelectedModels( [ newSelectedItem ], options );
@@ -482,11 +482,12 @@
 					this.spawn( "reset" );
 			} );
 
-			this.listenTo( this.collection, "change", function( model ) {
-				if( this._hasBeenRendered ) this.viewManager.findByModel( model ).render();
-				if( this._isBackboneCourierAvailable() )
-					this.spawn( "change", { model : model } );
-			} );
+			// It should be up to the model to rerender itself when it changes.
+			// this.listenTo( this.collection, "change", function( model ) {
+			// 	if( this._hasBeenRendered ) this.viewManager.findByModel( model ).render();
+			// 	if( this._isBackboneCourierAvailable() )
+			// 		this.spawn( "change", { model : model } );
+			// } );
 
 			this.listenTo( this.collection, "sort", function() {
 				if( this._hasBeenRendered ) this.render();
