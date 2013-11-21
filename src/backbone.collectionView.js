@@ -742,7 +742,8 @@
 
 		_sortStop : function( event, ui ) {
 			var modelBeingSorted = this.collection.get( ui.item.attr( "data-model-cid" ) );
-			var newIndex = this.$el.children().index( ui.item );
+			var modelViewContainerEl = (this._isRenderedAsTable()) ? this.$el.find( "> tbody" ) : this.$el;
+			var newIndex = modelViewContainerEl.children().index( ui.item );
 
 			if( newIndex == -1 ) {
 				// the element was removed from this list. can happen if this sortable is connected
