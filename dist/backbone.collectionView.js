@@ -1,5 +1,5 @@
 /*!
-* Backbone.CollectionView, v0.8
+* Backbone.CollectionView, v0.8.1
 * Copyright (c)2013 Rotunda Software, LLC.
 * Distributed under MIT license
 * http://github.com/rotundasoftware/backbone-collection-view
@@ -686,8 +686,13 @@
 				wrappedModelView = modelView.$el.attr( "data-model-cid", modelView.model.cid );
 			}
 			else if( this._isRenderedAsList() ) {
-				// if we are rendering the collection in a list, we need wrap each item in an <li></li> and set the data-model-cid
-				wrappedModelView = modelView.$el.wrapAll( "<li data-model-cid='" + modelView.model.cid + "'></li>" ).parent();
+				// if we are rendering the collection in a list, we need wrap each item in an <li></li> (if its not already an <li>)
+				// and set the data-model-cid
+				if( modelView.$el.prop( "tagName" ).toLowerCase() === "li" ) {
+					wrappedModelView = modelView.$el.attr( "data-model-cid", modelView.model.cid );
+				} else {
+					wrappedModelView = modelView.$el.wrapAll( "<li data-model-cid='" + modelView.model.cid + "'></li>" ).parent();
+				}
 			}
 
 			if( _.isFunction( this.sortableModelsFilter ) )
@@ -749,7 +754,8 @@
 
 		_sortStop : function( event, ui ) {
 			var modelBeingSorted = this.collection.get( ui.item.attr( "data-model-cid" ) );
-			var newIndex = this.$el.children().index( ui.item );
+			var modelViewContainerEl = (this._isRenderedAsTable()) ? this.$el.find( "> tbody" ) : this.$el;
+			var newIndex = modelViewContainerEl.children().index( ui.item );
 
 			if( newIndex == -1 ) {
 				// the element was removed from this list. can happen if this sortable is connected

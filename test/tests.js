@@ -19,6 +19,16 @@ $(document).ready( function() {
 			}
 		} );
 
+		this.EmployeeViewWithLi = Backbone.View.extend( {
+			tagName : "li",
+			template : _.template( $( "#employee-template" ).html() ),
+			render : function() {
+				var emp = this.model.toJSON();
+				var html = this.template(emp);
+				this.$el.html(html);
+			}
+		} );
+
 		this.EmployeeViewForTable = Backbone.View.extend( {
 			tagName : 'tr',
 			template : _.template( $( "#employee-template-for-table" ).html() ),
@@ -102,6 +112,40 @@ $(document).ready( function() {
 		equal( myCollectionView.$el.find( "tbody" ).length, 1, "Tbody is created" );
 		equal( myCollectionView.$el.find( "tbody > tr" ).length, 3, "Model views are added inside the tbody" );
 		ok( myCollectionView.$el.html().indexOf( "Sherlock Holmes" ) !== -1, "Rendered table contains 'Sherlock Holmes'");
+	} );
+
+	module( "List rendering",
+		{
+			setup: function() {
+				commonSetup.call( this );
+			}
+		}
+	);
+
+	test( "Rendering with a template that is an <li>", 1, function() {
+
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewEl,
+			collection : this.employees,
+			modelView : this.EmployeeViewWithLi
+		} );
+
+		myCollectionView.render();
+
+		ok( myCollectionView.viewManager.findByIndex(0).$el.children()[0].tagName.toLowerCase() !== "li", "<li> view template not wrapped with an extra <li>" );
+	} );
+
+	test( "Rendering with a template that is not an <li>", 1, function() {
+
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewEl,
+			collection : this.employees,
+			modelView : this.EmployeeView
+		} );
+
+		myCollectionView.render();
+
+		ok( myCollectionView.viewManager.findByIndex(0).$el.parent().prop( "tagName" ).toLowerCase() === "li", "non <li> view template is wrapped with an <li>" );
 	} );
 
 	module( "Item Selection",

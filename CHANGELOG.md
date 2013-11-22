@@ -1,5 +1,10 @@
 # Change log
 
+### v0.8.1
+
+* If a modelView's element is an <li>, don't wrap in an extra <li> when rendering
+* Fix accidental item removal after sort stop when rendering as table.
+
 ### v0.8
 
 * data-item-id attribute has been changed to data-model-cid for clarity
