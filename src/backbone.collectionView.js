@@ -680,7 +680,12 @@
 			}
 			else if( this._isRenderedAsList() ) {
 				// if we are rendering the collection in a list, we need wrap each item in an <li></li> and set the data-model-cid
-				wrappedModelView = modelView.$el.wrapAll( "<li data-model-cid='" + modelView.model.cid + "'></li>" ).parent();
+				// if view already have <li></li>, we only need to add data-model-cid
+				if( modelView.$el.prop('tagName').toLowerCase() === 'li' ) {
+					wrappedModelView = modelView.$el.attr( 'data-model-cid', modelView.model.cid );
+				} else {
+					wrappedModelView = modelView.$el.wrapAll( "<li data-model-cid='" + modelView.model.cid + "'></li>" ).parent();
+				}
 			}
 
 			if( _.isFunction( this.sortableModelsFilter ) )
