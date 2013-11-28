@@ -14,10 +14,10 @@
 	var kAllowedOptions = [
 		"collection", "modelView", "modelViewOptions", "itemTemplate", "emptyListCaption",
 		"selectable", "clickToSelect", "selectableModelsFilter", "visibleModelsFilter",
-		"selectMultiple", "clickToToggle", "processKeyEvents", "sortable", "sortableModelsFilter", "itemTemplateFunction", "detachedRendering"
+		"selectMultiple", "clickToToggle", "processKeyEvents", "sortable", "sortableOptions", "sortableModelsFilter", "itemTemplateFunction", "detachedRendering"
 	];
 
-	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "sortableModelsFilter", "visibleModelsFilter", "itemTemplateFunction", "detachedRendering" ];
+	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "sortableModelsFilter", "visibleModelsFilter", "itemTemplateFunction", "detachedRendering", "sortableOptions" ];
 
 	var kStylesForEmptyListCaption = {
 		"background" : "transparent",
@@ -66,6 +66,7 @@
 				clickToToggle : false,
 				processKeyEvents : true,
 				sortable : false,
+				sortableOptions : null,
 				detachedRendering : false,
 				emptyListCaption : null
 			}, options );

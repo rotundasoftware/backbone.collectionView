@@ -4,6 +4,7 @@
 
 * If a modelView's element is an <li>, don't wrap in an extra <li> when rendering
 * Fix accidental item removal after sort stop when rendering as table.
+* Add sortableOptions constructor option which is passed through to the created jQuery sortable.
 
 ### v0.8
 
