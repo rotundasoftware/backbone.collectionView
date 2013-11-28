@@ -37,6 +37,7 @@ myCollectionView.setSelectedModel( employeeCollection.first() );
 * `selectMultiple` : (default: _false_) In a selectable CollectionView, determines if multiple models can be selected at once.
 * `clickToToggle` : (default: _false_) In a selectable CollectionView, determines if clicking a model view should toggle its selected / unselected state. Only applies if selectMultiple == true.
 * `sortable` : (default: _false_) Determines if models can be rearranged by dragging and dropping. (jQueryUI required.)
+* `sortableOptions` : Options passed through to the created jQueryUI sortable.  Only applies if sortable == true.
 * `emptyListCaption` : A string or a function that returns text to be displayed when there are no (visible) model views.
 * `detachedRendering` : (default: _false_) When `true`, all the modelViews are rendered before being added to the DOM to improve performance. If your modelView rendering relies on its location in the DOM (for sizing or other reasons), use the default value of `false`.
 
