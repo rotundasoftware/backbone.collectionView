@@ -1,5 +1,9 @@
 # Change log
 
+### v0.8.2
+
+* Patch for better bower support.
+
 ### v0.8.1
 
 * If a modelView's element is an <li>, don't wrap in an extra <li> when rendering
