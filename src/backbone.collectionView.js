@@ -331,7 +331,8 @@
 				fragmentContainer = document.createDocumentFragment();
 
 			this.collection.each( function( thisModel ) {
-				this._renderModelView( thisModel, fragmentContainer || modelViewContainerEl, oldViewManager );
+				var thisModelView = oldViewManager.findByModelCid( thisModel.cid );
+				this._renderModelView( thisModel, fragmentContainer || modelViewContainerEl, thisModelView );
 			}, this );
 
 			if( this.detachedRendering )
@@ -400,12 +401,7 @@
 				this.onAfterRender();
 		},
 
-		_renderModelView : function( thisModel, parentEl, viewManager ) {
-
-			viewManager = viewManager || this.viewManager;
-
-			var thisModelView = viewManager.findByModelCid( thisModel.cid );
-
+		_renderModelView : function( thisModel, parentEl, thisModelView ) {
 			if( _.isUndefined( thisModelView ) ) {
 				// if the model view was not already created on previous render,
 				// then create and initialize it now.
@@ -418,6 +414,7 @@
 
 			var thisModelViewWrapped = this._wrapModelView( thisModelView );
 
+			// TODO handle all options of collection.add()
 			if( this.detachedRendering )
 				parentEl.appendChild( thisModelViewWrapped[0] );
 			else
