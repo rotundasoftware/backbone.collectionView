@@ -331,48 +331,7 @@
 				fragmentContainer = document.createDocumentFragment();
 
 			this.collection.each( function( thisModel ) {
-				var thisModelView;
-
-				thisModelView = oldViewManager.findByModelCid( thisModel.cid );
-				if( _.isUndefined( thisModelView ) ) {
-					// if the model view was not already created on previous render,
-					// then create and initialize it now.
-
-					var modelViewOptions = this._getModelViewOptions( thisModel );
-					thisModelView = this._createNewModelView( thisModel, modelViewOptions );
-
-					thisModelView.collectionListView = _this;
-				}
-
-				var thisModelViewWrapped = this._wrapModelView( thisModelView );
-				if( this.detachedRendering )
-					fragmentContainer.appendChild( thisModelViewWrapped[0] );
-				else
-					modelViewContainerEl.append( thisModelViewWrapped );
-
-				// we have to render the modelView after it has been put in context, as opposed to in the 
-				// initialize function of the modelView, because some rendering might be dependent on
-				// the modelView's context in the DOM tree. For example, if the modelView stretch()'s itself,
-				// it must be in full context in the DOM tree or else the stretch will not behave as intended.
-				var renderResult = thisModelView.render();
-
-				// return false from the view's render function to hide this item
-				if( renderResult === false ) {
-					thisModelViewWrapped.hide();
-					thisModelViewWrapped.addClass( "not-visible" );
-				}
-
-				if( _.isFunction( this.visibleModelsFilter ) ) {
-					if( ! this.visibleModelsFilter( thisModel ) ) {
-						if( thisModelViewWrapped.children().length === 1 )
-							thisModelViewWrapped.hide();
-						else thisModelView.$el.hide();
-
-						thisModelViewWrapped.addClass( "not-visible" );
-					}
-				}
-
-				this.viewManager.add( thisModelView );
+				this._renderModelView( thisModel, fragmentContainer || modelViewContainerEl, oldViewManager );
 			}, this );
 
 			if( this.detachedRendering )
@@ -441,6 +400,54 @@
 				this.onAfterRender();
 		},
 
+		_renderModelView : function( thisModel, parentEl, viewManager ) {
+
+			viewManager = viewManager || this.viewManager;
+
+			var thisModelView = viewManager.findByModelCid( thisModel.cid );
+
+			if( _.isUndefined( thisModelView ) ) {
+				// if the model view was not already created on previous render,
+				// then create and initialize it now.
+
+				var modelViewOptions = this._getModelViewOptions( thisModel );
+				thisModelView = this._createNewModelView( thisModel, modelViewOptions );
+
+				thisModelView.collectionListView = this;
+			}
+
+			var thisModelViewWrapped = this._wrapModelView( thisModelView );
+
+			if( this.detachedRendering )
+				parentEl.appendChild( thisModelViewWrapped[0] );
+			else
+				parentEl.append( thisModelViewWrapped );
+
+			// we have to render the modelView after it has been put in context, as opposed to in the
+			// initialize function of the modelView, because some rendering might be dependent on
+			// the modelView's context in the DOM tree. For example, if the modelView stretch()'s itself,
+			// it must be in full context in the DOM tree or else the stretch will not behave as intended.
+			var renderResult = thisModelView.render();
+
+			// return false from the view's render function to hide this item
+			if( renderResult === false ) {
+				thisModelViewWrapped.hide();
+				thisModelViewWrapped.addClass( "not-visible" );
+			}
+
+			if( _.isFunction( this.visibleModelsFilter ) ) {
+				if( ! this.visibleModelsFilter( thisModel ) ) {
+					if( thisModelViewWrapped.children().length === 1 )
+						thisModelViewWrapped.hide();
+					else thisModelView.$el.hide();
+
+					thisModelViewWrapped.addClass( "not-visible" );
+				}
+			}
+
+				this.viewManager.add( thisModelView );
+		},
+
 		updateDependentControls : function() {
 			this.trigger( "updateDependentControls", this.getSelectedModels() );
 			if( this._isBackboneCourierAvailable() ) {
@@ -459,20 +466,27 @@
 			Backbone.View.prototype.remove.apply( this, arguments );
 		},
 
+		// A method to remove the view relating to model.
+		_removeModelView : function( model ) {
+			this.viewManager.findByModelCid( model.cid ).remove();
+		},
+
 		_validateSelectionAndRender : function() {
 			this._validateSelection();
 			this.render();
 		},
 
 		_registerCollectionEvents : function() {
-			this.listenTo( this.collection, "add", function() {
-				if( this._hasBeenRendered ) this.render();
+			this.listenTo( this.collection, "add", function( model ) {
+				if( this._hasBeenRendered )
+					this._renderModelView( model, this.$el );
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "add" );
 			} );
 
-			this.listenTo( this.collection, "remove", function() {
-				if( this._hasBeenRendered ) this.render();
+			this.listenTo( this.collection, "remove", function( model ) {
+				if( this._hasBeenRendered )
+					this._removeModelView( model );
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "remove" );
 			} );
