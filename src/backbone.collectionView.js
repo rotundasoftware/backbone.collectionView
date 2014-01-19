@@ -332,7 +332,8 @@
 
 			this.collection.each( function( thisModel ) {
 				var thisModelView = oldViewManager.findByModelCid( thisModel.cid );
-				this._renderModelView( thisModel, fragmentContainer || modelViewContainerEl, thisModelView );
+				var at = undefined;
+				this._renderModelView( thisModel, at, fragmentContainer || modelViewContainerEl, thisModelView );
 			}, this );
 
 			if( this.detachedRendering )
@@ -401,7 +402,27 @@
 				this.onAfterRender();
 		},
 
-		_renderModelView : function( thisModel, parentEl, thisModelView ) {
+		// Render a list of "models" with corresponding "modelViews" starting at position "at"
+		// in container dom object "parentEl"
+		_renderModelViews : function( models, at, parentEl, modelViews ) {
+			// Still looking for a more elegant way to iterate over multiple variables
+			if ( _.isArray( models ) )
+				for( i = 0; i < models.length; i++ ) {
+					model = models[i];
+					modelView = modelViews[i];
+
+					this._renderModelView( model, at, parentEl, modelView );
+
+					// Increment the position if defined.
+					if( _.isNumber( at ) ) at++;
+				}
+			else
+				this._renderModelView( models, at, parentEl, modelViews );
+		},
+
+		// Render a single model, "thisModel", with corresponding view "thisModelView" at
+		// position "at" in container dom object "parentEl"
+		_renderModelView : function( thisModel, at, parentEl, thisModelView ) {
 			if( _.isUndefined( thisModelView ) ) {
 				// if the model view was not already created on previous render,
 				// then create and initialize it now.
@@ -413,12 +434,17 @@
 			}
 
 			var thisModelViewWrapped = this._wrapModelView( thisModelView );
+			var insertedEl = ( this.detachedRendering ) ? thisModelViewWrapped[0] : thisModelViewWrapped;
 
-			// TODO handle all options of collection.add()
-			if( this.detachedRendering )
-				parentEl.appendChild( thisModelViewWrapped[0] );
-			else
-				parentEl.append( thisModelViewWrapped );
+			if( _.isNumber( at ) && parentEl.children().length > at ) {
+				parentEl.children().eq( at ).before( insertedEl );
+			} else {
+				if ( this.detachedRendering )
+					// a performance optimization?
+					parentEl.appendChild( insertedEl );
+				else
+					parentEl.append( insertedEl );
+			}
 
 			// we have to render the modelView after it has been put in context, as opposed to in the
 			// initialize function of the modelView, because some rendering might be dependent on
@@ -474,9 +500,9 @@
 		},
 
 		_registerCollectionEvents : function() {
-			this.listenTo( this.collection, "add", function( model ) {
+			this.listenTo( this.collection, "add", function( models, event, options ) {
 				if( this._hasBeenRendered )
-					this._renderModelView( model, this.$el );
+					this._renderModelViews( models, options.at, this.$el );
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "add" );
 			} );
