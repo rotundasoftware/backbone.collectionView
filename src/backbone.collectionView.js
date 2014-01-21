@@ -402,26 +402,8 @@
 				this.onAfterRender();
 		},
 
-		// Render a list of "models" with corresponding "modelViews" starting at position "at"
+		// Render a single model, "thisModel", with corresponding view "thisModelView"
 		// in container dom object "parentEl"
-		_renderModelViews : function( models, at, parentEl, modelViews ) {
-			// Still looking for a more elegant way to iterate over multiple variables
-			if ( _.isArray( models ) )
-				for( i = 0; i < models.length; i++ ) {
-					model = models[i];
-					modelView = modelViews[i];
-
-					this._renderModelView( model, at, parentEl, modelView );
-
-					// Increment the position if defined.
-					if( _.isNumber( at ) ) at++;
-				}
-			else
-				this._renderModelView( models, at, parentEl, modelViews );
-		},
-
-		// Render a single model, "thisModel", with corresponding view "thisModelView" at
-		// position "at" in container dom object "parentEl"
 		_renderModelView : function( thisModel, at, parentEl, thisModelView ) {
 			if( _.isUndefined( thisModelView ) ) {
 				// if the model view was not already created on previous render,
@@ -436,9 +418,16 @@
 			var thisModelViewWrapped = this._wrapModelView( thisModelView );
 			var insertedEl = ( this.detachedRendering ) ? thisModelViewWrapped[0] : thisModelViewWrapped;
 
-			if( _.isNumber( at ) && parentEl.children().length > at ) {
-				parentEl.children().eq( at ).before( insertedEl );
-			} else {
+			// if we've been supplied an "at" index, we want to insert this model at a specific
+			// position in our container, but since we may be individually adding models from an
+			// array of models, then the "at" value may only reflect the index of the first element
+			// of the array, not the index that we are currently inserting into the dom.
+			var collectionAt = this.collection.indexOf( thisModel );
+			if( _.isNumber( at ) && parentEl.children().length > collectionAt )
+				parentEl.children().eq( collectionAt ).before( insertedEl );
+			else {
+				// If we don't have the at value then we want to append the new rendered element to the
+				// end of the container element.
 				if ( this.detachedRendering )
 					// a performance optimization?
 					parentEl.appendChild( insertedEl );
@@ -500,9 +489,9 @@
 		},
 
 		_registerCollectionEvents : function() {
-			this.listenTo( this.collection, "add", function( models, event, options ) {
+			this.listenTo( this.collection, "add", function( model, collection, options ) {
 				if( this._hasBeenRendered )
-					this._renderModelViews( models, options.at, this.$el );
+					this._renderModelView( model, options.at, this.$el );
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "add" );
 			} );
