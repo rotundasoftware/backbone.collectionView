@@ -179,11 +179,7 @@
 				case "offset" :
 					var curLineNumber = 0;
 
-					var itemElements;
-					if( this._isRenderedAsTable() )
-						itemElements = this.$el.find( "> tbody > [data-model-cid]:not(.not-visible)" );
-					else if( this._isRenderedAsList() )
-						itemElements = this.$el.find( "> [data-model-cid]:not(.not-visible)" );
+					var itemElements = this._getVisibleItemEls()
 
 					itemElements.each( function() {
 						var thisItemEl = $( this );
@@ -241,11 +237,7 @@
 					var curLineNumber = 0;
 					var selectedItems = [];
 
-					var itemElements;
-					if( this._isRenderedAsTable() )
-						itemElements = this.$el.find( "> tbody > [data-model-cid]:not(.not-visible)" );
-					else if( this._isRenderedAsList() )
-						itemElements = this.$el.find( "> [data-model-cid]:not(.not-visible)" );
+					var itemElements = this._getVisibleItemEls();
 
 					itemElements.each( function() {
 						var thisItemEl = $( this );
@@ -404,11 +396,9 @@
 			}
 
 			if( this.emptyListCaption ) {
-				var visibleView = this.viewManager.find( function( view ) {
-					return ! view.$el.hasClass( "not-visible" );
-				} );
+				var visibleEls = this._getVisibleItemEls();
 
-				if( _.isUndefined( visibleView ) ) {
+				if( visibleEls.length === 0 ) {
 					var emptyListString;
 
 					if( _.isFunction( this.emptyListCaption ) )
@@ -726,6 +716,16 @@
 
 		_isRenderedAsList : function() {
 			return ! this._isRenderedAsTable();
+		},
+
+		_getVisibleItemEls : function() {
+			var itemElements = [];
+			if( this._isRenderedAsTable() )
+				itemElements = this.$el.find( "> tbody > [data-model-cid]:not(.not-visible)" );
+			else if( this._isRenderedAsList() )
+				itemElements = this.$el.find( "> [data-model-cid]:not(.not-visible)" );
+
+			return itemElements;
 		},
 
 		_charCodes : {
