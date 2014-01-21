@@ -423,7 +423,7 @@
 			// array of models, then the "at" value may only reflect the index of the first element
 			// of the array, not the index that we are currently inserting into the dom.
 			var collectionAt = this.collection.indexOf( thisModel );
-			if( _.isNumber( at ) && parentEl.children().length > collectionAt )
+			if( ( this.collection.comparator ||  _.isNumber( at ) ) && parentEl.children().length > collectionAt )
 				parentEl.children().eq( collectionAt ).before( insertedEl );
 			else {
 				// If we don't have the at value then we want to append the new rendered element to the
@@ -516,8 +516,8 @@
 			// 		this.spawn( "change", { model : model } );
 			// } );
 
-			this.listenTo( this.collection, "sort", function() {
-				if( this._hasBeenRendered ) this.render();
+			this.listenTo( this.collection, "sort", function( collection, options ) {
+				if( this._hasBeenRendered && options.add !== true ) this.render();
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "sort" );
 			} );
