@@ -77,6 +77,8 @@
 
 			this.$el.data( "view", this ); // needed for connected sortable lists
 			this.$el.addClass( "collection-list" );
+			if( options.selectable ) this.$el.addClass( "selectable" );
+
 			if( this.processKeyEvents )
 				this.$el.attr( "tabindex", 0 ); // so we get keyboard events
 
@@ -177,11 +179,7 @@
 				case "offset" :
 					var curLineNumber = 0;
 
-					var itemElements;
-					if( this._isRenderedAsTable() )
-						itemElements = this.$el.find( "> tbody > [data-model-cid]:not(.not-visible)" );
-					else if( this._isRenderedAsList() )
-						itemElements = this.$el.find( "> [data-model-cid]:not(.not-visible)" );
+					var itemElements = this._getVisibleItemEls()
 
 					itemElements.each( function() {
 						var thisItemEl = $( this );
@@ -239,11 +237,7 @@
 					var curLineNumber = 0;
 					var selectedItems = [];
 
-					var itemElements;
-					if( this._isRenderedAsTable() )
-						itemElements = this.$el.find( "> tbody > [data-model-cid]:not(.not-visible)" );
-					else if( this._isRenderedAsList() )
-						itemElements = this.$el.find( "> [data-model-cid]:not(.not-visible)" );
+					var itemElements = this._getVisibleItemEls();
 
 					itemElements.each( function() {
 						var thisItemEl = $( this );
@@ -363,11 +357,9 @@
 			}
 
 			if( this.emptyListCaption ) {
-				var visibleView = this.viewManager.find( function( view ) {
-					return ! view.$el.hasClass( "not-visible" );
-				} );
+				var visibleEls = this._getVisibleItemEls();
 
-				if( _.isUndefined( visibleView ) ) {
+				if( visibleEls.length === 0 ) {
 					var emptyListString;
 
 					if( _.isFunction( this.emptyListCaption ) )
@@ -509,7 +501,10 @@
 					this.spawn( "reset" );
 			} );
 
-			// It should be up to the model to rerender itself when it changes.
+			// we should not be listening to change events on the model as a default behavior. the models
+			// should be responsible for re-rendering themselves if necessary, and if the collection does
+			// also need to re-render as a result of a model change, this should be handled by overriding
+			// this method. by default the collection view should not re-render in response to model changes
 			// this.listenTo( this.collection, "change", function( model ) {
 			// 	if( this._hasBeenRendered ) this.viewManager.findByModel( model ).render();
 			// 	if( this._isBackboneCourierAvailable() )
@@ -590,7 +585,7 @@
 			// save the current selection. use restoreSelection() to restore the selection to the state it was in the last time saveSelection() was called.
 			if( ! this.selectable ) throw "Attempt to save selection on non-selectable list";
 			this.savedSelection = {
-				items : this.selectedItems,
+				items : _.clone( this.selectedItems ),
 				offset : this.getSelectedModel( { by : "offset" } )
 			};
 		},
@@ -747,6 +742,16 @@
 
 		_isRenderedAsList : function() {
 			return ! this._isRenderedAsTable();
+		},
+
+		_getVisibleItemEls : function() {
+			var itemElements = [];
+			if( this._isRenderedAsTable() )
+				itemElements = this.$el.find( "> tbody > [data-model-cid]:not(.not-visible)" );
+			else if( this._isRenderedAsList() )
+				itemElements = this.$el.find( "> [data-model-cid]:not(.not-visible)" );
+
+			return itemElements;
 		},
 
 		_charCodes : {
