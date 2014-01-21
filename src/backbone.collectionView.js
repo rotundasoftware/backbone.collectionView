@@ -77,6 +77,8 @@
 
 			this.$el.data( "view", this ); // needed for connected sortable lists
 			this.$el.addClass( "collection-list" );
+			if( options.selectable ) this.$el.addClass( "selectable" );
+
 			if( this.processKeyEvents )
 				this.$el.attr( "tabindex", 0 ); // so we get keyboard events
 
@@ -483,7 +485,10 @@
 					this.spawn( "reset" );
 			} );
 
-			// It should be up to the model to rerender itself when it changes.
+			// we should not be listening to change events on the model as a default behavior. the models
+			// should be responsible for re-rendering themselves if necessary, and if the collection does
+			// also need to re-render as a result of a model change, this should be handled by overriding
+			// this method. by default the collection view should not re-render in response to model changes
 			// this.listenTo( this.collection, "change", function( model ) {
 			// 	if( this._hasBeenRendered ) this.viewManager.findByModel( model ).render();
 			// 	if( this._isBackboneCourierAvailable() )
@@ -564,7 +569,7 @@
 			// save the current selection. use restoreSelection() to restore the selection to the state it was in the last time saveSelection() was called.
 			if( ! this.selectable ) throw "Attempt to save selection on non-selectable list";
 			this.savedSelection = {
-				items : this.selectedItems,
+				items : _.clone( this.selectedItems ),
 				offset : this.getSelectedModel( { by : "offset" } )
 			};
 		},
