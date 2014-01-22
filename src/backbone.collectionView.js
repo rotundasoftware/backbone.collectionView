@@ -293,14 +293,7 @@
 
 			// If collection view element is a table and it has a tbody
 			// within it, render the model views inside of the tbody
-			if( this._isRenderedAsTable() ) {
-				var tbodyChild = this.$el.find( "> tbody" );
-				if( tbodyChild.length > 0 )
-					modelViewContainerEl = tbodyChild;
-			}
-
-			if( _.isUndefined( modelViewContainerEl ) )
-				modelViewContainerEl = this.$el;
+			modelViewContainerEl = this._getContainerEl();
 
 			var oldViewManager = this.viewManager;
 			this.viewManager = new ChildViewContainer();
@@ -325,9 +318,7 @@
 				fragmentContainer = document.createDocumentFragment();
 
 			this.collection.each( function( thisModel ) {
-				var thisModelView = oldViewManager.findByModelCid( thisModel.cid );
-				var at = undefined;
-				this._renderModelView( thisModel, at, fragmentContainer || modelViewContainerEl, thisModelView );
+				this._insertAndRenderModelView( thisModel, fragmentContainer || modelViewContainerEl );
 			}, this );
 
 			if( this.detachedRendering )
@@ -394,38 +385,27 @@
 				this.onAfterRender();
 		},
 
-		// Render a single model, "thisModel", with corresponding view "thisModelView"
-		// in container dom object "parentEl"
-		_renderModelView : function( thisModel, at, parentEl, thisModelView ) {
+		_ensureModelView : function( thisModel ) {
+			var thisModelView = this.viewManager.findByModelCid( thisModel.cid );
 			if( _.isUndefined( thisModelView ) ) {
 				// if the model view was not already created on previous render,
 				// then create and initialize it now.
-
 				var modelViewOptions = this._getModelViewOptions( thisModel );
 				thisModelView = this._createNewModelView( thisModel, modelViewOptions );
-
 				thisModelView.collectionListView = this;
 			}
+			return thisModelView;
+		},
 
+		// Render a single model, "thisModel" in container dom object "parentEl"
+		_insertAndRenderModelView : function( thisModel, parentEl ) {
+			var thisModelView = this._ensureModelView( thisModel );
 			var thisModelViewWrapped = this._wrapModelView( thisModelView );
 			var insertedEl = ( this.detachedRendering ) ? thisModelViewWrapped[0] : thisModelViewWrapped;
-
-			// if we've been supplied an "at" index, we want to insert this model at a specific
-			// position in our container, but since we may be individually adding models from an
-			// array of models, then the "at" value may only reflect the index of the first element
-			// of the array, not the index that we are currently inserting into the dom.
 			var collectionAt = this.collection.indexOf( thisModel );
-			if( ( this.collection.comparator ||  _.isNumber( at ) ) && parentEl.children().length > collectionAt )
-				parentEl.children().eq( collectionAt ).before( insertedEl );
-			else {
-				// If we don't have the at value then we want to append the new rendered element to the
-				// end of the container element.
-				if ( this.detachedRendering )
-					// a performance optimization?
-					parentEl.appendChild( insertedEl );
-				else
-					parentEl.append( insertedEl );
-			}
+
+			// Insert or append the model view into the parent.
+			( parentEl.children().length > collectionAt ) ? parentEl.children().eq( collectionAt ).before( insertedEl ) : parentEl.append( insertedEl );
 
 			// we have to render the modelView after it has been put in context, as opposed to in the
 			// initialize function of the modelView, because some rendering might be dependent on
@@ -449,7 +429,7 @@
 				}
 			}
 
-				this.viewManager.add( thisModelView );
+			this.viewManager.add( thisModelView );
 		},
 
 		updateDependentControls : function() {
@@ -481,9 +461,9 @@
 		},
 
 		_registerCollectionEvents : function() {
-			this.listenTo( this.collection, "add", function( model, collection, options ) {
+			this.listenTo( this.collection, "add", function( model ) {
 				if( this._hasBeenRendered )
-					this._renderModelView( model, options.at, this.$el );
+					this._insertAndRenderModelView( model, this._getContainerEl() );
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "add" );
 			} );
@@ -516,6 +496,10 @@
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "sort" );
 			} );
+		},
+
+		_getContainerEl : function() {
+			return ( this._isRenderedAsTable() ) ? this.$el.find( "> tbody" ) : this.$el;
 		},
 
 		_getClickedItemId : function( theEvent ) {
