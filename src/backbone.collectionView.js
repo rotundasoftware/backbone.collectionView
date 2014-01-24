@@ -346,6 +346,22 @@
 				this.$el = this.$el.sortable( sortableOptions );
 			}
 
+			this._setEmptyListCaption();
+
+			this.trigger( "render" );
+			if( this._isBackboneCourierAvailable() )
+				this.spawn( "render" );
+
+			if( this.selectable ) {
+				this._restoreSelection();
+				this.updateDependentControls();
+			}
+
+			if( _.isFunction( this.onAfterRender ) )
+				this.onAfterRender();
+		},
+
+		_setEmptyListCaption : function ( ) {
 			if( this.emptyListCaption ) {
 				var visibleEls = this._getVisibleItemEls();
 
@@ -365,23 +381,13 @@
 						$emptyListCaptionEl = $varEl.wrapAll( "<li class='not-sortable'></li>" ).parent().css( kStylesForEmptyListCaption );
 					else
 						$emptyListCaptionEl = $varEl.wrapAll( "<tr class='not-sortable'><td></td></tr>" ).parent().parent().css( kStylesForEmptyListCaption );
-
 					this.$el.append( $emptyListCaptionEl );
-
 				}
 			}
+		},
 
-			this.trigger( "render" );
-			if( this._isBackboneCourierAvailable() )
-				this.spawn( "render" );
-
-			if( this.selectable ) {
-				this._restoreSelection();
-				this.updateDependentControls();
-			}
-
-			if( _.isFunction( this.onAfterRender ) )
-				this.onAfterRender();
+		_removeEmptyListCaption : function( ) {
+			$( "var.empty-list-caption" ).parent().remove();
 		},
 
 		_ensureModelView : function( thisModel ) {
@@ -429,6 +435,13 @@
 
 					thisModelViewWrapped.addClass( "not-visible" );
 				}
+			}
+
+			// Now we check if we an empty list caption with visible items, remove it if so.
+			if( this.emptyListCaption ) {
+				var visibleEls = this._getVisibleItemEls();
+				if( visibleEls.length > 0 )
+					this._removeEmptyListCaption();
 			}
 
 			this.viewManager.add( thisModelView );
@@ -611,7 +624,6 @@
 
 			if( this.savedSelection.items.length > 0 )
 			{
-
 				// first try to restore the old selected items using their reference ids.
 				this.setSelectedModels( this.savedSelection.items, { by : "cid", silent : true } );
 
