@@ -1,5 +1,10 @@
 # Change log
 
+### v0.9.0
+
+* No longer re-render upon add() and remove() events in the collection.
+* Due to the above, "render" events no longer trigger during add() or remove() calls on a collection.
+
 ### v0.8.2
 
 * Patch for better bower support.
