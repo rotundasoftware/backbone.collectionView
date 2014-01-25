@@ -237,7 +237,6 @@
 					var selectedItems = [];
 
 					var itemElements = this._getVisibleItemEls();
-
 					itemElements.each( function() {
 						var thisItemEl = $( this );
 						if( _.contains( newSelectedItems, curLineNumber ) )
@@ -469,24 +468,16 @@
 		_removeModelView : function( model ) {
 			var viewManager = this.viewManager;
 			var view = viewManager.findByModelCid( model.cid );
+			var oldSelectedModels = this.getSelectedModels( { by : "offset" } );
 
-			// we need get the index and if this view is a member of the selected class.
-			// Since we are about to delete these objects and the data stored elsewhere can be in various states
-			// this is really the best time/method I've found to gather this data.
-			var viewIndex = viewManager.findIndexByCid( model.cid );
-			var selected = this.$el.find( "[data-model-cid=" + model.cid + "]" ).attr( 'class' ) == 'selected';
-
+			// Remove the view from the viewManager, the view itself and it's DOM stuff.
 			viewManager.remove( view );
 			view.remove();
+			this.$el.find( "[data-model-cid=" + model.cid + "]" ).remove();
 
 			// if this collectionView is selectable we set the index to the next item.
-
-			if ( this.selectable && selected ) {
-				var next = viewManager.findByIndex( viewIndex ).model;
-				if ( ! _.isUndefined( next ) )
-					this.setSelectedModel( next );
-			}
-
+			if ( this.selectable )
+				this.setSelectedModels( oldSelectedModels, { by : "offset" } );
 		},
 
 		_validateSelectionAndRender : function() {
