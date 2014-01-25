@@ -470,14 +470,26 @@
 			var view = viewManager.findByModelCid( model.cid );
 			var oldSelectedModels = this.getSelectedModels( { by : "offset" } );
 
-			// Remove the view from the viewManager, the view itself and it's DOM stuff.
+			// Remove the view from the viewManager, the view itself and it's DOM elements.
 			viewManager.remove( view );
 			view.remove();
 			this.$el.find( "[data-model-cid=" + model.cid + "]" ).remove();
 
-			// if this collectionView is selectable we set the index to the next item.
+			// if this collectionView is selectable we need to do something with the selection.
 			if ( this.selectable )
-				this.setSelectedModels( oldSelectedModels, { by : "offset" } );
+				// if there is a single selectable model then we set the model at the current index
+				// to be the newly selected model.
+				if ( oldSelectedModels.length === 1 ) {
+					this.setSelectedModels( oldSelectedModels, { by : "offset" } );
+				} else {
+					// if there is a multiple selection then we don't need to do anything, 
+					// the default behavior of the multiselection is to shrink the selection
+					// and we did that above by removing the view.  The reason why we call 
+					// setSelectedModels below is to trigger the "selectionChanged" event.
+					// I think there should be a better way of acomplishing this.
+					oldSelectedModels = this.getSelectedModels( { by : "offset" } );
+					this.setSelectedModels( oldSelectedModels, { by : "offset" } );
+				}
 		},
 
 		_validateSelectionAndRender : function() {
