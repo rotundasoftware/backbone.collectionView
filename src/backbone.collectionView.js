@@ -758,6 +758,11 @@
 			return ! this._isRenderedAsTable();
 		},
 
+		// Returns the wrapper HTML element for each visible modelView.
+		// When rendering in a table context, the returned elements are the $el of each modelView.
+		// When rendering in a list context,
+		//   If the $el of the modelView is an <li>, the returned elements are the $el of each modelView.
+		//   Otherwise, the returned elements are the <li>'s the collectionView wrapped around each modelView $el.
 		_getVisibleItemEls : function() {
 			var itemElements = [];
 			if( this._isRenderedAsTable() )
