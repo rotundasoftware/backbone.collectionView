@@ -1,6 +1,6 @@
 {
 	"name" : "backbone.collectionView",
-	"version": "0.8.2",
+	"version": "0.9.0",
 	"homepage": "http://rotundasoftware.github.io/backbone.collectionView/",
 	"repository": {
 		"type": "git",
