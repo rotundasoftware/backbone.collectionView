@@ -316,7 +316,14 @@
 				fragmentContainer = document.createDocumentFragment();
 
 			this.collection.each( function( thisModel ) {
-				this._insertAndRenderModelView( thisModel, fragmentContainer || modelViewContainerEl );
+				var thisModelView = this.viewManager.findByModelCid( thisModel.cid );
+				if( _.isUndefined( thisModelView ) ) {
+					// if the model view has not already been created on a
+					// previous render then create and initialize it now.
+					thisModelView = this._createNewModelView( thisModel, this._getModelViewOptions( thisModel ) );
+				}
+
+				this._insertAndRenderModelView( thisModelView, fragmentContainer || modelViewContainerEl );
 			}, this );
 
 			if( this.detachedRendering )
@@ -389,48 +396,35 @@
 			$( "var.empty-list-caption" ).parent().remove();
 		},
 
-		_ensureModelView : function( thisModel ) {
-			var thisModelView = this.viewManager.findByModelCid( thisModel.cid );
-			if( _.isUndefined( thisModelView ) ) {
-				// if the model view was not already created on previous render,
-				// then create and initialize it now.
-				var modelViewOptions = this._getModelViewOptions( thisModel );
-				thisModelView = this._createNewModelView( thisModel, modelViewOptions );
-				thisModelView.collectionListView = this;
-			}
-			return thisModelView;
-		},
+		// Render a single model view in container object "parentElOrDocumentFragment", which is either 
+		// a documentFragment or a jquery object. optional arg atIndex is not support for document fragments.
+		_insertAndRenderModelView : function( modelView, parentElOrDocumentFragment, atIndex ) {
+			var thisModelViewWrapped = this._wrapModelView( modelView );
 
-		// Render a single model, "thisModel" in container dom object "parentEl"
-		_insertAndRenderModelView : function( thisModel, parentEl ) {
-			var thisModelView = this._ensureModelView( thisModel );
-			var thisModelViewWrapped = this._wrapModelView( thisModelView );
-			var insertedEl = ( this.detachedRendering ) ? thisModelViewWrapped[0] : thisModelViewWrapped;
-			var collectionAt = this.collection.indexOf( thisModel );
-
-			if ( this.detachedRendering )
-				parentEl.appendChild( insertedEl );
+			if( parentElOrDocumentFragment.nodeType === 11 ) // if we are inserting into a document fragment, we need to use the DOM appendChild method
+				parentElOrDocumentFragment.appendChild( thisModelViewWrapped.get( 0 ) );
+			else if( ! _.isUndefined( atIndex ) && atIndex !== -1 )
+				parentElOrDocumentFragment.children().eq( atIndex ).before( thisModelViewWrapped );
 			else
-				// Insert or append the model view into the parent.
-				( parentEl.children().length > collectionAt ) ? parentEl.children().eq( collectionAt ).before( insertedEl ) : parentEl.append( insertedEl );
+				parentElOrDocumentFragment.append( thisModelViewWrapped );
 
 			// we have to render the modelView after it has been put in context, as opposed to in the
 			// initialize function of the modelView, because some rendering might be dependent on
 			// the modelView's context in the DOM tree. For example, if the modelView stretch()'s itself,
 			// it must be in full context in the DOM tree or else the stretch will not behave as intended.
-			var renderResult = thisModelView.render();
+			var renderResult = modelView.render();
 
 			// return false from the view's render function to hide this item
 			if( renderResult === false ) {
 				thisModelViewWrapped.hide();
 				thisModelViewWrapped.addClass( "not-visible" );
 			}
-
+			
 			if( _.isFunction( this.visibleModelsFilter ) ) {
-				if( ! this.visibleModelsFilter( thisModel ) ) {
+				if( ! this.visibleModelsFilter( modelView.model ) ) {
 					if( thisModelViewWrapped.children().length === 1 )
 						thisModelViewWrapped.hide();
-					else thisModelView.$el.hide();
+					else modelView.$el.hide();
 
 					thisModelViewWrapped.addClass( "not-visible" );
 				}
@@ -443,7 +437,7 @@
 					this._removeEmptyListCaption();
 			}
 
-			this.viewManager.add( thisModelView );
+			this.viewManager.add( modelView );
 		},
 
 		updateDependentControls : function() {
@@ -486,8 +480,11 @@
 
 		_registerCollectionEvents : function() {
 			this.listenTo( this.collection, "add", function( model ) {
-				if( this._hasBeenRendered )
-					this._insertAndRenderModelView( model, this._getContainerEl() );
+				if( this._hasBeenRendered ) {
+					var modelView = this._createNewModelView( model, this._getModelViewOptions( model ) );
+					this._insertAndRenderModelView( modelView, this._getContainerEl(), this.collection.indexOf( model ) );
+				}
+
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "add" );
 			} );
@@ -700,7 +697,10 @@
 			var modelViewConstructor = this._getModelViewConstructor( model );
 			if( _.isUndefined( modelViewConstructor ) ) throw "Could not find modelView constructor for model";
 
-			return new ( modelViewConstructor )( modelViewOptions );
+			var newModelView = new( modelViewConstructor )( modelViewOptions );
+			newModelView.collectionListView = this;
+
+			return newModelView;
 		},
 
 		_wrapModelView : function( modelView ) {
