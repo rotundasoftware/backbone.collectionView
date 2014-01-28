@@ -1,4 +1,3 @@
-
 (function() {
 	var mDefaultModelViewConstructor = Backbone.View;
 
@@ -77,6 +76,8 @@
 
 			this.$el.data( "view", this ); // needed for connected sortable lists
 			this.$el.addClass( "collection-list" );
+			if( options.selectable ) this.$el.addClass( "selectable" );
+
 			if( this.processKeyEvents )
 				this.$el.attr( "tabindex", 0 ); // so we get keyboard events
 
@@ -177,11 +178,7 @@
 				case "offset" :
 					var curLineNumber = 0;
 
-					var itemElements;
-					if( this._isRenderedAsTable() )
-						itemElements = this.$el.find( "> tbody > [data-model-cid]:not(.not-visible)" );
-					else if( this._isRenderedAsList() )
-						itemElements = this.$el.find( "> [data-model-cid]:not(.not-visible)" );
+					var itemElements = this._getVisibleItemEls()
 
 					itemElements.each( function() {
 						var thisItemEl = $( this );
@@ -239,12 +236,7 @@
 					var curLineNumber = 0;
 					var selectedItems = [];
 
-					var itemElements;
-					if( this._isRenderedAsTable() )
-						itemElements = this.$el.find( "> tbody > [data-model-cid]:not(.not-visible)" );
-					else if( this._isRenderedAsList() )
-						itemElements = this.$el.find( "> [data-model-cid]:not(.not-visible)" );
-
+					var itemElements = this._getVisibleItemEls();
 					itemElements.each( function() {
 						var thisItemEl = $( this );
 						if( _.contains( newSelectedItems, curLineNumber ) )
@@ -299,14 +291,7 @@
 
 			// If collection view element is a table and it has a tbody
 			// within it, render the model views inside of the tbody
-			if( this._isRenderedAsTable() ) {
-				var tbodyChild = this.$el.find( "> tbody" );
-				if( tbodyChild.length > 0 )
-					modelViewContainerEl = tbodyChild;
-			}
-
-			if( _.isUndefined( modelViewContainerEl ) )
-				modelViewContainerEl = this.$el;
+			modelViewContainerEl = this._getContainerEl();
 
 			var oldViewManager = this.viewManager;
 			this.viewManager = new ChildViewContainer();
@@ -326,53 +311,12 @@
 
 			modelViewContainerEl.empty();
 			var fragmentContainer;
-			
+
 			if( this.detachedRendering )
 				fragmentContainer = document.createDocumentFragment();
 
 			this.collection.each( function( thisModel ) {
-				var thisModelView;
-
-				thisModelView = oldViewManager.findByModelCid( thisModel.cid );
-				if( _.isUndefined( thisModelView ) ) {
-					// if the model view was not already created on previous render,
-					// then create and initialize it now.
-
-					var modelViewOptions = this._getModelViewOptions( thisModel );
-					thisModelView = this._createNewModelView( thisModel, modelViewOptions );
-
-					thisModelView.collectionListView = _this;
-				}
-
-				var thisModelViewWrapped = this._wrapModelView( thisModelView );
-				if( this.detachedRendering )
-					fragmentContainer.appendChild( thisModelViewWrapped[0] );
-				else
-					modelViewContainerEl.append( thisModelViewWrapped );
-
-				// we have to render the modelView after it has been put in context, as opposed to in the 
-				// initialize function of the modelView, because some rendering might be dependent on
-				// the modelView's context in the DOM tree. For example, if the modelView stretch()'s itself,
-				// it must be in full context in the DOM tree or else the stretch will not behave as intended.
-				var renderResult = thisModelView.render();
-
-				// return false from the view's render function to hide this item
-				if( renderResult === false ) {
-					thisModelViewWrapped.hide();
-					thisModelViewWrapped.addClass( "not-visible" );
-				}
-
-				if( _.isFunction( this.visibleModelsFilter ) ) {
-					if( ! this.visibleModelsFilter( thisModel ) ) {
-						if( thisModelViewWrapped.children().length === 1 )
-							thisModelViewWrapped.hide();
-						else thisModelView.$el.hide();
-
-						thisModelViewWrapped.addClass( "not-visible" );
-					}
-				}
-
-				this.viewManager.add( thisModelView );
+				this._insertAndRenderModelView( thisModel, fragmentContainer || modelViewContainerEl );
 			}, this );
 
 			if( this.detachedRendering )
@@ -401,12 +345,26 @@
 				this.$el = this.$el.sortable( sortableOptions );
 			}
 
-			if( this.emptyListCaption ) {
-				var visibleView = this.viewManager.find( function( view ) {
-					return ! view.$el.hasClass( "not-visible" );
-				} );
+			this._setEmptyListCaption();
 
-				if( _.isUndefined( visibleView ) ) {
+			this.trigger( "render" );
+			if( this._isBackboneCourierAvailable() )
+				this.spawn( "render" );
+
+			if( this.selectable ) {
+				this._restoreSelection();
+				this.updateDependentControls();
+			}
+
+			if( _.isFunction( this.onAfterRender ) )
+				this.onAfterRender();
+		},
+
+		_setEmptyListCaption : function ( ) {
+			if( this.emptyListCaption ) {
+				var visibleEls = this._getVisibleItemEls();
+
+				if( visibleEls.length === 0 ) {
 					var emptyListString;
 
 					if( _.isFunction( this.emptyListCaption ) )
@@ -422,23 +380,70 @@
 						$emptyListCaptionEl = $varEl.wrapAll( "<li class='not-sortable'></li>" ).parent().css( kStylesForEmptyListCaption );
 					else
 						$emptyListCaptionEl = $varEl.wrapAll( "<tr class='not-sortable'><td></td></tr>" ).parent().parent().css( kStylesForEmptyListCaption );
-
 					this.$el.append( $emptyListCaptionEl );
+				}
+			}
+		},
 
+		_removeEmptyListCaption : function( ) {
+			$( "var.empty-list-caption" ).parent().remove();
+		},
+
+		_ensureModelView : function( thisModel ) {
+			var thisModelView = this.viewManager.findByModelCid( thisModel.cid );
+			if( _.isUndefined( thisModelView ) ) {
+				// if the model view was not already created on previous render,
+				// then create and initialize it now.
+				var modelViewOptions = this._getModelViewOptions( thisModel );
+				thisModelView = this._createNewModelView( thisModel, modelViewOptions );
+				thisModelView.collectionListView = this;
+			}
+			return thisModelView;
+		},
+
+		// Render a single model, "thisModel" in container dom object "parentEl"
+		_insertAndRenderModelView : function( thisModel, parentEl ) {
+			var thisModelView = this._ensureModelView( thisModel );
+			var thisModelViewWrapped = this._wrapModelView( thisModelView );
+			var insertedEl = ( this.detachedRendering ) ? thisModelViewWrapped[0] : thisModelViewWrapped;
+			var collectionAt = this.collection.indexOf( thisModel );
+
+			if ( this.detachedRendering )
+				parentEl.appendChild( insertedEl );
+			else
+				// Insert or append the model view into the parent.
+				( parentEl.children().length > collectionAt ) ? parentEl.children().eq( collectionAt ).before( insertedEl ) : parentEl.append( insertedEl );
+
+			// we have to render the modelView after it has been put in context, as opposed to in the
+			// initialize function of the modelView, because some rendering might be dependent on
+			// the modelView's context in the DOM tree. For example, if the modelView stretch()'s itself,
+			// it must be in full context in the DOM tree or else the stretch will not behave as intended.
+			var renderResult = thisModelView.render();
+
+			// return false from the view's render function to hide this item
+			if( renderResult === false ) {
+				thisModelViewWrapped.hide();
+				thisModelViewWrapped.addClass( "not-visible" );
+			}
+
+			if( _.isFunction( this.visibleModelsFilter ) ) {
+				if( ! this.visibleModelsFilter( thisModel ) ) {
+					if( thisModelViewWrapped.children().length === 1 )
+						thisModelViewWrapped.hide();
+					else thisModelView.$el.hide();
+
+					thisModelViewWrapped.addClass( "not-visible" );
 				}
 			}
 
-			this.trigger( "render" );
-			if( this._isBackboneCourierAvailable() )
-				this.spawn( "render" );
-
-			if( this.selectable ) {
-				this._restoreSelection();
-				this.updateDependentControls();
+			// Now we check if we an empty list caption with visible items, remove it if so.
+			if( this.emptyListCaption ) {
+				var visibleEls = this._getVisibleItemEls();
+				if( visibleEls.length > 0 )
+					this._removeEmptyListCaption();
 			}
 
-			if( _.isFunction( this.onAfterRender ) )
-				this.onAfterRender();
+			this.viewManager.add( thisModelView );
 		},
 
 		updateDependentControls : function() {
@@ -459,20 +464,37 @@
 			Backbone.View.prototype.remove.apply( this, arguments );
 		},
 
+		// A method to remove the view relating to model.
+		_removeModelView : function( model ) {
+			var viewManager = this.viewManager;
+			var view = viewManager.findByModelCid( model.cid );
+
+			if ( this.selectable ) this._saveSelection();
+
+			// Remove the view from the viewManager, the view itself and it's DOM elements.
+			viewManager.remove( view );
+			view.remove();
+			this.$el.find( "[data-model-cid=" + model.cid + "]" ).remove();
+
+			if ( this.selectable ) this._restoreSelection();
+		},
+
 		_validateSelectionAndRender : function() {
 			this._validateSelection();
 			this.render();
 		},
 
 		_registerCollectionEvents : function() {
-			this.listenTo( this.collection, "add", function() {
-				if( this._hasBeenRendered ) this.render();
+			this.listenTo( this.collection, "add", function( model ) {
+				if( this._hasBeenRendered )
+					this._insertAndRenderModelView( model, this._getContainerEl() );
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "add" );
 			} );
 
-			this.listenTo( this.collection, "remove", function() {
-				if( this._hasBeenRendered ) this.render();
+			this.listenTo( this.collection, "remove", function( model ) {
+				if( this._hasBeenRendered )
+					this._removeModelView( model );
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "remove" );
 			} );
@@ -483,18 +505,31 @@
 					this.spawn( "reset" );
 			} );
 
-			// It should be up to the model to rerender itself when it changes.
+			// we should not be listening to change events on the model as a default behavior. the models
+			// should be responsible for re-rendering themselves if necessary, and if the collection does
+			// also need to re-render as a result of a model change, this should be handled by overriding
+			// this method. by default the collection view should not re-render in response to model changes
 			// this.listenTo( this.collection, "change", function( model ) {
 			// 	if( this._hasBeenRendered ) this.viewManager.findByModel( model ).render();
 			// 	if( this._isBackboneCourierAvailable() )
 			// 		this.spawn( "change", { model : model } );
 			// } );
 
-			this.listenTo( this.collection, "sort", function() {
-				if( this._hasBeenRendered ) this.render();
+			this.listenTo( this.collection, "sort", function( collection, options ) {
+				if( this._hasBeenRendered && options.add !== true ) this.render();
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "sort" );
 			} );
+		},
+
+		_getContainerEl : function() {
+			if ( this._isRenderedAsTable() ) {
+				// not all tables have a tbody, so we test
+				var tbody = this.$el.find( "> tbody" );
+				if ( tbody.length > 0 )
+					return tbody;
+			}
+			return this.$el;
 		},
 
 		_getClickedItemId : function( theEvent ) {
@@ -564,7 +599,7 @@
 			// save the current selection. use restoreSelection() to restore the selection to the state it was in the last time saveSelection() was called.
 			if( ! this.selectable ) throw "Attempt to save selection on non-selectable list";
 			this.savedSelection = {
-				items : this.selectedItems,
+				items : _.clone( this.selectedItems ),
 				offset : this.getSelectedModel( { by : "offset" } )
 			};
 		},
@@ -721,6 +756,16 @@
 
 		_isRenderedAsList : function() {
 			return ! this._isRenderedAsTable();
+		},
+
+		_getVisibleItemEls : function() {
+			var itemElements = [];
+			if( this._isRenderedAsTable() )
+				itemElements = this.$el.find( "> tbody > [data-model-cid]:not(.not-visible)" );
+			else if( this._isRenderedAsList() )
+				itemElements = this.$el.find( "> [data-model-cid]:not(.not-visible)" );
+
+			return itemElements;
 		},
 
 		_charCodes : {
@@ -921,145 +966,155 @@
 	// shut down child views.
 
 	ChildViewContainer = (function(Backbone, _){
-	  
-	  // Container Constructor
-	  // ---------------------
 
-	  var Container = function(views){
-	    this._views = {};
-	    this._indexByModel = {};
-	    this._indexByCustom = {};
-	    this._updateLength();
+		// Container Constructor
+		// ---------------------
 
-	    _.each(views, this.add, this);
-	  };
+		var Container = function(views){
+			this._views = {};
+			this._indexByModel = {};
+			this._indexByCustom = {};
+			this._updateLength();
 
-	  // Container Methods
-	  // -----------------
+			_.each(views, this.add, this);
+		};
 
-	  _.extend(Container.prototype, {
+		// Container Methods
+		// -----------------
 
-	    // Add a view to this container. Stores the view
-	    // by `cid` and makes it searchable by the model
-	    // cid (and model itself). Optionally specify
-	    // a custom key to store an retrieve the view.
-	    add: function(view, customIndex){
-	      var viewCid = view.cid;
+		_.extend(Container.prototype, {
 
-	      // store the view
-	      this._views[viewCid] = view;
+			// Add a view to this container. Stores the view
+			// by `cid` and makes it searchable by the model
+			// cid (and model itself). Optionally specify
+			// a custom key to store an retrieve the view.
+			add: function(view, customIndex){
+				var viewCid = view.cid;
 
-	      // index it by model
-	      if (view.model){
-	        this._indexByModel[view.model.cid] = viewCid;
-	      }
+				// store the view
+				this._views[viewCid] = view;
 
-	      // index by custom
-	      if (customIndex){
-	        this._indexByCustom[customIndex] = viewCid;
-	      }
+				// index it by model
+				if (view.model){
+					this._indexByModel[view.model.cid] = viewCid;
+				}
 
-	      this._updateLength();
-	    },
+				// index by custom
+				if (customIndex){
+					this._indexByCustom[customIndex] = viewCid;
+				}
 
-	    // Find a view by the model that was attached to
-	    // it. Uses the model's `cid` to find it.
-	    findByModel: function(model){
-	      return this.findByModelCid(model.cid);
-	    },
+				this._updateLength();
+			},
 
-	    // Find a view by the `cid` of the model that was attached to
-	    // it. Uses the model's `cid` to find the view `cid` and
-	    // retrieve the view using it.
-	    findByModelCid: function(modelCid){
-	      var viewCid = this._indexByModel[modelCid];
-	      return this.findByCid(viewCid);
-	    },
+			// Find a view by the model that was attached to
+			// it. Uses the model's `cid` to find it.
+			findByModel: function(model){
+				return this.findByModelCid(model.cid);
+			},
 
-	    // Find a view by a custom indexer.
-	    findByCustom: function(index){
-	      var viewCid = this._indexByCustom[index];
-	      return this.findByCid(viewCid);
-	    },
+			// Find a view by the `cid` of the model that was attached to
+			// it. Uses the model's `cid` to find the view `cid` and
+			// retrieve the view using it.
+			findByModelCid: function(modelCid){
+				var viewCid = this._indexByModel[modelCid];
+				return this.findByCid(viewCid);
+			},
 
-	    // Find by index. This is not guaranteed to be a
-	    // stable index.
-	    findByIndex: function(index){
-	      return _.values(this._views)[index];
-	    },
+			// Find a view by a custom indexer.
+			findByCustom: function(index){
+				var viewCid = this._indexByCustom[index];
+				return this.findByCid(viewCid);
+			},
 
-	    // retrieve a view by it's `cid` directly
-	    findByCid: function(cid){
-	      return this._views[cid];
-	    },
+			// Find by index. This is not guaranteed to be a
+			// stable index.
+			findByIndex: function(index){
+				return _.values(this._views)[index];
+			},
 
-	    // Remove a view
-	    remove: function(view){
-	      var viewCid = view.cid;
+			// retrieve a view by it's `cid` directly
+			findByCid: function(cid){
+				return this._views[cid];
+			},
 
-	      // delete model index
-	      if (view.model){
-	        delete this._indexByModel[view.model.cid];
-	      }
+			findIndexByCid : function( cid ) {
+				var index = -1;
+				var view = _.find( this._views, function ( view ) {
+					index++;
+					if( view.model.cid == cid )
+						return view;
+				} );
+				return ( view ) ? index : -1;
+			},
 
-	      // delete custom index
-	      _.any(this._indexByCustom, function(cid, key) {
-	        if (cid === viewCid) {
-	          delete this._indexByCustom[key];
-	          return true;
-	        }
-	      }, this);
+			// Remove a view
+			remove: function(view){
+				var viewCid = view.cid;
 
-	      // remove the view from the container
-	      delete this._views[viewCid];
+				// delete model index
+				if (view.model){
+					delete this._indexByModel[view.model.cid];
+				}
 
-	      // update the length
-	      this._updateLength();
-	    },
+				// delete custom index
+				_.any(this._indexByCustom, function(cid, key) {
+					if (cid === viewCid) {
+						delete this._indexByCustom[key];
+						return true;
+					}
+				}, this);
 
-	    // Call a method on every view in the container,
-	    // passing parameters to the call method one at a
-	    // time, like `function.call`.
-	    call: function(method){
-	      this.apply(method, _.tail(arguments));
-	    },
+				// remove the view from the container
+				delete this._views[viewCid];
 
-	    // Apply a method on every view in the container,
-	    // passing parameters to the call method one at a
-	    // time, like `function.apply`.
-	    apply: function(method, args){
-	      _.each(this._views, function(view){
-	        if (_.isFunction(view[method])){
-	          view[method].apply(view, args || []);
-	        }
-	      });
-	    },
+				// update the length
+				this._updateLength();
+			},
 
-	    // Update the `.length` attribute on this container
-	    _updateLength: function(){
-	      this.length = _.size(this._views);
-	    }
-	  });
+			// Call a method on every view in the container,
+			// passing parameters to the call method one at a
+			// time, like `function.call`.
+			call: function(method){
+				this.apply(method, _.tail(arguments));
+			},
 
-	  // Borrowing this code from Backbone.Collection:
-	  // http://backbonejs.org/docs/backbone.html#section-106
-	  //
-	  // Mix in methods from Underscore, for iteration, and other
-	  // collection related features.
-	  var methods = ['forEach', 'each', 'map', 'find', 'detect', 'filter', 
-	    'select', 'reject', 'every', 'all', 'some', 'any', 'include', 
-	    'contains', 'invoke', 'toArray', 'first', 'initial', 'rest', 
-	    'last', 'without', 'isEmpty', 'pluck'];
+			// Apply a method on every view in the container,
+			// passing parameters to the call method one at a
+			// time, like `function.apply`.
+			apply: function(method, args){
+				_.each(this._views, function(view){
+					if (_.isFunction(view[method])){
+						view[method].apply(view, args || []);
+					}
+				});
+			},
 
-	  _.each(methods, function(method) {
-	    Container.prototype[method] = function() {
-	      var views = _.values(this._views);
-	      var args = [views].concat(_.toArray(arguments));
-	      return _[method].apply(_, args);
-	    };
-	  });
+			// Update the `.length` attribute on this container
+			_updateLength: function(){
+				this.length = _.size(this._views);
+			}
+		});
 
-	  // return the public API
-	  return Container;
+		// Borrowing this code from Backbone.Collection:
+		// http://backbonejs.org/docs/backbone.html#section-106
+		//
+		// Mix in methods from Underscore, for iteration, and other
+		// collection related features.
+		var methods = ['forEach', 'each', 'map', 'find', 'detect', 'filter',
+			       'select', 'reject', 'every', 'all', 'some', 'any', 'include',
+			       'contains', 'invoke', 'toArray', 'first', 'initial', 'rest',
+			       'last', 'without', 'isEmpty', 'pluck'];
+
+		_.each(methods, function(method) {
+			Container.prototype[method] = function() {
+				var views = _.values(this._views);
+				var args = [views].concat(_.toArray(arguments));
+				return _[method].apply(_, args);
+			};
+		});
+
+		// return the public API
+		return Container;
 	})(Backbone, _);
 })();
