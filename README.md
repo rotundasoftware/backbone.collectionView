@@ -60,7 +60,7 @@ The following options expect a filter function that takes a single parameter, th
 
 ### <a name="setSelectedModel"></a>setSelectedModel(s) and getSelectedModel(s)
 
-The `getSelectedModel(s)` and `setSelectedModel(s)` methods are used to get or set the currently selected models. The methods are able to reference models in a variety of ways. For instance, it is possible to set the currently selected model using the model object itself (the default), the model's `cid`, or the model's `id`. The magic is in the `by` option:
+The `getSelectedModel(s)` and `setSelectedModel(s)` methods are used to get or set the currently selected models. The methods are able to reference models in a variety of ways using the `by` option:
 
 ```javascript
 // Returns an array of the selected models
