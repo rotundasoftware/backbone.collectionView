@@ -28,18 +28,21 @@ myCollectionView.setSelectedModel( employeeCollection.first() );
 ```
 
 ## Options accepted by the CollectionView constructor
-* `el` : A `<ul>` or `<table>` element into which your collection will be rendered. f you supply a `<table>` element, your modelView must have an element of type of `<tr>`.
+* `el` : A `<ul>` or `<table>` element into which your collection will be rendered. If you supply a `<table>` element, your modelView must have an element of type of `<tr>`.
 * `collection` : The collection of models to be rendered.
-* `modelView` : A view constructor that will be used to create the views for each of the models in the collection.
+* `modelView` : A view constructor that will be used to create the views for each individual model.
 * `selectable` : (default: _true_) Determines whether models in the CollectionView are selectable.
-* `clickToSelect` : (default: _true_) In a selectable CollectionView, determines whether mouse clicks should select models as would be appropriate in a standard HTML mutli-SELECT element.
-* `processKeyEvents` : (default: _true_) In a selectable CollectionView, determines if the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-SELECT element.
-* `selectMultiple` : (default: _false_) In a selectable CollectionView, determines if multiple models can be selected at once.
-* `clickToToggle` : (default: _false_) In a selectable CollectionView, determines if clicking a model view should toggle its selected / unselected state. Only applies if `selectMultiple`.
+* `detachedRendering` : (default: _false_) When `true`, all the modelViews are rendered before being added to the DOM to improve performance. If your modelView rendering relies on its location in the DOM (for sizing or other reasons), use the default value of `false`.
 * `sortable` : (default: _false_) Determines if models can be rearranged by dragging and dropping.
 * `sortableOptions` : Options passed through to the created jQueryUI sortable.  Only applies if `sortable`.
 * `emptyListCaption` : A string (or a function that returns a string) to be displayed when the CollectionView is empty.
-* `detachedRendering` : (default: _false_) When `true`, all the modelViews are rendered before being added to the DOM to improve performance. If your modelView rendering relies on its location in the DOM (for sizing or other reasons), use the default value of `false`.
+
+The following options apply when `selectable` option is set:
+
+* `clickToSelect` : (default: _true_) Determines whether mouse clicks should select models as would be appropriate in a standard HTML mutli-SELECT element.
+* `processKeyEvents` : (default: _true_) Determines if the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-SELECT element.
+* `selectMultiple` : (default: _false_) Determines if multiple models can be selected at once.
+* `clickToToggle` : (default: _false_) Determines if clicking a model view should toggle its selected / unselected state. Only applies if `selectMultiple`.
 
 The following options expect a filter function that takes a single parameter, the model in question, and returns `true` or `false`. They are all optional, defaulting to passing all models.
 * `visibleModelsFilter` : Determines which models are visible. 
