@@ -87,7 +87,9 @@ There are four valid values for `by` option which determine the type of "model r
 * `"offset"` : The zero-based index of the model in the collection, only counting visible models.
 * `"view"` : The view that was created to represent the model when the CollectionView was rendered.
 
-If no `by` option is provided the model object itself is expected / returned. Additionally, the `setSelectedModel(s)` function accepts one additional option, `silent`, which, when true, will prevent the `selectionChanged` event from being fired.
+If no `by` option is provided the model object itself is expected / returned.
+
+Additionally, the `setSelectedModel(s)` function accepts one additional option, `silent`, which, when true, will prevent the `selectionChanged` event from being fired.
 
 ##Events Fired
 CollectionViews `trigger` the following events on themselves. You can respond to these events from another view using Backbone's `listenTo` method. If [Backbone.Courier](https://github.com/rotundasoftware/backbone.courier)
