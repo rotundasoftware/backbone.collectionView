@@ -6,7 +6,7 @@ Depends on jQuery and jQueryUI for event handling and sorting, respectively.
 
 ## Benefits
 
-* Provides a view that renders a collection of models, updating automatically when models are added or removed.
+* Renders a collection of models, updating automatically when models are added or removed.
 * Keeps track of selected model(s) and fires events when the selection is changed.
 * Adds "selected" css class to selected `<li>` or `<tr>`, allowing you to easily style selected model views.
 * Supports single and multiple selection through meta-key and shift clicks, just like a multi-SELECT element.
@@ -28,28 +28,28 @@ myCollectionView.setSelectedModel( employeeCollection.first() );
 ```
 
 ## Options accepted by the CollectionView constructor
-* `el` : A `<ul>` or `<table>` element. If you supply a `<ul>` element, your modelView's element can be of any type, but if you supply a `<table>` element, make sure your modelView has elements of type of `<tr>`.
+* `el` : A `<ul>` or `<table>` element into which your collection will be rendered. f you supply a `<table>` element, your modelView must have an element of type of `<tr>`.
 * `collection` : The collection of models to be rendered.
-* `modelView` : The view constructor that will be used to create the views for each individual model in the collection.
+* `modelView` : A view constructor that will be used to create the views for each of the models in the collection.
 * `selectable` : (default: _true_) Determines whether models in the CollectionView are selectable.
 * `clickToSelect` : (default: _true_) In a selectable CollectionView, determines whether mouse clicks should select models as would be appropriate in a standard HTML mutli-SELECT element.
 * `processKeyEvents` : (default: _true_) In a selectable CollectionView, determines if the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-SELECT element.
 * `selectMultiple` : (default: _false_) In a selectable CollectionView, determines if multiple models can be selected at once.
-* `clickToToggle` : (default: _false_) In a selectable CollectionView, determines if clicking a model view should toggle its selected / unselected state. Only applies if selectMultiple == true.
-* `sortable` : (default: _false_) Determines if models can be rearranged by dragging and dropping. (jQueryUI required.)
-* `sortableOptions` : Options passed through to the created jQueryUI sortable.  Only applies if sortable == true.
-* `emptyListCaption` : A string or a function that returns text to be displayed when there are no (visible) model views.
+* `clickToToggle` : (default: _false_) In a selectable CollectionView, determines if clicking a model view should toggle its selected / unselected state. Only applies if `selectMultiple`.
+* `sortable` : (default: _false_) Determines if models can be rearranged by dragging and dropping.
+* `sortableOptions` : Options passed through to the created jQueryUI sortable.  Only applies if `sortable`.
+* `emptyListCaption` : A string (or a function that returns a string) to be displayed when the CollectionView is empty.
 * `detachedRendering` : (default: _false_) When `true`, all the modelViews are rendered before being added to the DOM to improve performance. If your modelView rendering relies on its location in the DOM (for sizing or other reasons), use the default value of `false`.
 
-The following options expect a filter function that takes a single parameter, the model in question, and returns true or false.
-* `visibleModelsFilter` : (default: _all models_) Determines which models are visible. 
-* `selectableModelsFilter` : (default: _all models_) In a selectable CollectionView, determines which models are selectable.
-* `sortableModelsFilter` : (default: _all models_) In a sortable CollectionView, determines which models are sortable.
+The following options expect a filter function that takes a single parameter, the model in question, and returns `true` or `false`. They are all optional, defaulting to passing all models.
+* `visibleModelsFilter` : Determines which models are visible. 
+* `selectableModelsFilter` : In a selectable CollectionView, determines which models are selectable.
+* `sortableModelsFilter` : In a sortable CollectionView, determines which models are sortable.
 
 ## <a name="api"></a>Methods and Properties Reference
 
-* __setSelectedModel( modelReference, [options] )__ Sets which model(s) are selected. (See discussion below.)
-* __getSelectedModel( [options] )__ Returns references to the selected model(s). (See discussion below.)
+* __setSelectedModel( modelReference, [options] )__ Sets which model(s) are selected.
+* __getSelectedModel( [options] )__ Returns references to the selected model(s).
 * __setOption( optionName, optionValue )__ Updates the value of a configuration option.  All constructor options above are valid except `el`.  The CollectionView is automatically re-rendered if necessary.
 * __collection__ The Backbone collection instance that this CollectionView represents.
 * __viewManager__ A [Backbone.BabySitter](https://github.com/marionettejs/backbone.babysitter) instance that contains the views corresponding to the individual models in the collection. Backbone.Babysitter implements a "view collection" that enables you to, for example, iterate through all the model views, or easily trigger an event on all model views at once. See the [Backbone.BabySitter](https://github.com/marionettejs/backbone.babysitter) documentation for more information.
@@ -81,12 +81,10 @@ As shown in the examples, the plural versions of the methods expect / return an 
 There are four valid values for `by` option, which correspond to the type of "model reference" expected / returned.
 * `"id"` : The `id` of the model.
 * `"cid"` : The `cid` of the model.
-* `"offset"` : The zero-based index of the model in the collection, only counting models that have visible views.
+* `"offset"` : The zero-based index of the model in the collection, only counting visible models.
 * `"view"` : The view that was created to represent the model when the CollectionView was rendered.
 
 If no `by` option is provided the model object itself is expected / returned. Additionally, the `setSelectedModel(s)` function accepts one additional option, `silent`, which, when true, will prevent the `selectionChanged` event from being fired.
-
-
 
 ##Events Fired
 CollectionViews `trigger` the following events on themselves. You can respond to these events from another view using Backbone's `listenTo` method. If [Backbone.Courier](https://github.com/rotundasoftware/backbone.courier)
@@ -94,9 +92,12 @@ CollectionViews `trigger` the following events on themselves. You can respond to
 * __"selectionChanged"__ ( _newSelectedModels, oldSelectedModels_ )  Fired whenever the selection is changed, either by the user or by a programmatic call to `setSelectedModel(s)`.
 * __"updateDependentControls"__ ( _selectedModels_ ) Fired whenever controls that are dependent on the selection should be updated (e.g. buttons that should be disabled on no selection). This event is always fired just after `selectionChanged` is fired. In addition, it is fired after rendering and sorting.
 * __"doubleClick"__ ( _clickedModel_ ) Fired when a model view is double clicked.
-* __"sortStart"__  Fired just as a model view is starting to be dragged. (Sortable collection lists only.)
-* __"sortStop"__  Fired after a drag is finished and after the collection is reordered. (Sortable collection lists only.)
-* __"reorder"__  Fired when a drag is finished, but before the collection is reordered. (Sortable collection lists only.)
+
+In addition, sortable collection lists fire these events:
+
+* __"sortStart"__  Fired just as a model view is starting to be dragged.
+* __"sortStop"__  Fired after a drag is finished and after the collection is reordered.
+* __"reorder"__  Fired when a drag is finished, but before the collection is reordered.
 
 ##Styling
 
@@ -114,9 +115,9 @@ ul.collection-list {
 }
 ```
 
-When a model is selected, the `li` or `tr` element that corresponds to that model will be given the `selected` class.
+When a model is selected, its view's `li` or `tr` element will be given the `selected` class.
 
-You can style the caption created by the `emptyListCaption` option with the `var.empty-list-caption` selector. Here are the suggested defaults, which will center the empty list caption text near the top of the collection view.
+You can style the caption created by the `emptyListCaption` option with the `var.empty-list-caption` selector. These styles will center the empty list caption text near the top of the collection view.
 
 ```css
 var.empty-list-caption {
