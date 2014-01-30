@@ -39,7 +39,7 @@ myCollectionView.setSelectedModel( employeeCollection.first() );
 
 The following options apply when `selectable` option is set:
 
-* `clickToSelect` : (default: _true_) Determines whether mouse clicks should select models as would be appropriate in a standard HTML mutli-SELECT element.
+* `clickToSelect` : (default: _true_) Determines whether mouse clicks should automatically select models as would be appropriate in a standard HTML mutli-SELECT element.
 * `processKeyEvents` : (default: _true_) Determines if the collection view should respond to arrow key events as would be appropriate in a standard HTML multi-SELECT element.
 * `selectMultiple` : (default: _false_) Determines if multiple models can be selected at once.
 * `clickToToggle` : (default: _false_) Determines if clicking a model view should toggle its selected / unselected state. Only applies if `selectMultiple`.
