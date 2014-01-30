@@ -92,8 +92,8 @@ If no `by` option is provided the model object itself is expected / returned.
 Additionally, the `setSelectedModel(s)` function accepts one additional option, `silent`, which, when true, will prevent the `selectionChanged` event from being fired.
 
 ##Events Fired
-CollectionViews `trigger` the following events on themselves. You can respond to these events from another view using Backbone's `listenTo` method. If [Backbone.Courier](https://github.com/rotundasoftware/backbone.courier)
- is available, these events are also "spawned" using Courier.
+CollectionViews `trigger` the following events on themselves. If [Backbone.Courier](https://github.com/rotundasoftware/backbone.courier)
+ is available, these events are also "spawned".
 * __"selectionChanged"__ ( _newSelectedModels, oldSelectedModels_ )  Fired whenever the selection is changed, either by the user or by a programmatic call to `setSelectedModel(s)`.
 * __"updateDependentControls"__ ( _selectedModels_ ) Fired whenever controls that are dependent on the selection should be updated (e.g. buttons that should be disabled on no selection). This event is always fired just after `selectionChanged` is fired. In addition, it is fired after rendering and sorting.
 * __"doubleClick"__ ( _clickedModel_ ) Fired when a model view is double clicked.
