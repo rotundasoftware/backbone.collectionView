@@ -27,7 +27,7 @@ myCollectionView.render();
 myCollectionView.setSelectedModel( employeeCollection.first() );
 ```
 
-## Options accepted by the CollectionView constructor
+## Initialization Options
 * `el` : A `<ul>` or `<table>` element into which your collection will be rendered. If you supply a `<table>` element, your modelView must have an element of type of `<tr>`.
 * `collection` : The collection of models to be rendered.
 * `modelView` : A view constructor that will be used to create the views for each individual model.
