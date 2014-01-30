@@ -35,7 +35,7 @@ myCollectionView.setSelectedModel( employeeCollection.first() );
 * `detachedRendering` : (default: _false_) When `true`, all the modelViews are rendered before being added to the DOM to improve performance. If your modelView rendering relies on its location in the DOM (for sizing or other reasons), use the default value of `false`.
 * `sortable` : (default: _false_) Determines if models can be rearranged by dragging and dropping.
 * `sortableOptions` : Options passed through to the created jQueryUI sortable.  Only applies if `sortable`.
-* `emptyListCaption` : A string (or a function returning a string) to be shown when the CollectionView is empty.
+* `emptyListCaption` : A string (or a function returning a string) to be shown when the list is empty.
 
 The following options apply when `selectable` option is set:
 
