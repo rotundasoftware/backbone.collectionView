@@ -3,14 +3,6 @@
 
 	var kDefaultReferenceBy = "model";
 
-	var kAllowedOptions = [
-		"collection", "modelView", "modelViewOptions", "itemTemplate", "emptyListCaption",
-		"selectable", "clickToSelect", "selectableModelsFilter", "visibleModelsFilter",
-		"selectMultiple", "clickToToggle", "processKeyEvents", "sortable", "sortableOptions", "sortableModelsFilter", "itemTemplateFunction", "detachedRendering"
-	];
-
-	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "sortableModelsFilter", "visibleModelsFilter", "itemTemplateFunction", "detachedRendering", "sortableOptions" ];
-
 	var kStylesForEmptyListCaption = {
 		"background" : "transparent",
 		"border" : "none",
@@ -36,39 +28,32 @@
 
 		//only used if Backbone.Courier is available
 		passMessages : { "*" : "." },
+		
+		// viewOption definitions with default values.
+		options : [ { "collection" : new Backbone.Collection(), "rerender" : true },
+			    { "modelView" : null, "rerender" : true },
+			    { "modelViewOptions" : {}, "rerender" : true },
+			    { "itemTemplate" : null, "rerender" : true },
+			    { "itemTemplateFunction" : null, "rerender" : true },
+			    { "selectable" : true },
+			    { "clickToSelect" : true },
+			    { "selectableModelsFilter" : null, "rerender" : true },
+			    { "visibleModelsFilter" : null, "rerender" : true },
+			    { "sortableModelsFilter" : null, "rerender" : true },
+			    { "selectMultiple" : false },
+			    { "clickToToggle" : false },
+			    { "processKeyEvents" : true },
+			    { "sortable" : false },
+			    { "sortableOptions" : null, "rerender" : true },
+			    { "detachedRendering" : false, "rerender" : true },
+			    { "emptyListCaption" : null }
+		],
 
 		initialize : function( options ) {
-			var _this = this;
+			Backbone.ViewOptions.add( this ); // setup the ViewOptions functionality.
+			this.setOptions( options ); // and make use of any provided options
 
 			this._hasBeenRendered = false;
-
-			// default options
-			options = _.extend( {}, {
-				collection : null,
-				modelView : this.modelView || null,
-				modelViewOptions : {},
-				itemTemplate : null,
-				itemTemplateFunction : null,
-				selectable : true,
-				clickToSelect : true,
-				selectableModelsFilter : null,
-				visibleModelsFilter : null,
-				sortableModelsFilter : null,
-				selectMultiple : false,
-				clickToToggle : false,
-				processKeyEvents : true,
-				sortable : false,
-				sortableOptions : null,
-				detachedRendering : false,
-				emptyListCaption : null
-			}, options );
-
-			// add each of the white-listed options to the CollectionView object itself
-			_.each( kAllowedOptions, function( option ) {
-				_this[ option ] = options[option];
-			} );
-
-			if( ! this.collection ) this.collection = new Backbone.Collection();
 
 			if( this._isBackboneCourierAvailable() ) {
 				Backbone.Courier.add( this );
@@ -76,7 +61,7 @@
 
 			this.$el.data( "view", this ); // needed for connected sortable lists
 			this.$el.addClass( "collection-list" );
-			if( options.selectable ) this.$el.addClass( "selectable" );
+			if( this.selectable ) this.$el.addClass( "selectable" );
 
 			if( this.processKeyEvents )
 				this.$el.attr( "tabindex", 0 ); // so we get keyboard events
@@ -89,67 +74,62 @@
 				this._registerCollectionEvents();
 
 			this.viewManager = new ChildViewContainer();
-
-			//this.listenTo( this.collection, "change", function() { this.render(); this.spawn( "change" ); } ); // don't want changes to models bubbling up and triggering the list's render() function
-
-			// note we do NOT call render here anymore, because if we inherit from this class we will likely call this
-			// function using __super__ before the rest of the initialization logic for the decedent class. however, we may
-			// override the render() function in that decedent class as well, and that will certainly expect all the initialization
-			// to be done already. so we have to make sure to not jump the gun and start rending at this point.
-			// this.render();
 		},
 
-		setOption : function( name, value ) {
+		_changedOptionRerender : function( optionName ) {
+			// look through the options, find the one named optionName and return it's rerender value.
+			return _.find( this.options, function( option ) { return _.has( option, optionName); } ).rerender;
+		},
 
+		onOptionsChanged : function( changedOptions, originalOptions ) {
+			var rerender = false;
 			var _this = this;
-
-			if( name === "collection" ) {
-				this._setCollection( value );
-			}
-			else {
-				if( _.contains( kAllowedOptions, name ) ) {
-
-					switch( name ) {
-						case "selectMultiple" :
-							this[ name ] = value;
-							if( !value && this.selectedItems.length > 1 )
-								this.setSelectedModel( _.first( this.selectedItems ), { by : "cid" } );
-							break;
-						case "selectable" :
-							if( !value && this.selectedItems.length > 0 )
-								this.setSelectedModels( [] );
-							this[ name ] = value;
-							break;
-						case "selectableModelsFilter" :
-							this[ name ] = value;
-							if( value && _.isFunction( value ) )
-								this._validateSelection();
-							break;
-						case "itemTemplate" :
-							this[ name ] = value;
-							this._updateItemTemplate();
-							break;
-						case "processKeyEvents" :
-							this[ name ] = value;
-							if( value )  this.$el.attr( "tabindex", 0 ); // so we get keyboard events
-							break;
-						case "modelView" :
-							this[ name ] = value;
-							//need to remove all old view instances
-							this.viewManager.each( function( view ) {
-								_this.viewManager.remove( view );
-								// destroy the View itself
-								view.remove();
-							} );
-							break;
-						default :
-							this[ name ] = value;
-					}
-
-					if( _.contains( kOptionsRequiringRerendering, name ) )  this.render();
+			_.each( _.keys( changedOptions ), function( changedOptionKey ) {
+				var newVal =  changedOptions[ changedOptionKey ];
+				var oldVal = originalOptions[ changedOptionKey ];
+				switch( changedOptionKey ) {
+					case "collection" :
+						if ( newVal !== oldVal ) {
+							_this.stopListening( oldVal );
+							_this._registerCollectionEvents();
+						}
+						break;
+					case "selectMultiple":
+						if( ! newVal && _this.selectedItems.length > 1 )
+							_this.setSelectedModel( _.first( _this.selectedItems ), { by : "cid" } );
+						break;
+					case "selectable" :
+						if( ! newVal && _this.selectedItems.length > 0 )
+							_this.setSelectedModels( [], { "cleanup" : true } );
+						break;
+					case "selectableModelsFilter" :
+						if( newVal && _.isFunction( newVal ) )
+							_this._validateSelection();
+						break;
+					case "itemTemplate" :
+						_this._updateItemTemplate();
+						break;
+					case "processKeyEvents" :
+						if( newVal ) _this.$el.attr( "tabindex", 0 ); // so we get keyboard events
+						break;
+					case "modelView" :
+						//need to remove all old view instances
+						_this.viewManager.each( function( view ) {
+							_this.viewManager.remove( view );
+							// destroy the View itself
+							view.remove();
+						} );
+						break;
 				}
-				else throw name + " is not an allowed option";
+				if( _this._changedOptionRerender( changedOptionKey ) ) rerender = true;
+			});
+			if( this._hasBeenRendered && rerender ) { 
+				this.render(); // Rerender the view if the rerender flag has been set.
 			}
+		},
+
+		setOption : function( optionName, optionValue ) { // now is mearly a wrapper around backbone.viewOptions' setOptions()
+			this.setOptions( ( optionHash = {}, optionHash[ optionName ] = optionValue, optionHash ) );
 		},
 
 		getSelectedModel : function( options ) {
@@ -204,7 +184,7 @@
 		},
 
 		setSelectedModels : function( newSelectedItems, options ) {
-			if( ! this.selectable ) return; // used to throw error, but there are some circumstances in which a list can be selectable at times and not at others, don't want to have to worry about catching errors
+			if( ! this.selectable && ! options.cleanup ) return; // used to throw error, but there are some circumstances in which a list can be selectable at times and not at others, don't want to have to worry about catching errors
 			if( ! _.isArray( newSelectedItems ) ) throw "Invalid parameter value";
 
 			options = _.extend( {}, {
@@ -554,17 +534,6 @@
 			return clickedItemId;
 		},
 
-		_setCollection : function( newCollection ) {
-			if( newCollection !== this.collection )
-			{
-				this.stopListening( this.collection );
-				this.collection = newCollection;
-				this._registerCollectionEvents();
-			}
-
-			if( this._hasBeenRendered ) this.render();
-		},
-
 		_updateItemTemplate : function() {
 			var itemTemplateHtml;
 			if( this.itemTemplate )
@@ -582,7 +551,7 @@
 		},
 
 		_validateSelection : function() {
-			// note can't use the collection's proxy to underscore because "cid" ais not an attribute,
+			// note can't use the collection's proxy to underscore because "cid" is not an attribute,
 			// but an element of the model object itself.
 			var modelReferenceIds = _.pluck( this.collection.models, "cid" );
 			this.selectedItems = _.intersection( modelReferenceIds, this.selectedItems );
@@ -953,6 +922,134 @@
 			mDefaultModelViewConstructor = theConstructor;
 		}
 	});
+
+	// Backbone.ViewOptions
+	// --------------------
+	// v0.2.0
+	//
+	// Copyright (c)2014 Rotunda Software
+	//
+	// https://github.com/rotundasoftware/backbone.viewOptions
+
+	// Backbone.ViewOptions
+	// --------------------
+	//
+	// An plugin to declare and get/set options on views.
+
+	/*
+	 * Backbone.ViewOptions, v0.2
+	 * Copyright (c)2014 Rotunda Software, LLC.
+	 * Distributed under MIT license
+	 * http://github.com/rotundasoftware/backbone.viewOptions
+	 */
+
+	Backbone.ViewOptions = {};
+		
+	Backbone.ViewOptions.add = function( view, optionsChangedCallback ) {
+		if( _.isUndefined( optionsChangedCallback ) ) optionsChangedCallback = "onOptionsChanged";
+		
+		// ****************** Public methods added to view ****************** 
+		
+		view.setOptions = function( options ) {
+			var _this = this;
+			var optionsThatWereChanged = {};
+			var optionsThatWereChangedOriginalValues = {};
+
+			var optionDeclarations = _.result( this, "options" );
+
+			if( ! _.isUndefined( optionDeclarations ) ) {
+				var normalizedOptionDeclarations = _normalizeOptionDeclarations( optionDeclarations );
+
+				_.each( normalizedOptionDeclarations, function( thisOptionDeclaration ) {
+					thisOptionName = thisOptionDeclaration.name;
+					thisOptionRequired = thisOptionDeclaration.required;
+					thisOptionDefaultValue = thisOptionDeclaration.defaultValue;
+					
+					if( thisOptionRequired ) {
+						// note we do not throw an error if a required option is not supplied, but it is  
+						// found on the object itself (due to a prior call of view.setOptions, most likely)
+						if( ! options ||
+						    ( ( ! _.contains( _.keys( options ), thisOptionName ) && _.isUndefined( _this[ thisOptionName ] ) ) ) ||
+						    _.isUndefined( options[ thisOptionName ] ) )
+							throw new Error( "Required option \"" + thisOptionName + "\" was not supplied." );
+					}
+
+					// attach the supplied value of this option, or the appropriate default value, to the view object
+					if( options && thisOptionName in options ) {
+						// if this option already exists on the view, make a note that we will be changing it
+						if( ! _.isUndefined( _this[ thisOptionName ] ) ) {
+							optionsThatWereChangedOriginalValues[ thisOptionName ] = _this[ thisOptionName ];
+							optionsThatWereChanged[ thisOptionName ] = options[ thisOptionName ];
+						}
+						_this[ thisOptionName ] = options[ thisOptionName ];
+						// note we do NOT delete the option off the options object here so that
+						// multiple views can be passed the same options object without issue.
+					}
+					else if( ! _.isUndefined( thisOptionDefaultValue ) && _.isUndefined( _this[ thisOptionName ] ) ) {
+						// note defaults do not write over any existing properties on the view itself.
+						_this[ thisOptionName ] = thisOptionDefaultValue;
+					}
+				} );
+			}
+
+			if( _.keys( optionsThatWereChanged ).length > 0 ) {
+				if( _.isFunction( _this.onOptionsChanged ) )
+					_this.onOptionsChanged( optionsThatWereChanged, optionsThatWereChangedOriginalValues );
+				else if( _.isFunction( _this._onOptionsChanged ) )
+					_this._onOptionsChanged( optionsThatWereChanged, optionsThatWereChangedOriginalValues );
+			}
+		};
+
+		view.getOptions = function() {
+			var optionDeclarations = _.result( this, "options" );
+			if( _.isUndefined( optionDeclarations ) ) return [];
+
+			var normalizedOptionDeclarations = _normalizeOptionDeclarations( optionDeclarations );
+			var optionsNames = _.pluck( normalizedOptionDeclarations, "name" );
+				
+			return _.pick( this, optionsNames );
+		};
+	};
+	
+	// ****************** Private Utility Functions ****************** 
+
+	function _normalizeOptionDeclarations( optionDeclarations ) {
+		// convert our short-hand option syntax (with exclamation marks, etc.)
+		// to a simple array of standard option declaration objects.
+		var normalizedOptionDeclarations = [];
+
+		if( ! _.isArray( optionDeclarations ) )  {
+			throw new Error( "Option declarations must be an array." );
+		}
+
+		_.each( optionDeclarations, function( thisOptionDeclaration ) {
+			var thisOptionName, thisOptionRequired, thisOptionDefaultValue;
+
+			thisOptionRequired = false;
+			thisOptionDefaultValue = undefined;
+
+			if( _.isString( thisOptionDeclaration ) )
+				thisOptionName = thisOptionDeclaration;
+			else if( _.isObject( thisOptionDeclaration ) ) {
+				thisOptionName = _.first( _.keys( thisOptionDeclaration ) );
+				thisOptionDefaultValue = _.clone( thisOptionDeclaration[ thisOptionName ] );
+			}
+			else throw new Error( "Each element in the option declarations array must be either a string or an object." );
+
+			if( thisOptionName[ thisOptionName.length - 1 ] === "!" ) {
+				thisOptionRequired = true;
+				thisOptionName = thisOptionName.slice( 0, thisOptionName.length - 1 );
+			}
+
+			normalizedOptionDeclarations.push( {
+				name : thisOptionName,
+				required : thisOptionRequired,
+				defaultValue : thisOptionDefaultValue
+			} );
+		} );
+
+		return normalizedOptionDeclarations;
+	};
 
 
 	// Backbone.BabySitter

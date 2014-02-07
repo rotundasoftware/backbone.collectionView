@@ -1,5 +1,9 @@
 # Change log
 
+# v0.10.0
+* Made use of backbone.viewOptions by including it and updating the
+  source to use it's facilities.
+
 ### v0.9.0
 
 * No longer re-render upon add() and remove() events in the collection.
