@@ -97,7 +97,7 @@
 						break;
 					case "selectable" :
 						if( ! newVal && _this.selectedItems.length > 0 )
-							_this.setSelectedModels( [], { "cleanup" : true } );
+							_this.setSelectedModels( [] );
 						break;
 					case "selectableModelsFilter" :
 						if( newVal && _.isFunction( newVal ) )
@@ -183,7 +183,7 @@
 		},
 
 		setSelectedModels : function( newSelectedItems, options ) {
-			if( ! this.selectable && ! options.cleanup ) return; // used to throw error, but there are some circumstances in which a list can be selectable at times and not at others, don't want to have to worry about catching errors
+			if( ! this.selectable && newSelectedItems > 0 ) return; // used to throw error, but there are some circumstances in which a list can be selectable at times and not at others, don't want to have to worry about catching errors
 			if( ! _.isArray( newSelectedItems ) ) throw "Invalid parameter value";
 
 			options = _.extend( {}, {
