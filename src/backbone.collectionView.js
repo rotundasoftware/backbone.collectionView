@@ -3,6 +3,8 @@
 
 	var kDefaultReferenceBy = "model";
 
+	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "sortableModelsFilter", "visibleModelsFilter", "itemTemplateFunction", "detachedRendering", "sortableOptions" ];
+
 	var kStylesForEmptyListCaption = {
 		"background" : "transparent",
 		"border" : "none",
@@ -30,22 +32,22 @@
 		passMessages : { "*" : "." },
 		
 		// viewOption definitions with default values.
-		options : [ { "collection" : new Backbone.Collection(), "rerender" : true },
-			    { "modelView" : null, "rerender" : true },
-			    { "modelViewOptions" : {}, "rerender" : true },
-			    { "itemTemplate" : null, "rerender" : true },
-			    { "itemTemplateFunction" : null, "rerender" : true },
+		options : [ { "collection" : new Backbone.Collection() },
+			    { "modelView" : null },
+			    { "modelViewOptions" : {} },
+			    { "itemTemplate" : null },
+			    { "itemTemplateFunction" : null },
 			    { "selectable" : true },
 			    { "clickToSelect" : true },
-			    { "selectableModelsFilter" : null, "rerender" : true },
-			    { "visibleModelsFilter" : null, "rerender" : true },
-			    { "sortableModelsFilter" : null, "rerender" : true },
+			    { "selectableModelsFilter" : null },
+			    { "visibleModelsFilter" : null },
+			    { "sortableModelsFilter" : null },
 			    { "selectMultiple" : false },
 			    { "clickToToggle" : false },
 			    { "processKeyEvents" : true },
 			    { "sortable" : false },
-			    { "sortableOptions" : null, "rerender" : true },
-			    { "detachedRendering" : false, "rerender" : true },
+			    { "sortableOptions" : null },
+			    { "detachedRendering" : false },
 			    { "emptyListCaption" : null }
 		],
 
@@ -76,16 +78,11 @@
 			this.viewManager = new ChildViewContainer();
 		},
 
-		_changedOptionRerender : function( optionName ) {
-			// look through the options, find the one named optionName and return it's rerender value.
-			return _.find( this.options, function( option ) { return _.has( option, optionName); } ).rerender;
-		},
-
 		onOptionsChanged : function( changedOptions, originalOptions ) {
 			var rerender = false;
 			var _this = this;
 			_.each( _.keys( changedOptions ), function( changedOptionKey ) {
-				var newVal =  changedOptions[ changedOptionKey ];
+				var newVal = changedOptions[ changedOptionKey ];
 				var oldVal = originalOptions[ changedOptionKey ];
 				switch( changedOptionKey ) {
 					case "collection" :
@@ -121,7 +118,7 @@
 						} );
 						break;
 				}
-				if( _this._changedOptionRerender( changedOptionKey ) ) rerender = true;
+				if( _.contains( kOptionsRequiringRerendering, changedOptionKey ) ) rerender = true;
 			});
 			if( this._hasBeenRendered && rerender ) { 
 				this.render(); // Rerender the view if the rerender flag has been set.
@@ -129,7 +126,9 @@
 		},
 
 		setOption : function( optionName, optionValue ) { // now is mearly a wrapper around backbone.viewOptions' setOptions()
-			this.setOptions( ( optionHash = {}, optionHash[ optionName ] = optionValue, optionHash ) );
+			var optionHash = {};
+			optionHash[ optionName ] = optionValue;
+			this.setOptions( optionHash );
 		},
 
 		getSelectedModel : function( options ) {
