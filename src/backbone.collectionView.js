@@ -158,7 +158,7 @@
 				case "offset" :
 					var curLineNumber = 0;
 
-					var itemElements = this._getVisibleItemEls()
+					var itemElements = this._getVisibleItemEls();
 
 					itemElements.each( function() {
 						var thisItemEl = $( this );
@@ -296,7 +296,14 @@
 				fragmentContainer = document.createDocumentFragment();
 
 			this.collection.each( function( thisModel ) {
-				this._insertAndRenderModelView( thisModel, fragmentContainer || modelViewContainerEl );
+				var thisModelView = oldViewManager.findByModelCid( thisModel.cid );
+				if( _.isUndefined( thisModelView ) ) {
+					// if the model view has not already been created on a
+					// previous render then create and initialize it now.
+					thisModelView = this._createNewModelView( thisModel, this._getModelViewOptions( thisModel ) );
+				}
+
+				this._insertAndRenderModelView( thisModelView, fragmentContainer || modelViewContainerEl );
 			}, this );
 
 			if( this.detachedRendering )
@@ -325,7 +332,7 @@
 				this.$el = this.$el.sortable( sortableOptions );
 			}
 
-			this._setEmptyListCaption();
+			this._showEmptyListCaptionIfAppropriate();
 
 			this.trigger( "render" );
 			if( this._isBackboneCourierAvailable() )
@@ -340,7 +347,7 @@
 				this.onAfterRender();
 		},
 
-		_setEmptyListCaption : function ( ) {
+		_showEmptyListCaptionIfAppropriate : function ( ) {
 			if( this.emptyListCaption ) {
 				var visibleEls = this._getVisibleItemEls();
 
@@ -360,70 +367,58 @@
 						$emptyListCaptionEl = $varEl.wrapAll( "<li class='not-sortable'></li>" ).parent().css( kStylesForEmptyListCaption );
 					else
 						$emptyListCaptionEl = $varEl.wrapAll( "<tr class='not-sortable'><td></td></tr>" ).parent().parent().css( kStylesForEmptyListCaption );
-					this.$el.append( $emptyListCaptionEl );
+					
+					this._getContainerEl().append( $emptyListCaptionEl );
 				}
 			}
 		},
 
 		_removeEmptyListCaption : function( ) {
-			$( "var.empty-list-caption" ).parent().remove();
-		},
-
-		_ensureModelView : function( thisModel ) {
-			var thisModelView = this.viewManager.findByModelCid( thisModel.cid );
-			if( _.isUndefined( thisModelView ) ) {
-				// if the model view was not already created on previous render,
-				// then create and initialize it now.
-				var modelViewOptions = this._getModelViewOptions( thisModel );
-				thisModelView = this._createNewModelView( thisModel, modelViewOptions );
-				thisModelView.collectionListView = this;
-			}
-			return thisModelView;
-		},
-
-		// Render a single model, "thisModel" in container dom object "parentEl"
-		_insertAndRenderModelView : function( thisModel, parentEl ) {
-			var thisModelView = this._ensureModelView( thisModel );
-			var thisModelViewWrapped = this._wrapModelView( thisModelView );
-			var insertedEl = ( this.detachedRendering ) ? thisModelViewWrapped[0] : thisModelViewWrapped;
-			var collectionAt = this.collection.indexOf( thisModel );
-
-			if ( this.detachedRendering )
-				parentEl.appendChild( insertedEl );
+			if( this._isRenderedAsList() )
+				this._getContainerEl().find( "> li > var.empty-list-caption" ).parent().remove();
 			else
-				// Insert or append the model view into the parent.
-				( parentEl.children().length > collectionAt ) ? parentEl.children().eq( collectionAt ).before( insertedEl ) : parentEl.append( insertedEl );
+				this._getContainerEl().find( "> tr > td > var.empty-list-caption" ).parent().parent().remove();
+		},
+
+		// Render a single model view in container object "parentElOrDocumentFragment", which is either 
+		// a documentFragment or a jquery object. optional arg atIndex is not support for document fragments.
+		_insertAndRenderModelView : function( modelView, parentElOrDocumentFragment, atIndex ) {
+			var thisModelViewWrapped = this._wrapModelView( modelView );
+
+			if( parentElOrDocumentFragment.nodeType === 11 ) // if we are inserting into a document fragment, we need to use the DOM appendChild method
+				parentElOrDocumentFragment.appendChild( thisModelViewWrapped.get( 0 ) );
+			else if( ! _.isUndefined( atIndex ) && atIndex > 0 && atIndex < this.collection.length - 1 )
+				parentElOrDocumentFragment.children().eq( atIndex ).before( thisModelViewWrapped );
+			else
+				parentElOrDocumentFragment.append( thisModelViewWrapped );
 
 			// we have to render the modelView after it has been put in context, as opposed to in the
 			// initialize function of the modelView, because some rendering might be dependent on
 			// the modelView's context in the DOM tree. For example, if the modelView stretch()'s itself,
 			// it must be in full context in the DOM tree or else the stretch will not behave as intended.
-			var renderResult = thisModelView.render();
+			var renderResult = modelView.render();
 
 			// return false from the view's render function to hide this item
 			if( renderResult === false ) {
 				thisModelViewWrapped.hide();
 				thisModelViewWrapped.addClass( "not-visible" );
 			}
-
+			
+			var hideThisModelView = false;
 			if( _.isFunction( this.visibleModelsFilter ) ) {
-				if( ! this.visibleModelsFilter( thisModel ) ) {
+				hideThisModelView = ! this.visibleModelsFilter( modelView.model );
+				if( hideThisModelView ) {
 					if( thisModelViewWrapped.children().length === 1 )
 						thisModelViewWrapped.hide();
-					else thisModelView.$el.hide();
+					else modelView.$el.hide();
 
 					thisModelViewWrapped.addClass( "not-visible" );
 				}
 			}
 
-			// Now we check if we an empty list caption with visible items, remove it if so.
-			if( this.emptyListCaption ) {
-				var visibleEls = this._getVisibleItemEls();
-				if( visibleEls.length > 0 )
-					this._removeEmptyListCaption();
-			}
+			if( ! hideThisModelView && this.emptyListCaption ) this._removeEmptyListCaption();
 
-			this.viewManager.add( thisModelView );
+			this.viewManager.add( modelView );
 		},
 
 		updateDependentControls : function() {
@@ -451,12 +446,13 @@
 
 			if ( this.selectable ) this._saveSelection();
 
-			// Remove the view from the viewManager, the view itself and it's DOM elements.
-			viewManager.remove( view );
-			view.remove();
-			this.$el.find( "[data-model-cid=" + model.cid + "]" ).remove();
+			viewManager.remove( view ); // Remove the view from the viewManager
+			view.remove(); // Remove the view from the DOM
+			this._getContainerEl().children( "[data-model-cid=" + model.cid + "]" ).remove(); // Remove the wrapper from the DOM
 
 			if ( this.selectable ) this._restoreSelection();
+
+			this._showEmptyListCaptionIfAppropriate();
 		},
 
 		_validateSelectionAndRender : function() {
@@ -466,8 +462,11 @@
 
 		_registerCollectionEvents : function() {
 			this.listenTo( this.collection, "add", function( model ) {
-				if( this._hasBeenRendered )
-					this._insertAndRenderModelView( model, this._getContainerEl() );
+				if( this._hasBeenRendered ) {
+					var modelView = this._createNewModelView( model, this._getModelViewOptions( model ) );
+					this._insertAndRenderModelView( modelView, this._getContainerEl(), this.collection.indexOf( model ) );
+				}
+
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "add" );
 			} );
@@ -475,6 +474,7 @@
 			this.listenTo( this.collection, "remove", function( model ) {
 				if( this._hasBeenRendered )
 					this._removeModelView( model );
+
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "remove" );
 			} );
@@ -619,21 +619,21 @@
 			itemsIdsFromWhichSelectedClassNeedsToBeRemoved = _.without( itemsIdsFromWhichSelectedClassNeedsToBeRemoved, this.selectedItems );
 
 			_.each( itemsIdsFromWhichSelectedClassNeedsToBeRemoved, function( thisItemId ) {
-				this.$el.find( "[data-model-cid=" + thisItemId + "]" ).removeClass( "selected" );
+				this._getContainerEl().find( "[data-model-cid=" + thisItemId + "]" ).removeClass( "selected" );
 			}, this );
 
 			var itemsIdsFromWhichSelectedClassNeedsToBeAdded = this.selectedItems;
 			itemsIdsFromWhichSelectedClassNeedsToBeAdded = _.without( itemsIdsFromWhichSelectedClassNeedsToBeAdded, oldItemsIdsWithSelectedClass );
 
 			_.each( itemsIdsFromWhichSelectedClassNeedsToBeAdded, function( thisItemId ) {
-				this.$el.find( "[data-model-cid=" + thisItemId + "]" ).addClass( "selected" );
+				this._getContainerEl().find( "[data-model-cid=" + thisItemId + "]" ).addClass( "selected" );
 			}, this );
 		},
 
 		_reorderCollectionBasedOnHTML : function() {
 			var _this = this;
 
-			this.$el.children().each( function() {
+			this._getContainerEl().children().each( function() {
 				var thisModelCid = $( this ).attr( "data-model-cid" );
 
 				if( thisModelCid )
@@ -669,7 +669,10 @@
 			var modelViewConstructor = this._getModelViewConstructor( model );
 			if( _.isUndefined( modelViewConstructor ) ) throw "Could not find modelView constructor for model";
 
-			return new ( modelViewConstructor )( modelViewOptions );
+			var newModelView = new( modelViewConstructor )( modelViewOptions );
+			newModelView.collectionListView = this;
+
+			return newModelView;
 		},
 
 		_wrapModelView : function( modelView ) {
@@ -719,9 +722,8 @@
 		},
 
 		_isRenderedAsTable : function() {
-			return this.$el.prop('tagName').toLowerCase() === 'table';
+			return this.$el.prop( "tagName" ).toLowerCase() === "table";
 		},
-
 
 		_isRenderedAsList : function() {
 			return ! this._isRenderedAsTable();
@@ -734,10 +736,7 @@
 		//   Otherwise, the returned elements are the <li>'s the collectionView wrapped around each modelView $el.
 		_getVisibleItemEls : function() {
 			var itemElements = [];
-			if( this._isRenderedAsTable() )
-				itemElements = this.$el.find( "> tbody > [data-model-cid]:not(.not-visible)" );
-			else if( this._isRenderedAsList() )
-				itemElements = this.$el.find( "> [data-model-cid]:not(.not-visible)" );
+			itemElements = this._getContainerEl().find( "> [data-model-cid]:not(.not-visible)" );
 
 			return itemElements;
 		},
@@ -767,7 +766,7 @@
 
 		_sortStop : function( event, ui ) {
 			var modelBeingSorted = this.collection.get( ui.item.attr( "data-model-cid" ) );
-			var modelViewContainerEl = (this._isRenderedAsTable()) ? this.$el.find( "> tbody" ) : this.$el;
+			var modelViewContainerEl = this._getContainerEl();
 			var newIndex = modelViewContainerEl.children().index( ui.item );
 
 			if( newIndex == -1 ) {
@@ -788,8 +787,9 @@
 			var senderCollectionListView = senderListEl.data( "view" );
 			if( ! senderCollectionListView || ! senderCollectionListView.collection ) return;
 
-			var newIndex = this.$el.children().index( ui.item );
+			var newIndex = this._getContainerEl().children().index( ui.item );
 			var modelReceived = senderCollectionListView.collection.get( ui.item.attr( "data-model-cid" ) );
+			senderCollectionListView.collection.remove( modelReceived );
 			this.collection.add( modelReceived, { at : newIndex } );
 			modelReceived.collection = this.collection; // otherwise will not get properly set, since modelReceived.collection might already have a value.
 			this.setSelectedModel( modelReceived );
@@ -798,7 +798,7 @@
 		_over : function( event, ui ) {
 			// when an item is being dragged into the sortable,
 			// hide the empty list caption if it exists
-			this.$el.find( ".empty-list-caption" ).hide();
+			this._getContainerEl().find( "> var.empty-list-caption" ).hide();
 		},
 
 		_onKeydown : function( event ) {
