@@ -32,27 +32,27 @@
 		passMessages : { "*" : "." },
 		
 		// viewOption definitions with default values.
-		options : [ { "collection" : new Backbone.Collection() },
-			    { "modelView" : null },
-			    { "modelViewOptions" : {} },
-			    { "itemTemplate" : null },
-			    { "itemTemplateFunction" : null },
-			    { "selectable" : true },
-			    { "clickToSelect" : true },
-			    { "selectableModelsFilter" : null },
-			    { "visibleModelsFilter" : null },
-			    { "sortableModelsFilter" : null },
-			    { "selectMultiple" : false },
-			    { "clickToToggle" : false },
-			    { "processKeyEvents" : true },
-			    { "sortable" : false },
-			    { "sortableOptions" : null },
-			    { "detachedRendering" : false },
-			    { "emptyListCaption" : null }
+		initializationOptions : [ { "collection" : new Backbone.Collection() },
+					  { "modelView" : null },
+					  { "modelViewOptions" : {} },
+					  { "itemTemplate" : null },
+					  { "itemTemplateFunction" : null },
+					  { "selectable" : true },
+					  { "clickToSelect" : true },
+					  { "selectableModelsFilter" : null },
+					  { "visibleModelsFilter" : null },
+					  { "sortableModelsFilter" : null },
+					  { "selectMultiple" : false },
+					  { "clickToToggle" : false },
+					  { "processKeyEvents" : true },
+					  { "sortable" : false },
+					  { "sortableOptions" : null },
+					  { "detachedRendering" : false },
+					  { "emptyListCaption" : null }
 		],
 
 		initialize : function( options ) {
-			Backbone.ViewOptions.add( this ); // setup the ViewOptions functionality.
+			Backbone.ViewOptions.add( this, "initializationOptions" ); // setup the ViewOptions functionality.
 			this.setOptions( options ); // and make use of any provided options
 
 			this._hasBeenRendered = false;
@@ -944,7 +944,8 @@
 
 	Backbone.ViewOptions = {};
 		
-	Backbone.ViewOptions.add = function( view, optionsChangedCallback ) {
+	Backbone.ViewOptions.add = function( view, optionsDeclarationsVariableName, optionsChangedCallback ) {
+		if( _.isUndefined( optionsDeclarationsVariableName ) ) optionsDeclarationsVariableName = "options";
 		if( _.isUndefined( optionsChangedCallback ) ) optionsChangedCallback = "onOptionsChanged";
 		
 		// ****************** Public methods added to view ****************** 
@@ -954,7 +955,7 @@
 			var optionsThatWereChanged = {};
 			var optionsThatWereChangedOriginalValues = {};
 
-			var optionDeclarations = _.result( this, "options" );
+			var optionDeclarations = _.result( this, optionsDeclarationsVariableName );
 
 			if( ! _.isUndefined( optionDeclarations ) ) {
 				var normalizedOptionDeclarations = _normalizeOptionDeclarations( optionDeclarations );
@@ -1000,7 +1001,7 @@
 		};
 
 		view.getOptions = function() {
-			var optionDeclarations = _.result( this, "options" );
+			var optionDeclarations = _.result( this, optionsDeclarationsVariableName );
 			if( _.isUndefined( optionDeclarations ) ) return [];
 
 			var normalizedOptionDeclarations = _normalizeOptionDeclarations( optionDeclarations );

@@ -1,6 +1,6 @@
 {
 	"name" : "backbone.collectionView",
-	"version": "0.10.0",
+	"version": "0.10.1",
 	"homepage": "http://rotundasoftware.github.io/backbone.collectionView/",
 	"repository": {
 		"type": "git",
@@ -18,7 +18,7 @@
 	],
 	"license": "MIT",
 	"dependencies": {
-		"backbone" : "~1.1",
+		"backbone" : "~1.0",
 		"jquery"   : "1.9.1",
 		"jqueryui" : "1.10.1"
 	}
