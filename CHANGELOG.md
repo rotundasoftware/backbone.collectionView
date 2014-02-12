@@ -1,13 +1,10 @@
 # Change log
 
-# v0.10.1
-
-* Now compatible with backbone<1.1.0
-
 # v0.10.0
 
 * Made use of backbone.viewOptions by including it and updating the
   source to use it's facilities.
+* Now compatible with backbone<1.1.0
 
 ### v0.9.0
 
