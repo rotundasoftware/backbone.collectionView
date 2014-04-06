@@ -630,7 +630,7 @@ $(document).ready( function() {
 
 		var emp1View = myCollectionView.viewManager.findByModel( this.emp2 );
 
-		equal(emp1View.$el.parent().attr("class"), "not-selectable", "The non-selectable item has the 'non-selectable' class" );
+		equal(emp1View.$el.parent().attr("class"), "not-selectable", "The non-selectable item has the 'not-selectable' class" );
 
 	} );
 
@@ -1169,15 +1169,13 @@ $(document).ready( function() {
 
 		stop();
 
-		myCollectionView.on( "render", function() {
-
+		myCollectionView.collection.on( "add", function() {
 			start();
 			equal( $( "var.empty-list-caption" ).length, 0, "Empty list caption is not present" );
 
 		} );
 
 		myCollectionView.collection.add( this.emp1 );
-
 	} );
 
 	test( "Rendering as table", 4, function() {
@@ -1199,7 +1197,7 @@ $(document).ready( function() {
 
 		stop();
 
-		myCollectionView.on( "render", function() {
+		myCollectionView.collection.on( "add", function() {
 
 			start();
 			equal( $( "var.empty-list-caption" ).length, 0, "Empty list caption is not present" );

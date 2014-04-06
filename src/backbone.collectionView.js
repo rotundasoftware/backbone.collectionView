@@ -1,14 +1,7 @@
-
 (function() {
 	var mDefaultModelViewConstructor = Backbone.View;
 
 	var kDefaultReferenceBy = "model";
-
-	var kAllowedOptions = [
-		"collection", "modelView", "modelViewOptions", "itemTemplate", "emptyListCaption",
-		"selectable", "clickToSelect", "selectableModelsFilter", "visibleModelsFilter",
-		"selectMultiple", "clickToToggle", "processKeyEvents", "sortable", "sortableOptions", "sortableModelsFilter", "itemTemplateFunction", "detachedRendering"
-	];
 
 	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "sortableModelsFilter", "visibleModelsFilter", "itemTemplateFunction", "detachedRendering", "sortableOptions" ];
 
@@ -37,39 +30,32 @@
 
 		//only used if Backbone.Courier is available
 		passMessages : { "*" : "." },
+		
+		// viewOption definitions with default values.
+		initializationOptions : [ { "collection" : new Backbone.Collection() },
+					  { "modelView" : null },
+					  { "modelViewOptions" : {} },
+					  { "itemTemplate" : null },
+					  { "itemTemplateFunction" : null },
+					  { "selectable" : true },
+					  { "clickToSelect" : true },
+					  { "selectableModelsFilter" : null },
+					  { "visibleModelsFilter" : null },
+					  { "sortableModelsFilter" : null },
+					  { "selectMultiple" : false },
+					  { "clickToToggle" : false },
+					  { "processKeyEvents" : true },
+					  { "sortable" : false },
+					  { "sortableOptions" : null },
+					  { "detachedRendering" : false },
+					  { "emptyListCaption" : null }
+		],
 
 		initialize : function( options ) {
-			var _this = this;
+			Backbone.ViewOptions.add( this, "initializationOptions" ); // setup the ViewOptions functionality.
+			this.setOptions( options ); // and make use of any provided options
 
 			this._hasBeenRendered = false;
-
-			// default options
-			options = _.extend( {}, {
-				collection : null,
-				modelView : this.modelView || null,
-				modelViewOptions : {},
-				itemTemplate : null,
-				itemTemplateFunction : null,
-				selectable : true,
-				clickToSelect : true,
-				selectableModelsFilter : null,
-				visibleModelsFilter : null,
-				sortableModelsFilter : null,
-				selectMultiple : false,
-				clickToToggle : false,
-				processKeyEvents : true,
-				sortable : false,
-				sortableOptions : null,
-				detachedRendering : false,
-				emptyListCaption : null
-			}, options );
-
-			// add each of the white-listed options to the CollectionView object itself
-			_.each( kAllowedOptions, function( option ) {
-				_this[ option ] = options[option];
-			} );
-
-			if( ! this.collection ) this.collection = new Backbone.Collection();
 
 			if( this._isBackboneCourierAvailable() ) {
 				Backbone.Courier.add( this );
@@ -77,6 +63,8 @@
 
 			this.$el.data( "view", this ); // needed for connected sortable lists
 			this.$el.addClass( "collection-list" );
+			if( this.selectable ) this.$el.addClass( "selectable" );
+
 			if( this.processKeyEvents )
 				this.$el.attr( "tabindex", 0 ); // so we get keyboard events
 
@@ -88,67 +76,59 @@
 				this._registerCollectionEvents();
 
 			this.viewManager = new ChildViewContainer();
-
-			//this.listenTo( this.collection, "change", function() { this.render(); this.spawn( "change" ); } ); // don't want changes to models bubbling up and triggering the list's render() function
-
-			// note we do NOT call render here anymore, because if we inherit from this class we will likely call this
-			// function using __super__ before the rest of the initialization logic for the decedent class. however, we may
-			// override the render() function in that decedent class as well, and that will certainly expect all the initialization
-			// to be done already. so we have to make sure to not jump the gun and start rending at this point.
-			// this.render();
 		},
 
-		setOption : function( name, value ) {
-
+		onOptionsChanged : function( changedOptions, originalOptions ) {
+			var rerender = false;
 			var _this = this;
-
-			if( name === "collection" ) {
-				this._setCollection( value );
-			}
-			else {
-				if( _.contains( kAllowedOptions, name ) ) {
-
-					switch( name ) {
-						case "selectMultiple" :
-							this[ name ] = value;
-							if( !value && this.selectedItems.length > 1 )
-								this.setSelectedModel( _.first( this.selectedItems ), { by : "cid" } );
-							break;
-						case "selectable" :
-							if( !value && this.selectedItems.length > 0 )
-								this.setSelectedModels( [] );
-							this[ name ] = value;
-							break;
-						case "selectableModelsFilter" :
-							this[ name ] = value;
-							if( value && _.isFunction( value ) )
-								this._validateSelection();
-							break;
-						case "itemTemplate" :
-							this[ name ] = value;
-							this._updateItemTemplate();
-							break;
-						case "processKeyEvents" :
-							this[ name ] = value;
-							if( value )  this.$el.attr( "tabindex", 0 ); // so we get keyboard events
-							break;
-						case "modelView" :
-							this[ name ] = value;
-							//need to remove all old view instances
-							this.viewManager.each( function( view ) {
-								_this.viewManager.remove( view );
-								// destroy the View itself
-								view.remove();
-							} );
-							break;
-						default :
-							this[ name ] = value;
-					}
-
-					if( _.contains( kOptionsRequiringRerendering, name ) )  this.render();
+			_.each( _.keys( changedOptions ), function( changedOptionKey ) {
+				var newVal = changedOptions[ changedOptionKey ];
+				var oldVal = originalOptions[ changedOptionKey ];
+				switch( changedOptionKey ) {
+					case "collection" :
+						if ( newVal !== oldVal ) {
+							_this.stopListening( oldVal );
+							_this._registerCollectionEvents();
+						}
+						break;
+					case "selectMultiple":
+						if( ! newVal && _this.selectedItems.length > 1 )
+							_this.setSelectedModel( _.first( _this.selectedItems ), { by : "cid" } );
+						break;
+					case "selectable" :
+						if( ! newVal && _this.selectedItems.length > 0 )
+							_this.setSelectedModels( [] );
+						break;
+					case "selectableModelsFilter" :
+						if( newVal && _.isFunction( newVal ) )
+							_this._validateSelection();
+						break;
+					case "itemTemplate" :
+						_this._updateItemTemplate();
+						break;
+					case "processKeyEvents" :
+						if( newVal ) _this.$el.attr( "tabindex", 0 ); // so we get keyboard events
+						break;
+					case "modelView" :
+						//need to remove all old view instances
+						_this.viewManager.each( function( view ) {
+							_this.viewManager.remove( view );
+							// destroy the View itself
+							view.remove();
+						} );
+						break;
 				}
-				else throw name + " is not an allowed option";
+				if( _.contains( kOptionsRequiringRerendering, changedOptionKey ) ) rerender = true;
+			});
+			if( this._hasBeenRendered && rerender ) { 
+				this.render(); // Rerender the view if the rerender flag has been set.
 			}
+		},
+
+		setOption : function( optionName, optionValue ) { // now is mearly a wrapper around backbone.viewOptions' setOptions()
+			var optionHash = {};
+			optionHash[ optionName ] = optionValue;
+			this.setOptions( optionHash );
 		},
 
 		getSelectedModel : function( options ) {
@@ -177,11 +157,7 @@
 				case "offset" :
 					var curLineNumber = 0;
 
-					var itemElements;
-					if( this._isRenderedAsTable() )
-						itemElements = this.$el.find( "> tbody > [data-model-cid]:not(.not-visible)" );
-					else if( this._isRenderedAsList() )
-						itemElements = this.$el.find( "> [data-model-cid]:not(.not-visible)" );
+					var itemElements = this._getVisibleItemEls();
 
 					itemElements.each( function() {
 						var thisItemEl = $( this );
@@ -207,8 +183,8 @@
 		},
 
 		setSelectedModels : function( newSelectedItems, options ) {
-			if( ! this.selectable ) return; // used to throw error, but there are some circumstances in which a list can be selectable at times and not at others, don't want to have to worry about catching errors
 			if( ! _.isArray( newSelectedItems ) ) throw "Invalid parameter value";
+			if( ! this.selectable && newSelectedItems.length > 0 ) return; // used to throw error, but there are some circumstances in which a list can be selectable at times and not at others, don't want to have to worry about catching errors
 
 			options = _.extend( {}, {
 				silent : false,
@@ -239,12 +215,7 @@
 					var curLineNumber = 0;
 					var selectedItems = [];
 
-					var itemElements;
-					if( this._isRenderedAsTable() )
-						itemElements = this.$el.find( "> tbody > [data-model-cid]:not(.not-visible)" );
-					else if( this._isRenderedAsList() )
-						itemElements = this.$el.find( "> [data-model-cid]:not(.not-visible)" );
-
+					var itemElements = this._getVisibleItemEls();
 					itemElements.each( function() {
 						var thisItemEl = $( this );
 						if( _.contains( newSelectedItems, curLineNumber ) )
@@ -299,14 +270,7 @@
 
 			// If collection view element is a table and it has a tbody
 			// within it, render the model views inside of the tbody
-			if( this._isRenderedAsTable() ) {
-				var tbodyChild = this.$el.find( "> tbody" );
-				if( tbodyChild.length > 0 )
-					modelViewContainerEl = tbodyChild;
-			}
-
-			if( _.isUndefined( modelViewContainerEl ) )
-				modelViewContainerEl = this.$el;
+			modelViewContainerEl = this._getContainerEl();
 
 			var oldViewManager = this.viewManager;
 			this.viewManager = new ChildViewContainer();
@@ -326,53 +290,19 @@
 
 			modelViewContainerEl.empty();
 			var fragmentContainer;
-			
+
 			if( this.detachedRendering )
 				fragmentContainer = document.createDocumentFragment();
 
 			this.collection.each( function( thisModel ) {
-				var thisModelView;
-
-				thisModelView = oldViewManager.findByModelCid( thisModel.cid );
+				var thisModelView = oldViewManager.findByModelCid( thisModel.cid );
 				if( _.isUndefined( thisModelView ) ) {
-					// if the model view was not already created on previous render,
-					// then create and initialize it now.
-
-					var modelViewOptions = this._getModelViewOptions( thisModel );
-					thisModelView = this._createNewModelView( thisModel, modelViewOptions );
-
-					thisModelView.collectionListView = _this;
+					// if the model view has not already been created on a
+					// previous render then create and initialize it now.
+					thisModelView = this._createNewModelView( thisModel, this._getModelViewOptions( thisModel ) );
 				}
 
-				var thisModelViewWrapped = this._wrapModelView( thisModelView );
-				if( this.detachedRendering )
-					fragmentContainer.appendChild( thisModelViewWrapped[0] );
-				else
-					modelViewContainerEl.append( thisModelViewWrapped );
-
-				// we have to render the modelView after it has been put in context, as opposed to in the 
-				// initialize function of the modelView, because some rendering might be dependent on
-				// the modelView's context in the DOM tree. For example, if the modelView stretch()'s itself,
-				// it must be in full context in the DOM tree or else the stretch will not behave as intended.
-				var renderResult = thisModelView.render();
-
-				// return false from the view's render function to hide this item
-				if( renderResult === false ) {
-					thisModelViewWrapped.hide();
-					thisModelViewWrapped.addClass( "not-visible" );
-				}
-
-				if( _.isFunction( this.visibleModelsFilter ) ) {
-					if( ! this.visibleModelsFilter( thisModel ) ) {
-						if( thisModelViewWrapped.children().length === 1 )
-							thisModelViewWrapped.hide();
-						else thisModelView.$el.hide();
-
-						thisModelViewWrapped.addClass( "not-visible" );
-					}
-				}
-
-				this.viewManager.add( thisModelView );
+				this._insertAndRenderModelView( thisModelView, fragmentContainer || modelViewContainerEl );
 			}, this );
 
 			if( this.detachedRendering )
@@ -401,12 +331,26 @@
 				this.$el = this.$el.sortable( sortableOptions );
 			}
 
-			if( this.emptyListCaption ) {
-				var visibleView = this.viewManager.find( function( view ) {
-					return ! view.$el.hasClass( "not-visible" );
-				} );
+			this._showEmptyListCaptionIfAppropriate();
 
-				if( _.isUndefined( visibleView ) ) {
+			this.trigger( "render" );
+			if( this._isBackboneCourierAvailable() )
+				this.spawn( "render" );
+
+			if( this.selectable ) {
+				this._restoreSelection();
+				this.updateDependentControls();
+			}
+
+			if( _.isFunction( this.onAfterRender ) )
+				this.onAfterRender();
+		},
+
+		_showEmptyListCaptionIfAppropriate : function ( ) {
+			if( this.emptyListCaption ) {
+				var visibleEls = this._getVisibleItemEls();
+
+				if( visibleEls.length === 0 ) {
 					var emptyListString;
 
 					if( _.isFunction( this.emptyListCaption ) )
@@ -422,23 +366,58 @@
 						$emptyListCaptionEl = $varEl.wrapAll( "<li class='not-sortable'></li>" ).parent().css( kStylesForEmptyListCaption );
 					else
 						$emptyListCaptionEl = $varEl.wrapAll( "<tr class='not-sortable'><td></td></tr>" ).parent().parent().css( kStylesForEmptyListCaption );
+					
+					this._getContainerEl().append( $emptyListCaptionEl );
+				}
+			}
+		},
 
-					this.$el.append( $emptyListCaptionEl );
+		_removeEmptyListCaption : function( ) {
+			if( this._isRenderedAsList() )
+				this._getContainerEl().find( "> li > var.empty-list-caption" ).parent().remove();
+			else
+				this._getContainerEl().find( "> tr > td > var.empty-list-caption" ).parent().parent().remove();
+		},
 
+		// Render a single model view in container object "parentElOrDocumentFragment", which is either 
+		// a documentFragment or a jquery object. optional arg atIndex is not support for document fragments.
+		_insertAndRenderModelView : function( modelView, parentElOrDocumentFragment, atIndex ) {
+			var thisModelViewWrapped = this._wrapModelView( modelView );
+
+			if( parentElOrDocumentFragment.nodeType === 11 ) // if we are inserting into a document fragment, we need to use the DOM appendChild method
+				parentElOrDocumentFragment.appendChild( thisModelViewWrapped.get( 0 ) );
+			else if( ! _.isUndefined( atIndex ) && atIndex > 0 && atIndex < this.collection.length - 1 )
+				parentElOrDocumentFragment.children().eq( atIndex ).before( thisModelViewWrapped );
+			else
+				parentElOrDocumentFragment.append( thisModelViewWrapped );
+
+			// we have to render the modelView after it has been put in context, as opposed to in the
+			// initialize function of the modelView, because some rendering might be dependent on
+			// the modelView's context in the DOM tree. For example, if the modelView stretch()'s itself,
+			// it must be in full context in the DOM tree or else the stretch will not behave as intended.
+			var renderResult = modelView.render();
+
+			// return false from the view's render function to hide this item
+			if( renderResult === false ) {
+				thisModelViewWrapped.hide();
+				thisModelViewWrapped.addClass( "not-visible" );
+			}
+			
+			var hideThisModelView = false;
+			if( _.isFunction( this.visibleModelsFilter ) ) {
+				hideThisModelView = ! this.visibleModelsFilter( modelView.model );
+				if( hideThisModelView ) {
+					if( thisModelViewWrapped.children().length === 1 )
+						thisModelViewWrapped.hide();
+					else modelView.$el.hide();
+
+					thisModelViewWrapped.addClass( "not-visible" );
 				}
 			}
 
-			this.trigger( "render" );
-			if( this._isBackboneCourierAvailable() )
-				this.spawn( "render" );
+			if( ! hideThisModelView && this.emptyListCaption ) this._removeEmptyListCaption();
 
-			if( this.selectable ) {
-				this._restoreSelection();
-				this.updateDependentControls();
-			}
-
-			if( _.isFunction( this.onAfterRender ) )
-				this.onAfterRender();
+			this.viewManager.add( modelView );
 		},
 
 		updateDependentControls : function() {
@@ -459,20 +438,42 @@
 			Backbone.View.prototype.remove.apply( this, arguments );
 		},
 
+		// A method to remove the view relating to model.
+		_removeModelView : function( model ) {
+			var viewManager = this.viewManager;
+			var view = viewManager.findByModelCid( model.cid );
+
+			if ( this.selectable ) this._saveSelection();
+
+			viewManager.remove( view ); // Remove the view from the viewManager
+			view.remove(); // Remove the view from the DOM
+			this._getContainerEl().children( "[data-model-cid=" + model.cid + "]" ).remove(); // Remove the wrapper from the DOM
+
+			if ( this.selectable ) this._restoreSelection();
+
+			this._showEmptyListCaptionIfAppropriate();
+		},
+
 		_validateSelectionAndRender : function() {
 			this._validateSelection();
 			this.render();
 		},
 
 		_registerCollectionEvents : function() {
-			this.listenTo( this.collection, "add", function() {
-				if( this._hasBeenRendered ) this.render();
+			this.listenTo( this.collection, "add", function( model ) {
+				if( this._hasBeenRendered ) {
+					var modelView = this._createNewModelView( model, this._getModelViewOptions( model ) );
+					this._insertAndRenderModelView( modelView, this._getContainerEl(), this.collection.indexOf( model ) );
+				}
+
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "add" );
 			} );
 
-			this.listenTo( this.collection, "remove", function() {
-				if( this._hasBeenRendered ) this.render();
+			this.listenTo( this.collection, "remove", function( model ) {
+				if( this._hasBeenRendered )
+					this._removeModelView( model );
+
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "remove" );
 			} );
@@ -483,18 +484,31 @@
 					this.spawn( "reset" );
 			} );
 
-			// It should be up to the model to rerender itself when it changes.
+			// we should not be listening to change events on the model as a default behavior. the models
+			// should be responsible for re-rendering themselves if necessary, and if the collection does
+			// also need to re-render as a result of a model change, this should be handled by overriding
+			// this method. by default the collection view should not re-render in response to model changes
 			// this.listenTo( this.collection, "change", function( model ) {
 			// 	if( this._hasBeenRendered ) this.viewManager.findByModel( model ).render();
 			// 	if( this._isBackboneCourierAvailable() )
 			// 		this.spawn( "change", { model : model } );
 			// } );
 
-			this.listenTo( this.collection, "sort", function() {
-				if( this._hasBeenRendered ) this.render();
+			this.listenTo( this.collection, "sort", function( collection, options ) {
+				if( this._hasBeenRendered && options.add !== true ) this.render();
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "sort" );
 			} );
+		},
+
+		_getContainerEl : function() {
+			if ( this._isRenderedAsTable() ) {
+				// not all tables have a tbody, so we test
+				var tbody = this.$el.find( "> tbody" );
+				if ( tbody.length > 0 )
+					return tbody;
+			}
+			return this.$el;
 		},
 
 		_getClickedItemId : function( theEvent ) {
@@ -519,17 +533,6 @@
 			return clickedItemId;
 		},
 
-		_setCollection : function( newCollection ) {
-			if( newCollection !== this.collection )
-			{
-				this.stopListening( this.collection );
-				this.collection = newCollection;
-				this._registerCollectionEvents();
-			}
-
-			if( this._hasBeenRendered ) this.render();
-		},
-
 		_updateItemTemplate : function() {
 			var itemTemplateHtml;
 			if( this.itemTemplate )
@@ -547,7 +550,7 @@
 		},
 
 		_validateSelection : function() {
-			// note can't use the collection's proxy to underscore because "cid" ais not an attribute,
+			// note can't use the collection's proxy to underscore because "cid" is not an attribute,
 			// but an element of the model object itself.
 			var modelReferenceIds = _.pluck( this.collection.models, "cid" );
 			this.selectedItems = _.intersection( modelReferenceIds, this.selectedItems );
@@ -564,7 +567,7 @@
 			// save the current selection. use restoreSelection() to restore the selection to the state it was in the last time saveSelection() was called.
 			if( ! this.selectable ) throw "Attempt to save selection on non-selectable list";
 			this.savedSelection = {
-				items : this.selectedItems,
+				items : _.clone( this.selectedItems ),
 				offset : this.getSelectedModel( { by : "offset" } )
 			};
 		},
@@ -615,21 +618,21 @@
 			itemsIdsFromWhichSelectedClassNeedsToBeRemoved = _.without( itemsIdsFromWhichSelectedClassNeedsToBeRemoved, this.selectedItems );
 
 			_.each( itemsIdsFromWhichSelectedClassNeedsToBeRemoved, function( thisItemId ) {
-				this.$el.find( "[data-model-cid=" + thisItemId + "]" ).removeClass( "selected" );
+				this._getContainerEl().find( "[data-model-cid=" + thisItemId + "]" ).removeClass( "selected" );
 			}, this );
 
 			var itemsIdsFromWhichSelectedClassNeedsToBeAdded = this.selectedItems;
 			itemsIdsFromWhichSelectedClassNeedsToBeAdded = _.without( itemsIdsFromWhichSelectedClassNeedsToBeAdded, oldItemsIdsWithSelectedClass );
 
 			_.each( itemsIdsFromWhichSelectedClassNeedsToBeAdded, function( thisItemId ) {
-				this.$el.find( "[data-model-cid=" + thisItemId + "]" ).addClass( "selected" );
+				this._getContainerEl().find( "[data-model-cid=" + thisItemId + "]" ).addClass( "selected" );
 			}, this );
 		},
 
 		_reorderCollectionBasedOnHTML : function() {
 			var _this = this;
 
-			this.$el.children().each( function() {
+			this._getContainerEl().children().each( function() {
 				var thisModelCid = $( this ).attr( "data-model-cid" );
 
 				if( thisModelCid )
@@ -665,7 +668,10 @@
 			var modelViewConstructor = this._getModelViewConstructor( model );
 			if( _.isUndefined( modelViewConstructor ) ) throw "Could not find modelView constructor for model";
 
-			return new ( modelViewConstructor )( modelViewOptions );
+			var newModelView = new( modelViewConstructor )( modelViewOptions );
+			newModelView.collectionListView = this;
+
+			return newModelView;
 		},
 
 		_wrapModelView : function( modelView ) {
@@ -715,12 +721,23 @@
 		},
 
 		_isRenderedAsTable : function() {
-			return this.$el.prop('tagName').toLowerCase() === 'table';
+			return this.$el.prop( "tagName" ).toLowerCase() === "table";
 		},
-
 
 		_isRenderedAsList : function() {
 			return ! this._isRenderedAsTable();
+		},
+
+		// Returns the wrapper HTML element for each visible modelView.
+		// When rendering in a table context, the returned elements are the $el of each modelView.
+		// When rendering in a list context,
+		//   If the $el of the modelView is an <li>, the returned elements are the $el of each modelView.
+		//   Otherwise, the returned elements are the <li>'s the collectionView wrapped around each modelView $el.
+		_getVisibleItemEls : function() {
+			var itemElements = [];
+			itemElements = this._getContainerEl().find( "> [data-model-cid]:not(.not-visible)" );
+
+			return itemElements;
 		},
 
 		_charCodes : {
@@ -748,7 +765,7 @@
 
 		_sortStop : function( event, ui ) {
 			var modelBeingSorted = this.collection.get( ui.item.attr( "data-model-cid" ) );
-			var modelViewContainerEl = (this._isRenderedAsTable()) ? this.$el.find( "> tbody" ) : this.$el;
+			var modelViewContainerEl = this._getContainerEl();
 			var newIndex = modelViewContainerEl.children().index( ui.item );
 
 			if( newIndex == -1 ) {
@@ -769,8 +786,9 @@
 			var senderCollectionListView = senderListEl.data( "view" );
 			if( ! senderCollectionListView || ! senderCollectionListView.collection ) return;
 
-			var newIndex = this.$el.children().index( ui.item );
+			var newIndex = this._getContainerEl().children().index( ui.item );
 			var modelReceived = senderCollectionListView.collection.get( ui.item.attr( "data-model-cid" ) );
+			senderCollectionListView.collection.remove( modelReceived );
 			this.collection.add( modelReceived, { at : newIndex } );
 			modelReceived.collection = this.collection; // otherwise will not get properly set, since modelReceived.collection might already have a value.
 			this.setSelectedModel( modelReceived );
@@ -779,7 +797,7 @@
 		_over : function( event, ui ) {
 			// when an item is being dragged into the sortable,
 			// hide the empty list caption if it exists
-			this.$el.find( ".empty-list-caption" ).hide();
+			this._getContainerEl().find( "> var.empty-list-caption" ).hide();
 		},
 
 		_onKeydown : function( event ) {
@@ -904,6 +922,134 @@
 		}
 	});
 
+	// Backbone.ViewOptions
+	// --------------------
+	// v0.2.0
+	//
+	// Copyright (c)2014 Rotunda Software
+	//
+	// https://github.com/rotundasoftware/backbone.viewOptions
+
+	// Backbone.ViewOptions
+	// --------------------
+	//
+	// An plugin to declare and get/set options on views.
+
+	/*
+	 * Backbone.ViewOptions, v0.2
+	 * Copyright (c)2014 Rotunda Software, LLC.
+	 * Distributed under MIT license
+	 * http://github.com/rotundasoftware/backbone.viewOptions
+	 */
+
+	Backbone.ViewOptions = {};
+		
+	Backbone.ViewOptions.add = function( view, optionsDeclarationsProperty ) {
+		if( _.isUndefined( optionsDeclarationsProperty ) ) optionsDeclarationsProperty = "options";
+		
+		// ****************** Public methods added to view ****************** 
+		
+		view.setOptions = function( options ) {
+			var _this = this;
+			var optionsThatWereChanged = {};
+			var optionsThatWereChangedOriginalValues = {};
+
+			var optionDeclarations = _.result( this, optionsDeclarationsProperty );
+
+			if( ! _.isUndefined( optionDeclarations ) ) {
+				var normalizedOptionDeclarations = _normalizeOptionDeclarations( optionDeclarations );
+
+				_.each( normalizedOptionDeclarations, function( thisOptionDeclaration ) {
+					thisOptionName = thisOptionDeclaration.name;
+					thisOptionRequired = thisOptionDeclaration.required;
+					thisOptionDefaultValue = thisOptionDeclaration.defaultValue;
+					
+					if( thisOptionRequired ) {
+						// note we do not throw an error if a required option is not supplied, but it is  
+						// found on the object itself (due to a prior call of view.setOptions, most likely)
+						if( ! options ||
+						    ( ( ! _.contains( _.keys( options ), thisOptionName ) && _.isUndefined( _this[ thisOptionName ] ) ) ) ||
+						    _.isUndefined( options[ thisOptionName ] ) )
+							throw new Error( "Required option \"" + thisOptionName + "\" was not supplied." );
+					}
+
+					// attach the supplied value of this option, or the appropriate default value, to the view object
+					if( options && thisOptionName in options ) {
+						// if this option already exists on the view, make a note that we will be changing it
+						if( ! _.isUndefined( _this[ thisOptionName ] ) ) {
+							optionsThatWereChangedOriginalValues[ thisOptionName ] = _this[ thisOptionName ];
+							optionsThatWereChanged[ thisOptionName ] = options[ thisOptionName ];
+						}
+						_this[ thisOptionName ] = options[ thisOptionName ];
+						// note we do NOT delete the option off the options object here so that
+						// multiple views can be passed the same options object without issue.
+					}
+					else if( ! _.isUndefined( thisOptionDefaultValue ) && _.isUndefined( _this[ thisOptionName ] ) ) {
+						// note defaults do not write over any existing properties on the view itself.
+						_this[ thisOptionName ] = thisOptionDefaultValue;
+					}
+				} );
+			}
+
+			if( _.keys( optionsThatWereChanged ).length > 0 ) {
+				if( _.isFunction( _this.onOptionsChanged ) )
+					_this.onOptionsChanged( optionsThatWereChanged, optionsThatWereChangedOriginalValues );
+				else if( _.isFunction( _this._onOptionsChanged ) )
+					_this._onOptionsChanged( optionsThatWereChanged, optionsThatWereChangedOriginalValues );
+			}
+		};
+
+		view.getOptions = function() {
+			var optionDeclarations = _.result( this, optionsDeclarationsProperty );
+			if( _.isUndefined( optionDeclarations ) ) return [];
+
+			var normalizedOptionDeclarations = _normalizeOptionDeclarations( optionDeclarations );
+			var optionsNames = _.pluck( normalizedOptionDeclarations, "name" );
+				
+			return _.pick( this, optionsNames );
+		};
+	};
+	
+	// ****************** Private Utility Functions ****************** 
+
+	function _normalizeOptionDeclarations( optionDeclarations ) {
+		// convert our short-hand option syntax (with exclamation marks, etc.)
+		// to a simple array of standard option declaration objects.
+		var normalizedOptionDeclarations = [];
+
+		if( ! _.isArray( optionDeclarations ) )  {
+			throw new Error( "Option declarations must be an array." );
+		}
+
+		_.each( optionDeclarations, function( thisOptionDeclaration ) {
+			var thisOptionName, thisOptionRequired, thisOptionDefaultValue;
+
+			thisOptionRequired = false;
+			thisOptionDefaultValue = undefined;
+
+			if( _.isString( thisOptionDeclaration ) )
+				thisOptionName = thisOptionDeclaration;
+			else if( _.isObject( thisOptionDeclaration ) ) {
+				thisOptionName = _.first( _.keys( thisOptionDeclaration ) );
+				thisOptionDefaultValue = _.clone( thisOptionDeclaration[ thisOptionName ] );
+			}
+			else throw new Error( "Each element in the option declarations array must be either a string or an object." );
+
+			if( thisOptionName[ thisOptionName.length - 1 ] === "!" ) {
+				thisOptionRequired = true;
+				thisOptionName = thisOptionName.slice( 0, thisOptionName.length - 1 );
+			}
+
+			normalizedOptionDeclarations.push( {
+				name : thisOptionName,
+				required : thisOptionRequired,
+				defaultValue : thisOptionDefaultValue
+			} );
+		} );
+
+		return normalizedOptionDeclarations;
+	};
+
 
 	// Backbone.BabySitter
 	// -------------------
@@ -921,145 +1067,155 @@
 	// shut down child views.
 
 	ChildViewContainer = (function(Backbone, _){
-	  
-	  // Container Constructor
-	  // ---------------------
 
-	  var Container = function(views){
-	    this._views = {};
-	    this._indexByModel = {};
-	    this._indexByCustom = {};
-	    this._updateLength();
+		// Container Constructor
+		// ---------------------
 
-	    _.each(views, this.add, this);
-	  };
+		var Container = function(views){
+			this._views = {};
+			this._indexByModel = {};
+			this._indexByCustom = {};
+			this._updateLength();
 
-	  // Container Methods
-	  // -----------------
+			_.each(views, this.add, this);
+		};
 
-	  _.extend(Container.prototype, {
+		// Container Methods
+		// -----------------
 
-	    // Add a view to this container. Stores the view
-	    // by `cid` and makes it searchable by the model
-	    // cid (and model itself). Optionally specify
-	    // a custom key to store an retrieve the view.
-	    add: function(view, customIndex){
-	      var viewCid = view.cid;
+		_.extend(Container.prototype, {
 
-	      // store the view
-	      this._views[viewCid] = view;
+			// Add a view to this container. Stores the view
+			// by `cid` and makes it searchable by the model
+			// cid (and model itself). Optionally specify
+			// a custom key to store an retrieve the view.
+			add: function(view, customIndex){
+				var viewCid = view.cid;
 
-	      // index it by model
-	      if (view.model){
-	        this._indexByModel[view.model.cid] = viewCid;
-	      }
+				// store the view
+				this._views[viewCid] = view;
 
-	      // index by custom
-	      if (customIndex){
-	        this._indexByCustom[customIndex] = viewCid;
-	      }
+				// index it by model
+				if (view.model){
+					this._indexByModel[view.model.cid] = viewCid;
+				}
 
-	      this._updateLength();
-	    },
+				// index by custom
+				if (customIndex){
+					this._indexByCustom[customIndex] = viewCid;
+				}
 
-	    // Find a view by the model that was attached to
-	    // it. Uses the model's `cid` to find it.
-	    findByModel: function(model){
-	      return this.findByModelCid(model.cid);
-	    },
+				this._updateLength();
+			},
 
-	    // Find a view by the `cid` of the model that was attached to
-	    // it. Uses the model's `cid` to find the view `cid` and
-	    // retrieve the view using it.
-	    findByModelCid: function(modelCid){
-	      var viewCid = this._indexByModel[modelCid];
-	      return this.findByCid(viewCid);
-	    },
+			// Find a view by the model that was attached to
+			// it. Uses the model's `cid` to find it.
+			findByModel: function(model){
+				return this.findByModelCid(model.cid);
+			},
 
-	    // Find a view by a custom indexer.
-	    findByCustom: function(index){
-	      var viewCid = this._indexByCustom[index];
-	      return this.findByCid(viewCid);
-	    },
+			// Find a view by the `cid` of the model that was attached to
+			// it. Uses the model's `cid` to find the view `cid` and
+			// retrieve the view using it.
+			findByModelCid: function(modelCid){
+				var viewCid = this._indexByModel[modelCid];
+				return this.findByCid(viewCid);
+			},
 
-	    // Find by index. This is not guaranteed to be a
-	    // stable index.
-	    findByIndex: function(index){
-	      return _.values(this._views)[index];
-	    },
+			// Find a view by a custom indexer.
+			findByCustom: function(index){
+				var viewCid = this._indexByCustom[index];
+				return this.findByCid(viewCid);
+			},
 
-	    // retrieve a view by it's `cid` directly
-	    findByCid: function(cid){
-	      return this._views[cid];
-	    },
+			// Find by index. This is not guaranteed to be a
+			// stable index.
+			findByIndex: function(index){
+				return _.values(this._views)[index];
+			},
 
-	    // Remove a view
-	    remove: function(view){
-	      var viewCid = view.cid;
+			// retrieve a view by it's `cid` directly
+			findByCid: function(cid){
+				return this._views[cid];
+			},
 
-	      // delete model index
-	      if (view.model){
-	        delete this._indexByModel[view.model.cid];
-	      }
+			findIndexByCid : function( cid ) {
+				var index = -1;
+				var view = _.find( this._views, function ( view ) {
+					index++;
+					if( view.model.cid == cid )
+						return view;
+				} );
+				return ( view ) ? index : -1;
+			},
 
-	      // delete custom index
-	      _.any(this._indexByCustom, function(cid, key) {
-	        if (cid === viewCid) {
-	          delete this._indexByCustom[key];
-	          return true;
-	        }
-	      }, this);
+			// Remove a view
+			remove: function(view){
+				var viewCid = view.cid;
 
-	      // remove the view from the container
-	      delete this._views[viewCid];
+				// delete model index
+				if (view.model){
+					delete this._indexByModel[view.model.cid];
+				}
 
-	      // update the length
-	      this._updateLength();
-	    },
+				// delete custom index
+				_.any(this._indexByCustom, function(cid, key) {
+					if (cid === viewCid) {
+						delete this._indexByCustom[key];
+						return true;
+					}
+				}, this);
 
-	    // Call a method on every view in the container,
-	    // passing parameters to the call method one at a
-	    // time, like `function.call`.
-	    call: function(method){
-	      this.apply(method, _.tail(arguments));
-	    },
+				// remove the view from the container
+				delete this._views[viewCid];
 
-	    // Apply a method on every view in the container,
-	    // passing parameters to the call method one at a
-	    // time, like `function.apply`.
-	    apply: function(method, args){
-	      _.each(this._views, function(view){
-	        if (_.isFunction(view[method])){
-	          view[method].apply(view, args || []);
-	        }
-	      });
-	    },
+				// update the length
+				this._updateLength();
+			},
 
-	    // Update the `.length` attribute on this container
-	    _updateLength: function(){
-	      this.length = _.size(this._views);
-	    }
-	  });
+			// Call a method on every view in the container,
+			// passing parameters to the call method one at a
+			// time, like `function.call`.
+			call: function(method){
+				this.apply(method, _.tail(arguments));
+			},
 
-	  // Borrowing this code from Backbone.Collection:
-	  // http://backbonejs.org/docs/backbone.html#section-106
-	  //
-	  // Mix in methods from Underscore, for iteration, and other
-	  // collection related features.
-	  var methods = ['forEach', 'each', 'map', 'find', 'detect', 'filter', 
-	    'select', 'reject', 'every', 'all', 'some', 'any', 'include', 
-	    'contains', 'invoke', 'toArray', 'first', 'initial', 'rest', 
-	    'last', 'without', 'isEmpty', 'pluck'];
+			// Apply a method on every view in the container,
+			// passing parameters to the call method one at a
+			// time, like `function.apply`.
+			apply: function(method, args){
+				_.each(this._views, function(view){
+					if (_.isFunction(view[method])){
+						view[method].apply(view, args || []);
+					}
+				});
+			},
 
-	  _.each(methods, function(method) {
-	    Container.prototype[method] = function() {
-	      var views = _.values(this._views);
-	      var args = [views].concat(_.toArray(arguments));
-	      return _[method].apply(_, args);
-	    };
-	  });
+			// Update the `.length` attribute on this container
+			_updateLength: function(){
+				this.length = _.size(this._views);
+			}
+		});
 
-	  // return the public API
-	  return Container;
+		// Borrowing this code from Backbone.Collection:
+		// http://backbonejs.org/docs/backbone.html#section-106
+		//
+		// Mix in methods from Underscore, for iteration, and other
+		// collection related features.
+		var methods = ['forEach', 'each', 'map', 'find', 'detect', 'filter',
+			       'select', 'reject', 'every', 'all', 'some', 'any', 'include',
+			       'contains', 'invoke', 'toArray', 'first', 'initial', 'rest',
+			       'last', 'without', 'isEmpty', 'pluck'];
+
+		_.each(methods, function(method) {
+			Container.prototype[method] = function() {
+				var views = _.values(this._views);
+				var args = [views].concat(_.toArray(arguments));
+				return _[method].apply(_, args);
+			};
+		});
+
+		// return the public API
+		return Container;
 	})(Backbone, _);
 })();

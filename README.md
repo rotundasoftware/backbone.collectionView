@@ -139,6 +139,10 @@ var.empty-list-caption {
 
 See the [the Backbone.CollectionView home page](http://rotundasoftware.github.com/backbone.collectionView/) for styling examples.
 
+## Contributing
+
+See the [the Backbone.CollectionView home page](http://rotundasoftware.github.com/backbone.collectionView/) for styling examples.
+
 ##Dependencies
 * Backbone.js (tested with v1.0, v0.9.10)
 * jQuery (tested with v1.9.1)
