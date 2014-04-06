@@ -1,7 +1,7 @@
 {
 	"name": "bb-collection-view",
 	"version": "0.9.0",
-	"description": "A backbone view class that renders a collection of models. This class is similar to the collection view classes found in [Backbone.Marionette](https://github.com/marionettejs/backbone.marionette) and other frameworks, with added features for automatic selection of models in response to clicks, and support for rearranging models (and reordering the underlying collection) through drag and drop.",
+	"description": "Easily render backbone.js collections with support for automatic selection of models in response to clicks, reordering models via drag and drop, and more.",
 	"main": "dist/backbone.collectionView.js",
 	"devDependencies": {
 		"grunt": "~0.4.1",
