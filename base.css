@@ -1,0 +1,16 @@
+ul.collection-list {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+	outline: none;
+	cursor: pointer;
+}
+
+var.empty-list-caption {
+	color: #A0A0A0;
+	padding: 30px;
+	display: block;
+	text-align: center;
+	font-style: normal;
+	line-height: 1.45;
+}
