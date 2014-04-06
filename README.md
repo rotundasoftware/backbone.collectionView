@@ -108,7 +108,7 @@ In addition, sortable CollectionViews fire these events:
 
 How you style the collection view is up to you.
 
-The `ul` or `table` element that is used as the collection view's element will be given the `collection-list` class. Generally you will want to eliminate bullets, etc., from your collection view list elements, which you can do with these "baseline" styles:
+The `ul` or `table` element that is used as the collection view's element will be given the `collection-list` class. Generally you will want to eliminate bullets, etc., from your collection view list elements, which you can do with these "base" styles:
 
 ```css
 ul.collection-list {
@@ -134,6 +134,8 @@ var.empty-list-caption {
   line-height: 1.45;
 }
 ```
+
+(Both of the above css fragments are included in `base.css`, which will be included automatically in your css bundles if you are using [parcelify](https://github.com/rotundasoftware/parcelify) or [cartero](https://github.com/rotundasoftware/cartero/).)
 
 See the [the Backbone.CollectionView home page](http://rotundasoftware.github.com/backbone.collectionView/) for styling examples.
 
