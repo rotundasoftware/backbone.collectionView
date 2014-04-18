@@ -1,5 +1,9 @@
 # Change log
 
+### v0.9.2
+
+* Added UMD wrapper.
+
 ### v0.9.0
 
 * No longer re-render upon add() and remove() events in the collection.
