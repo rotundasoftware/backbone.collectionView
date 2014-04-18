@@ -1,4 +1,17 @@
-(function() {
+( function( root, factory ) {
+	// UMD wrapper
+	if ( typeof define === 'function' && define.amd ) {
+		// AMD
+		define( [ 'underscore', 'backbone', 'jquery' ], factory );
+	} else if ( typeof exports !== 'undefined' ) {
+		// Node/CommonJS
+		module.exports = factory( require('underscore' ), require( 'backbone' ), require( 'backbone' ).$ );
+	} else {
+		// Browser globals
+		factory( root._, root.Backbone, ( root.jQuery || root.Zepto || root.$ ) );
+	}
+
+}( this, function( _, Backbone, $ ) {
 	var mDefaultModelViewConstructor = Backbone.View;
 
 	var kDefaultReferenceBy = "model";
@@ -32,23 +45,24 @@
 		passMessages : { "*" : "." },
 		
 		// viewOption definitions with default values.
-		initializationOptions : [ { "collection" : new Backbone.Collection() },
-					  { "modelView" : null },
-					  { "modelViewOptions" : {} },
-					  { "itemTemplate" : null },
-					  { "itemTemplateFunction" : null },
-					  { "selectable" : true },
-					  { "clickToSelect" : true },
-					  { "selectableModelsFilter" : null },
-					  { "visibleModelsFilter" : null },
-					  { "sortableModelsFilter" : null },
-					  { "selectMultiple" : false },
-					  { "clickToToggle" : false },
-					  { "processKeyEvents" : true },
-					  { "sortable" : false },
-					  { "sortableOptions" : null },
-					  { "detachedRendering" : false },
-					  { "emptyListCaption" : null }
+		initializationOptions : [
+			{ "collection" : new Backbone.Collection() },
+			{ "modelView" : null },
+			{ "modelViewOptions" : {} },
+			{ "itemTemplate" : null },
+			{ "itemTemplateFunction" : null },
+			{ "selectable" : true },
+			{ "clickToSelect" : true },
+			{ "selectableModelsFilter" : null },
+			{ "visibleModelsFilter" : null },
+			{ "sortableModelsFilter" : null },
+			{ "selectMultiple" : false },
+			{ "clickToToggle" : false },
+			{ "processKeyEvents" : true },
+			{ "sortable" : false },
+			{ "sortableOptions" : null },
+			{ "detachedRendering" : false },
+			{ "emptyListCaption" : null }
 		],
 
 		initialize : function( options ) {
@@ -1218,4 +1232,4 @@
 		// return the public API
 		return Container;
 	})(Backbone, _);
-})();
+} ) );
