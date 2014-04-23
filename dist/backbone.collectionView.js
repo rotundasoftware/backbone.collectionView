@@ -1,5 +1,5 @@
 /*!
-* Backbone.CollectionView, v0.9.1
+* Backbone.CollectionView, v0.9.2
 * Copyright (c)2013 Rotunda Software, LLC.
 * Distributed under MIT license
 * http://github.com/rotundasoftware/backbone-collection-view
@@ -17,7 +17,6 @@
 		// Browser globals
 		factory( root._, root.Backbone, ( root.jQuery || root.Zepto || root.$ ) );
 	}
-
 }( this, function( _, Backbone, $ ) {
 	var mDefaultModelViewConstructor = Backbone.View;
 
@@ -1239,4 +1238,6 @@
 		// return the public API
 		return Container;
 	})(Backbone, _);
+
+	return Backbone.CollectionView;
 } ) );
