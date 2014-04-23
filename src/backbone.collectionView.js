@@ -10,7 +10,6 @@
 		// Browser globals
 		factory( root._, root.Backbone, ( root.jQuery || root.Zepto || root.$ ) );
 	}
-
 }( this, function( _, Backbone, $ ) {
 	var mDefaultModelViewConstructor = Backbone.View;
 
@@ -1232,4 +1231,6 @@
 		// return the public API
 		return Container;
 	})(Backbone, _);
+
+	return Backbone.CollectionView;
 } ) );
