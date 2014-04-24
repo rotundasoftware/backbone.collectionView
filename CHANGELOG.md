@@ -1,6 +1,6 @@
 # Change log
 
-### v0.9.1
+### v0.9.3
 
 * Fixed UMD wrapper.
 
