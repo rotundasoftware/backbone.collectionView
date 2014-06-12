@@ -114,6 +114,24 @@ $(document).ready( function() {
 		ok( myCollectionView.$el.html().indexOf( "Sherlock Holmes" ) !== -1, "Rendered table contains 'Sherlock Holmes'");
 	} );
 
+	test( "Setting multiple models to empty collection renders new rows", 3, function() {
+
+		var emptyCollection = new Backbone.Collection();
+		var myCollectionView = new Backbone.CollectionView( {
+			el : this.$collectionViewForTableEl,
+			collection : emptyCollection,
+			modelView : this.EmployeeViewForTable
+		} );
+
+		myCollectionView.render();
+
+		emptyCollection.set(this.employees.models);
+
+		equal( myCollectionView.$el.find( "tbody" ).length, 1, "Tbody is created" );
+		equal( myCollectionView.$el.find( "tbody > tr" ).length, 3, "Model views are added inside the tbody" );
+		ok( myCollectionView.$el.html().indexOf( "Sherlock Holmes" ) !== -1, "Rendered table contains 'Sherlock Holmes'");
+	} );
+    
 	module( "List rendering",
 		{
 			setup: function() {
