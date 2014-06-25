@@ -1,5 +1,5 @@
 /*!
-* Backbone.CollectionView, v0.9.4
+* Backbone.CollectionView, v0.9.5
 * Copyright (c)2013 Rotunda Software, LLC.
 * Distributed under MIT license
 * http://github.com/rotundasoftware/backbone-collection-view
@@ -406,10 +406,13 @@
 
 			if( parentElOrDocumentFragment.nodeType === 11 ) // if we are inserting into a document fragment, we need to use the DOM appendChild method
 				parentElOrDocumentFragment.appendChild( thisModelViewWrapped.get( 0 ) );
-			else if( ! _.isUndefined( atIndex ) && atIndex >= 0 && atIndex < this.collection.length - 1 )
-				parentElOrDocumentFragment.children().eq( atIndex ).before( thisModelViewWrapped );
-			else
-				parentElOrDocumentFragment.append( thisModelViewWrapped );
+			else {
+				if( ! _.isUndefined( atIndex ) && atIndex >= 0 && atIndex < parentElOrDocumentFragment.children().length - 1 )
+					// note this.collection.length might be greater than parentElOrDocumentFragment.children().length here
+					parentElOrDocumentFragment.children().eq( atIndex ).before( thisModelViewWrapped );
+				else
+					parentElOrDocumentFragment.append( thisModelViewWrapped );
+			}
 
 			// we have to render the modelView after it has been put in context, as opposed to in the
 			// initialize function of the modelView, because some rendering might be dependent on
