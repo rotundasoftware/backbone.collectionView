@@ -1,5 +1,10 @@
 # Change log
 
+### v0.10.1
+
+* Brought npm package version in sync with Bower package. How'd that happen?
+* Fixed issue that could surface when setting multiple models using collection.set (#50)
+
 ### v0.9.3
 
 * Fixed UMD wrapper.

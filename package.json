@@ -1,6 +1,6 @@
 {
   "name": "bb-collection-view",
-  "version": "0.9.5",
+  "version": "0.10.1",
   "description": "Easily render backbone.js collections with support for automatic selection of models in response to clicks, reordering models via drag and drop, and more.",
   "main": "dist/backbone.collectionView.js",
   "devDependencies": {
@@ -27,5 +27,10 @@
     "name": "Rotunda Software"
   },
   "license": "MIT",
-  "readmeFilename": "README.md"
+  "readmeFilename": "README.md",
+  "dependencies": {
+    "backbone" : "~1.0",
+    "jquery"   : "~2.1.1",
+    "jquery-ui" : "~1.10.1"
+  }
 }

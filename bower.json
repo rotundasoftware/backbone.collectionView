@@ -1,6 +1,6 @@
 {
 	"name" : "backbone.collectionView",
-	"version": "0.10.0",
+	"version": "0.10.1",
 	"homepage": "http://rotundasoftware.github.io/backbone.collectionView/",
 	"repository": {
 		"type": "git",
@@ -10,7 +10,7 @@
 		"David Beck <david@rotundasoftware.com>"
 	],
 	"description": "A backbone view class that renders a collection of models. This class is similar to the collection view classes found in [Backbone.Marionette](https://github.com/marionettejs/backbone.marionette) and other frameworks, with added features for automatic selection of models in response to clicks, and support for rearranging models (and reordering the underlying collection) through drag and drop.",
-	"main": "dest/backbone.collectionView.js",
+	"main": "dist/backbone.collectionView.js",
 	"keywords": [
 		"backbone",
 		"views",
@@ -19,7 +19,7 @@
 	"license": "MIT",
 	"dependencies": {
 		"backbone" : "~1.0",
-		"jquery"   : "1.9.1",
-		"jqueryui" : "1.10.1"
+		"jquery"   : "~1.9.1",
+		"jqueryui" : "~1.10.1"
 	}
 }
