@@ -32,6 +32,7 @@ myCollectionView.setSelectedModel( employeeCollection.first() );
 * `collection` : The collection of models to be rendered.
 * `modelView` : A view constructor that will be used to create the views for each individual model.
 * `selectable` : (default: _true_) Determines whether models in the CollectionView are selectable.
+* `reuseModelViews` : (default: _true_) When `true`, modelViews are reused instead of being re-created from scratch when the CollectionView is re-rendered.
 * `detachedRendering` : (default: _false_) When `true`, all the modelViews are rendered before being added to the DOM to improve performance. If your modelView rendering relies on its location in the DOM (for sizing or other reasons), use the default value of `false`.
 * `sortable` : (default: _false_) Determines if models can be rearranged by dragging and dropping.
 * `sortableOptions` : Options passed through to the created jQueryUI sortable.  Only applies if `sortable`.
