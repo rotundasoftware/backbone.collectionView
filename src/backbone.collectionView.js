@@ -60,6 +60,7 @@
 			{ "processKeyEvents" : true },
 			{ "sortable" : false },
 			{ "sortableOptions" : null },
+			{ "reuseModelViews" : true },
 			{ "detachedRendering" : false },
 			{ "emptyListCaption" : null }
 		],
@@ -295,7 +296,7 @@
 			oldViewManager.each( function( thisModelView ) {
 				// to boost performance, only detach those views that will be sticking around.
 				// we won't need the other ones later, so no need to detach them individually.
-				if( _this.collection.get( thisModelView.model.cid ) )
+				if( this.reuseModelViews && _this.collection.get( thisModelView.model.cid ) )
 					thisModelView.$el.detach();
 				else
 					thisModelView.remove();
@@ -309,7 +310,7 @@
 
 			this.collection.each( function( thisModel ) {
 				var thisModelView = oldViewManager.findByModelCid( thisModel.cid );
-				if( _.isUndefined( thisModelView ) ) {
+				if( ! this.reuseModelViews && _.isUndefined( thisModelView ) ) {
 					// if the model view has not already been created on a
 					// previous render then create and initialize it now.
 					thisModelView = this._createNewModelView( thisModel, this._getModelViewOptions( thisModel ) );
