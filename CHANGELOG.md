@@ -1,5 +1,9 @@
 # Change log
 
+### v0.11.0
+
+* Added `reuseModelViews` option. Set to false to completely recreate model views on each render.
+
 ### v0.10.1
 
 * Brought npm package version in sync with Bower package. How'd that happen?

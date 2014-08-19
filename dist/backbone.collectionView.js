@@ -317,7 +317,7 @@
 
 			this.collection.each( function( thisModel ) {
 				var thisModelView = oldViewManager.findByModelCid( thisModel.cid );
-				if( ! this.reuseModelViews && _.isUndefined( thisModelView ) ) {
+				if( ! this.reuseModelViews || _.isUndefined( thisModelView ) ) {
 					// if the model view has not already been created on a
 					// previous render then create and initialize it now.
 					thisModelView = this._createNewModelView( thisModel, this._getModelViewOptions( thisModel ) );
