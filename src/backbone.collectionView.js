@@ -784,12 +784,14 @@
 			var modelBeingSorted = this.collection.get( ui.item.attr( "data-model-cid" ) );
 			var modelViewContainerEl = this._getContainerEl();
 			var newIndex = modelViewContainerEl.children().index( ui.item );
-
-			if( newIndex == -1 ) {
+			
+			if( newIndex == -1 && modelBeingSorted ) {
 				// the element was removed from this list. can happen if this sortable is connected
 				// to another sortable, and the item was dropped into the other sortable.
 				this.collection.remove( modelBeingSorted );
 			}
+
+			if( ! modelBeingSorted ) return; // something is wacky. we don't mess with this case, preferring to guarantee that we can always provide a reference to the model
 
 			this._reorderCollectionBasedOnHTML();
 			this.updateDependentControls();
