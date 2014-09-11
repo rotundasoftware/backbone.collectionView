@@ -296,11 +296,11 @@
 			oldViewManager.each( function( thisModelView ) {
 				// to boost performance, only detach those views that will be sticking around.
 				// we won't need the other ones later, so no need to detach them individually.
-				if( this.reuseModelViews && _this.collection.get( thisModelView.model.cid ) )
+				if( this.reuseModelViews && this.collection.get( thisModelView.model.cid ) )
 					thisModelView.$el.detach();
 				else
 					thisModelView.remove();
-			} );
+			}, this );
 
 			modelViewContainerEl.empty();
 			var fragmentContainer;
