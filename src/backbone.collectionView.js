@@ -401,7 +401,7 @@
 			if( parentElOrDocumentFragment.nodeType === 11 ) // if we are inserting into a document fragment, we need to use the DOM appendChild method
 				parentElOrDocumentFragment.appendChild( thisModelViewWrapped.get( 0 ) );
 			else {
-				if( ! _.isUndefined( atIndex ) && atIndex >= 0 && atIndex < parentElOrDocumentFragment.children().length - 1 )
+				if( ! _.isUndefined( atIndex ) && atIndex >= 0 && atIndex < parentElOrDocumentFragment.children().length )
 					// note this.collection.length might be greater than parentElOrDocumentFragment.children().length here
 					parentElOrDocumentFragment.children().eq( atIndex ).before( thisModelViewWrapped );
 				else
