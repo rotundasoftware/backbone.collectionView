@@ -42,11 +42,6 @@
 			"keydown" : "_onKeydown"
 		},
 
-		// only used if Backbone.Courier is available
-		spawnMessages : {
-			"focus" : "focus"
-		},
-
 		//only used if Backbone.Courier is available
 		passMessages : { "*" : "." },
 		
