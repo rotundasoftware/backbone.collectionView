@@ -135,7 +135,8 @@
 						break;
 				}
 				if( _.contains( kOptionsRequiringRerendering, changedOptionKey ) ) rerender = true;
-			});
+			} );
+
 			if( this._hasBeenRendered && rerender ) { 
 				this.render(); // Rerender the view if the rerender flag has been set.
 			}
