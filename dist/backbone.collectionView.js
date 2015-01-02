@@ -86,7 +86,7 @@
 			this.$el.addClass( "collection-list" );
 			if( this.selectable ) this.$el.addClass( "selectable" );
 
-			if( this.processKeyEvents )
+			if( this.selectable && this.processKeyEvents )
 				this.$el.attr( "tabindex", 0 ); // so we get keyboard events
 
 			this.selectedItems = [];
