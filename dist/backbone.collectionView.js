@@ -386,7 +386,7 @@
 					if( this._isRenderedAsList() )
 						$emptyListCaptionEl = $varEl.wrapAll( "<li class='not-sortable'></li>" ).parent().css( kStylesForEmptyListCaption );
 					else
-						$emptyListCaptionEl = $varEl.wrapAll( "<tr class='not-sortable'><td></td></tr>" ).parent().parent().css( kStylesForEmptyListCaption );
+						$emptyListCaptionEl = $varEl.wrapAll( "<tr class='not-sortable'><td colspan=1000></td></tr>" ).parent().parent().css( kStylesForEmptyListCaption );
 					
 					this._getContainerEl().append( $emptyListCaptionEl );
 				}
@@ -430,13 +430,7 @@
 			var hideThisModelView = false;
 			if( _.isFunction( this.visibleModelsFilter ) ) {
 				hideThisModelView = ! this.visibleModelsFilter( modelView.model );
-				if( hideThisModelView ) {
-					if( thisModelViewWrapped.children().length === 1 )
-						thisModelViewWrapped.hide();
-					else modelView.$el.hide();
-
-					thisModelViewWrapped.addClass( "not-visible" );
-				}
+				thisModelViewWrapped.toggle( ! hideThisModelView ).toggleClass( "not-visible", hideThisModelView );
 			}
 
 			if( ! hideThisModelView && this.emptyListCaption ) this._removeEmptyListCaption();
@@ -707,7 +701,8 @@
 
 			if( this._isRenderedAsTable() ) {
 				// if we are rendering the collection in a table, the template $el is a tr so we just need to set the data-model-cid
-				wrappedModelView = modelView.$el.attr( "data-model-cid", modelView.model.cid );
+				wrappedModelView = modelView.$el;
+				wrappedModelView.attr( "data-model-cid", modelView.model.cid );
 			}
 			else if( this._isRenderedAsList() ) {
 				// if we are rendering the collection in a list, we need wrap each item in an <li></li> (if its not already an <li>)
