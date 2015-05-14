@@ -45,7 +45,7 @@
 		
 		// viewOption definitions with default values.
 		initializationOptions : [
-			{ "collection" : new Backbone.Collection() },
+			{ "collection" : null },
 			{ "modelView" : null },
 			{ "modelViewOptions" : {} },
 			{ "itemTemplate" : null },
@@ -68,7 +68,9 @@
 		initialize : function( options ) {
 			Backbone.ViewOptions.add( this, "initializationOptions" ); // setup the ViewOptions functionality.
 			this.setOptions( options ); // and make use of any provided options
-
+			
+			if( ! this.collection ) this.collection = new Backbone.Collection();
+			
 			this._hasBeenRendered = false;
 
 			if( this._isBackboneCourierAvailable() ) {
@@ -296,10 +298,9 @@
 			oldViewManager.each( function( thisModelView ) {
 				// to boost performance, only detach those views that will be sticking around.
 				// we won't need the other ones later, so no need to detach them individually.
-				if( this.reuseModelViews && this.collection.get( thisModelView.model.cid ) )
+				if( this.reuseModelViews && this.collection.get( thisModelView.model.cid ) ) {
 					thisModelView.$el.detach();
-				else
-					thisModelView.remove();
+				} else thisModelView.remove();
 			}, this );
 
 			modelViewContainerEl.empty();
@@ -361,6 +362,8 @@
 		},
 
 		_showEmptyListCaptionIfAppropriate : function ( ) {
+			this._removeEmptyListCaption();
+			
 			if( this.emptyListCaption ) {
 				var visibleEls = this._getVisibleItemEls();
 
@@ -372,14 +375,14 @@
 					else
 						emptyListString = this.emptyListCaption;
 
-					var $emptyCaptionEl;
+					var $emptyListCaptionEl;
 					var $varEl = $( "<var class='empty-list-caption'>" + emptyListString + "</var>" );
 
-					//need to wrap the empty caption to make it fit the rendered list structure (either with an li or a tr td)
+					// need to wrap the empty caption to make it fit the rendered list structure (either with an li or a tr td)
 					if( this._isRenderedAsList() )
 						$emptyListCaptionEl = $varEl.wrapAll( "<li class='not-sortable'></li>" ).parent().css( kStylesForEmptyListCaption );
 					else
-						$emptyListCaptionEl = $varEl.wrapAll( "<tr class='not-sortable'><td></td></tr>" ).parent().parent().css( kStylesForEmptyListCaption );
+						$emptyListCaptionEl = $varEl.wrapAll( "<tr class='not-sortable'><td colspan='1000'></td></tr>" ).parent().parent().css( kStylesForEmptyListCaption );
 					
 					this._getContainerEl().append( $emptyListCaptionEl );
 				}
@@ -421,16 +424,14 @@
 			}
 			
 			var hideThisModelView = false;
-			if( _.isFunction( this.visibleModelsFilter ) ) {
+			if( _.isFunction( this.visibleModelsFilter ) )
 				hideThisModelView = ! this.visibleModelsFilter( modelView.model );
-				if( hideThisModelView ) {
-					if( thisModelViewWrapped.children().length === 1 )
-						thisModelViewWrapped.hide();
-					else modelView.$el.hide();
 
-					thisModelViewWrapped.addClass( "not-visible" );
-				}
-			}
+			if( thisModelViewWrapped.children().length === 1 )
+				thisModelViewWrapped.toggle( ! hideThisModelView );
+			else modelView.$el.toggle( ! hideThisModelView );
+
+			thisModelViewWrapped.toggleClass( "not-visible", hideThisModelView );
 
 			if( ! hideThisModelView && this.emptyListCaption ) this._removeEmptyListCaption();
 
