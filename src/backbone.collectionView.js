@@ -675,6 +675,12 @@
 		},
 
 		_getModelViewConstructor : function( thisModel ) {
+                        
+                        // added possibility to supply factory method as modelView param
+                        if (typeof this.modelView === 'function') {
+                            return this.modelView(thisModel);
+                        }
+                        
 			return this.modelView || mDefaultModelViewConstructor;
 		},
 
