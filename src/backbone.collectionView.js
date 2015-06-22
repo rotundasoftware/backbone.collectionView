@@ -15,7 +15,7 @@
 
 	var kDefaultReferenceBy = "model";
 
-	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "sortableModelsFilter", "visibleModelsFilter", "itemTemplateFunction", "detachedRendering", "sortableOptions" ];
+	var kOptionsRequiringRerendering = [ "collection", "modelView", "modelViewOptions", "itemTemplate", "selectableModelsFilter", "visibleModelsFilter", "itemTemplateFunction", "detachedRendering" ];
 
 	var kStylesForEmptyListCaption = {
 		"background" : "transparent",
@@ -107,7 +107,7 @@
 							_this._registerCollectionEvents();
 						}
 						break;
-					case "selectMultiple":
+					case "selectMultiple" :
 						if( ! newVal && _this.selectedItems.length > 1 )
 							_this.setSelectedModel( _.first( _this.selectedItems ), { by : "cid" } );
 						break;
@@ -115,9 +115,26 @@
 						if( ! newVal && _this.selectedItems.length > 0 )
 							_this.setSelectedModels( [] );
 						break;
+					case "sortable" :
+						changedOptions.sortable ? _this._setupSortable() : _this.$el.sortable( "destroy" );
+						break;
 					case "selectableModelsFilter" :
 						if( newVal && _.isFunction( newVal ) )
 							_this._validateSelection();
+						break;
+					case "sortableOptions" :
+						_this.$el.sortable( "destroy" );
+						_this._setupSortable();
+						break;
+					case "sortableModelsFilter" :
+						_this.$el.sortable( "destroy" );
+
+						_this.viewManager.each( function( thisModelView ) {
+							var elWithNotSortableClass = _this._isRenderedAsList() ? thisModelView.$el.closest( 'li' ) : thisModelView;
+							elWithNotSortableClass.toggleClass( 'not-sortable', ! _this.sortableModelsFilter.call( _this, thisModelView.model ) );
+						} );
+
+						_this._setupSortable();
 						break;
 					case "itemTemplate" :
 						_this._updateItemTemplate();
@@ -323,28 +340,7 @@
 			if( this.detachedRendering )
 				modelViewContainerEl.append( fragmentContainer );
 
-			if( this.sortable )
-			{
-				var sortableOptions = _.extend( {
-					axis: "y",
-					distance: 10,
-					forcePlaceholderSize : true,
-					start : _.bind( this._sortStart, this ),
-					change : _.bind( this._sortChange, this ),
-					stop : _.bind( this._sortStop, this ),
-					receive : _.bind( this._receive, this ),
-					over : _.bind( this._over, this )
-				}, _.result( this, "sortableOptions" ) );
-
-				if( _this._isRenderedAsTable() ) {
-					sortableOptions.items = "> tbody > tr:not(.not-sortable)";
-				}
-				else if( _this._isRenderedAsList() ) {
-					sortableOptions.items = "> li:not(.not-sortable)";
-				}
-
-				this.$el = this.$el.sortable( sortableOptions );
-			}
+			if( this.sortable ) this._setupSortable();
 
 			this._showEmptyListCaptionIfAppropriate();
 
@@ -765,6 +761,23 @@
 
 		_isBackboneCourierAvailable : function() {
 			return !_.isUndefined( Backbone.Courier );
+		},
+
+		_setupSortable : function() {
+			var sortableOptions = _.extend( {
+				axis : "y",
+				distance : 10,
+				forcePlaceholderSize : true,
+				items : this._isRenderedAsTable() ? "> tbody > tr:not(.not-sortable)" : "> li:not(.not-sortable)",
+				start : _.bind( this._sortStart, this ),
+				change : _.bind( this._sortChange, this ),
+				stop : _.bind( this._sortStop, this ),
+				receive : _.bind( this._receive, this ),
+				over : _.bind( this._over, this )
+			}, _.result( this, "sortableOptions" ) );
+
+			this.$el = this.$el.sortable( sortableOptions );
+			//this.$el.sortable( "enable" ); // in case it was disabled previously
 		},
 
 		_sortStart : function( event, ui ) {
