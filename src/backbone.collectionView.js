@@ -453,17 +453,14 @@
 		},
 
 		// A method to remove the view relating to model.
-		_removeModelView : function( model ) {
-			var viewManager = this.viewManager;
-			var view = viewManager.findByModelCid( model.cid );
+		_removeModelView : function( modelView ) {
+			if( this.selectable ) this._saveSelection();
 
-			if ( this.selectable ) this._saveSelection();
+			this.viewManager.remove( modelView ); // Remove the view from the viewManager
+			if( this._isRenderedAsList() ) modelView.$el.parent().remove(); // Remove the li wrapper from the DOM
+			modelView.remove(); // Remove the view from the DOM
 
-			viewManager.remove( view ); // Remove the view from the viewManager
-			view.remove(); // Remove the view from the DOM
-			this._getContainerEl().children( "[data-model-cid=" + model.cid + "]" ).remove(); // Remove the wrapper from the DOM
-
-			if ( this.selectable ) this._restoreSelection();
+			if( this.selectable ) this._restoreSelection();
 
 			this._showEmptyListCaptionIfAppropriate();
 		},
@@ -475,18 +472,24 @@
 
 		_registerCollectionEvents : function() {
 			this.listenTo( this.collection, "add", function( model ) {
+				var modelView;
+
 				if( this._hasBeenRendered ) {
-					var modelView = this._createNewModelView( model, this._getModelViewOptions( model ) );
+					modelView = this._createNewModelView( model, this._getModelViewOptions( model ) );
 					this._insertAndRenderModelView( modelView, this._getContainerEl(), this.collection.indexOf( model ) );
 				}
 
 				if( this._isBackboneCourierAvailable() )
-					this.spawn( "add" );
+					this.spawn( "add", modelView );
 			} );
 
 			this.listenTo( this.collection, "remove", function( model ) {
-				if( this._hasBeenRendered )
-					this._removeModelView( model );
+				var modelView;
+				
+				if( this._hasBeenRendered ) {
+					modelView = this.viewManager.findByModelCid( model.cid );
+					this._removeModelView( modelView );
+				}
 
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "remove" );
