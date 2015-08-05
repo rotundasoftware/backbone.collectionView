@@ -678,7 +678,10 @@
 		},
 
 		_getModelViewOptions : function( thisModel ) {
-			return _.extend( { model : thisModel }, this.modelViewOptions );
+			var modelViewOptions = this.modelViewOptions;
+			if( _.isFunction( modelViewOptions ) ) modelViewOptions = modelViewOptions( thisModel );
+			
+			return _.extend( { model : thisModel }, modelViewOptions );
 		},
 
 		_createNewModelView : function( model, modelViewOptions ) {

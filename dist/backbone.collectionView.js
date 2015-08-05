@@ -1,5 +1,5 @@
 /*!
-* Backbone.CollectionView, v0.11.8
+* Backbone.CollectionView, v0.12.0
 * Copyright (c)2013 Rotunda Software, LLC.
 * Distributed under MIT license
 * http://github.com/rotundasoftware/backbone-collection-view
@@ -685,7 +685,10 @@
 		},
 
 		_getModelViewOptions : function( thisModel ) {
-			return _.extend( { model : thisModel }, this.modelViewOptions );
+			var modelViewOptions = this.modelViewOptions;
+			if( _.isFunction( modelViewOptions ) ) modelViewOptions = modelViewOptions( thisModel );
+			
+			return _.extend( { model : thisModel }, modelViewOptions );
 		},
 
 		_createNewModelView : function( model, modelViewOptions ) {
