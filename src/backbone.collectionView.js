@@ -921,7 +921,7 @@
 							sel.removeAllRanges();
 					}
 				}
-				else if( this.selectMultiple && ( this.clickToToggle || theEvent.metaKey ) )
+				else if( this.selectMultiple && ( this.clickToToggle || theEvent.metaKey || theEvent.ctrlKey ) )
 				{
 					if( _.contains( this.selectedItems, clickedItemId ) )
 						this.setSelectedModels( _.without( this.selectedItems, clickedItemId ), { by : "cid" } );
