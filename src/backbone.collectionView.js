@@ -28,8 +28,8 @@
 		tagName : "ul",
 
 		events : {
-			"mousedown > li, > tr > td" : "_listItem_onMousedown",
-			"dblclick > li, > tr > td" : "_listItem_onDoubleClick",
+			"mousedown li, td" : "_listItem_onMousedown",
+			"dblclick li, td" : "_listItem_onDoubleClick",
 			"click" : "_listBackground_onClick",
 			"click ul.collection-list, table.collection-list" : "_listBackground_onClick",
 			"keydown" : "_onKeydown"
@@ -532,9 +532,9 @@
 			var clickedItemId = null;
 
 			// important to use currentTarget as opposed to target, since we could be bubbling
-			// an event that took place within another collectionList
+			// an event that took place within another collectionList or in a nested ul>li or table>tr>td
 			var clickedItemEl = $( theEvent.currentTarget );
-			if( clickedItemEl.closest( ".collection-list" ).get(0) !== this.$el.get(0) ) return;
+			if( clickedItemEl.closest( this._isRenderedAsList() ? 'ul' : 'table' ).get(0) !== this.$el.get(0) ) return;
 
 			// determine which list item was clicked. If we clicked in the blank area
 			// underneath all the elements, we want to know that too, since in this
@@ -930,10 +930,6 @@
 				else
 					this.setSelectedModels( [ clickedItemId ], { by : "cid" } );
 			}
-			else
-				// the blank area of the list was clicked
-				this.setSelectedModels( [] );
-
 		},
 
 		_listItem_onDoubleClick : function( theEvent ) {
