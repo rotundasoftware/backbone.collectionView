@@ -701,19 +701,27 @@
 			// of these models on the server
 			var wrappedModelView;
 
+			wrappedModelView = modelView.$el;
 			if( this._isRenderedAsTable() ) {
-				// if we are rendering the collection in a table, the template $el is a tr so we just need to set the data-model-cid
-				wrappedModelView = modelView.$el.attr( "data-model-cid", modelView.model.cid );
-			}
-			else if( this._isRenderedAsList() ) {
-				// if we are rendering the collection in a list, we need wrap each item in an <li></li> (if its not already an <li>)
-				// and set the data-model-cid
-				if( modelView.$el.prop( "tagName" ).toLowerCase() === "li" ) {
-					wrappedModelView = modelView.$el.attr( "data-model-cid", modelView.model.cid );
-				} else {
-					wrappedModelView = modelView.$el.wrapAll( "<li data-model-cid='" + modelView.model.cid + "'></li>" ).parent();
+				// note: we can assume that wrappedModelView is a DOM tree with one root node, since it comes from modelView.$el
+				// If we are rendering the collection in a table, the item has to have a
+				//  top-level tr > td structure. Wrap it if it is not.
+				if( ! wrappedModelView.is("tr") ) {
+					if( ! wrappedModelView.is("td") ) {
+						wrappedModelView = wrappedModelView.wrap( "<td></td>" ).parent();
+					}
+					wrappedModelView = wrappedModelView.wrap( "<tr></tr>" ).parent();
 				}
 			}
+			else if( this._isRenderedAsList() ) {
+				// If we are rendering the collection in a list, the item has to be a <li>. Wrap it if it is not.
+				if( ! wrappedModelView.is("li") ) {
+					wrappedModelView = wrappedModelView.wrap( "<li></li>" ).parent();
+				}
+			} else {
+				//console.error('in _wrapModelView: neither table nor list rendering');
+			}
+			wrappedModelView.attr( "data-model-cid", modelView.model.cid );
 
 			if( _.isFunction( this.sortableModelsFilter ) )
 				if( ! this.sortableModelsFilter.call( _this, modelView.model ) )
