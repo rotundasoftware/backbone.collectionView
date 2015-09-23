@@ -774,7 +774,7 @@
 				axis : "y",
 				distance : 10,
 				forcePlaceholderSize : true,
-				items : this._isRenderedAsTable() ? "> tbody > tr:not(.not-sortable)" : "> li:not(.not-sortable)",
+				items : this._isRenderedAsTable() ? "> tr:not(.not-sortable)" : "> li:not(.not-sortable)",
 				start : _.bind( this._sortStart, this ),
 				change : _.bind( this._sortChange, this ),
 				stop : _.bind( this._sortStop, this ),
@@ -782,7 +782,7 @@
 				over : _.bind( this._over, this )
 			}, _.result( this, "sortableOptions" ) );
 
-			this.$el = this.$el.sortable( sortableOptions );
+			this._getContainerEl().sortable( sortableOptions );
 			//this.$el.sortable( "enable" ); // in case it was disabled previously
 		},
 
