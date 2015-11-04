@@ -1,6 +1,6 @@
 {
   "name": "bb-collection-view",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "description": "Easily render backbone.js collections with support for automatic selection of models in response to clicks, reordering models via drag and drop, and more.",
   "main": "dist/backbone.collectionView.js",
   "devDependencies": {
