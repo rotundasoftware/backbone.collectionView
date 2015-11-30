@@ -1,5 +1,5 @@
 /*!
-* Backbone.CollectionView, v1.0.0
+* Backbone.CollectionView, v1.0.1
 * Copyright (c)2013 Rotunda Software, LLC.
 * Distributed under MIT license
 * http://github.com/rotundasoftware/backbone-collection-view
@@ -928,7 +928,7 @@
 							sel.removeAllRanges();
 					}
 				}
-				else if( this.selectMultiple && ( this.clickToToggle || theEvent.metaKey || theEvent.ctrlKey ) )
+				else if( ( this.selectMultiple || _.contains( this.selectedItems, clickedItemId ) ) && ( this.clickToToggle || theEvent.metaKey || theEvent.ctrlKey ) )
 				{
 					if( _.contains( this.selectedItems, clickedItemId ) )
 						this.setSelectedModels( _.without( this.selectedItems, clickedItemId ), { by : "cid" } );
