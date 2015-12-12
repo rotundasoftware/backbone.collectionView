@@ -532,9 +532,9 @@
 			var clickedItemId = null;
 
 			// important to use currentTarget as opposed to target, since we could be bubbling
-			// an event that took place within another collectionList
+			// an event that took place within another collectionList or in a nested ul>li or table>tr>td
 			var clickedItemEl = $( theEvent.currentTarget );
-			if( clickedItemEl.closest( ".collection-list" ).get(0) !== this.$el.get(0) ) return;
+			if( clickedItemEl.closest( this._isRenderedAsList() ? 'ul' : 'table' ).get(0) !== this.$el.get(0) ) return;
 
 			// determine which list item was clicked. If we clicked in the blank area
 			// underneath all the elements, we want to know that too, since in this
@@ -701,19 +701,27 @@
 			// of these models on the server
 			var wrappedModelView;
 
+			wrappedModelView = modelView.$el;
 			if( this._isRenderedAsTable() ) {
-				// if we are rendering the collection in a table, the template $el is a tr so we just need to set the data-model-cid
-				wrappedModelView = modelView.$el.attr( "data-model-cid", modelView.model.cid );
-			}
-			else if( this._isRenderedAsList() ) {
-				// if we are rendering the collection in a list, we need wrap each item in an <li></li> (if its not already an <li>)
-				// and set the data-model-cid
-				if( modelView.$el.prop( "tagName" ).toLowerCase() === "li" ) {
-					wrappedModelView = modelView.$el.attr( "data-model-cid", modelView.model.cid );
-				} else {
-					wrappedModelView = modelView.$el.wrapAll( "<li data-model-cid='" + modelView.model.cid + "'></li>" ).parent();
+				// note: we can assume that wrappedModelView is a DOM tree with one root node, since it comes from modelView.$el
+				// If we are rendering the collection in a table, the item has to have a
+				//  top-level tr > td structure. Wrap it if it is not.
+				if( ! wrappedModelView.is("tr") ) {
+					if( ! wrappedModelView.is("td") ) {
+						wrappedModelView = wrappedModelView.wrap( "<td></td>" ).parent();
+					}
+					wrappedModelView = wrappedModelView.wrap( "<tr></tr>" ).parent();
 				}
 			}
+			else if( this._isRenderedAsList() ) {
+				// If we are rendering the collection in a list, the item has to be a <li>. Wrap it if it is not.
+				if( ! wrappedModelView.is("li") ) {
+					wrappedModelView = wrappedModelView.wrap( "<li></li>" ).parent();
+				}
+			} else {
+				//console.error('in _wrapModelView: neither table nor list rendering');
+			}
+			wrappedModelView.attr( "data-model-cid", modelView.model.cid );
 
 			if( _.isFunction( this.sortableModelsFilter ) )
 				if( ! this.sortableModelsFilter.call( _this, modelView.model ) )
@@ -774,7 +782,7 @@
 				axis : "y",
 				distance : 10,
 				forcePlaceholderSize : true,
-				items : this._isRenderedAsTable() ? "> tbody > tr:not(.not-sortable)" : "> li:not(.not-sortable)",
+				items : this._isRenderedAsTable() ? "> tr:not(.not-sortable)" : "> li:not(.not-sortable)",
 				start : _.bind( this._sortStart, this ),
 				change : _.bind( this._sortChange, this ),
 				stop : _.bind( this._sortStop, this ),
@@ -782,7 +790,7 @@
 				over : _.bind( this._over, this )
 			}, _.result( this, "sortableOptions" ) );
 
-			this.$el = this.$el.sortable( sortableOptions );
+			this._getContainerEl().sortable( sortableOptions );
 			//this.$el.sortable( "enable" ); // in case it was disabled previously
 		},
 
@@ -930,10 +938,6 @@
 				else
 					this.setSelectedModels( [ clickedItemId ], { by : "cid" } );
 			}
-			else
-				// the blank area of the list was clicked
-				this.setSelectedModels( [] );
-
 		},
 
 		_listItem_onDoubleClick : function( theEvent ) {
