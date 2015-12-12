@@ -1,5 +1,5 @@
 /*!
-* Backbone.CollectionView, v1.0.1
+* Backbone.CollectionView, v1.0.2
 * Copyright (c)2013 Rotunda Software, LLC.
 * Distributed under MIT license
 * http://github.com/rotundasoftware/backbone-collection-view
@@ -35,8 +35,8 @@
 		tagName : "ul",
 
 		events : {
-			"mousedown li, td" : "_listItem_onMousedown",
-			"dblclick li, td" : "_listItem_onDoubleClick",
+			"mousedown > li, tbody > tr > td" : "_listItem_onMousedown",
+			"dblclick > li, tbody > tr > td" : "_listItem_onDoubleClick",
 			"click" : "_listBackground_onClick",
 			"click ul.collection-list, table.collection-list" : "_listBackground_onClick",
 			"keydown" : "_onKeydown"
