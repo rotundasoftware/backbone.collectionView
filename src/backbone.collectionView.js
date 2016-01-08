@@ -499,7 +499,7 @@
 				if( this._hasBeenRendered ) this.render();
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "reset" );
-				else else this.trigger( "reset" );
+				else this.trigger( "reset" );
 			} );
 
 			// we should not be listening to change events on the model as a default behavior. the models
@@ -516,7 +516,7 @@
 				if( this._hasBeenRendered && options.add !== true ) this.render();
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "sort" );
-				else else this.trigger( "sort" );
+				else this.trigger( "sort" );
 			} );
 		},
 
