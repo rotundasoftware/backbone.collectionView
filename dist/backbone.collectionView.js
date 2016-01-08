@@ -38,7 +38,7 @@
 			"mousedown > li, tbody > tr > td" : "_listItem_onMousedown",
 			"dblclick > li, tbody > tr > td" : "_listItem_onDoubleClick",
 			"click" : "_listBackground_onClick",
-			"click ul.collection-list, table.collection-list" : "_listBackground_onClick",
+			"click ul.collection-view, table.collection-view" : "_listBackground_onClick",
 			"keydown" : "_onKeydown"
 		},
 
@@ -85,7 +85,7 @@
 			}
 
 			this.$el.data( "view", this ); // needed for connected sortable lists
-			this.$el.addClass( "collection-list" );
+			this.$el.addClass( "collection-view collection-list" ); // collection-list is in there for legacy purposes
 			if( this.selectable ) this.$el.addClass( "selectable" );
 
 			if( this.processKeyEvents )
@@ -541,7 +541,7 @@
 			// important to use currentTarget as opposed to target, since we could be bubbling
 			// an event that took place within another collectionList
 			var clickedItemEl = $( theEvent.currentTarget );
-			if( clickedItemEl.closest( ".collection-list" ).get(0) !== this.$el.get(0) ) return;
+			if( clickedItemEl.closest( ".collection-view" ).get(0) !== this.$el.get(0) ) return;
 
 			// determine which list item was clicked. If we clicked in the blank area
 			// underneath all the elements, we want to know that too, since in this
@@ -643,6 +643,10 @@
 
 			_.each( itemsIdsFromWhichSelectedClassNeedsToBeRemoved, function( thisItemId ) {
 				this._getContainerEl().find( "[data-model-cid=" + thisItemId + "]" ).removeClass( "selected" );
+				
+				if( this._isRenderedAsList() ) {
+					this._getContainerEl().find( "li[data-model-cid=" + thisItemId + "] > *" ).removeClass( "selected" );
+				}
 			}, this );
 
 			var itemsIdsFromWhichSelectedClassNeedsToBeAdded = this.selectedItems;
@@ -650,6 +654,10 @@
 
 			_.each( itemsIdsFromWhichSelectedClassNeedsToBeAdded, function( thisItemId ) {
 				this._getContainerEl().find( "[data-model-cid=" + thisItemId + "]" ).addClass( "selected" );
+
+				if( this._isRenderedAsList() ) {
+					this._getContainerEl().find( "li[data-model-cid=" + thisItemId + "] > *" ).addClass( "selected" );
+				}
 			}, this );
 		},
 
@@ -957,7 +965,7 @@
 
 		_listBackground_onClick : function( theEvent ) {
 			if( ! this.selectable ) return;
-			if( ! $( theEvent.target ).is( ".collection-list" ) ) return;
+			if( ! $( theEvent.target ).is( ".collection-view" ) ) return;
 
 			this.setSelectedModels( [] );
 		}

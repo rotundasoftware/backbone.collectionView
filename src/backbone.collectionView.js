@@ -31,7 +31,7 @@
 			"mousedown > li, tbody > tr > td" : "_listItem_onMousedown",
 			"dblclick > li, tbody > tr > td" : "_listItem_onDoubleClick",
 			"click" : "_listBackground_onClick",
-			"click ul.collection-list, table.collection-list" : "_listBackground_onClick",
+			"click ul.collection-view, table.collection-view" : "_listBackground_onClick",
 			"keydown" : "_onKeydown"
 		},
 
@@ -78,7 +78,7 @@
 			}
 
 			this.$el.data( "view", this ); // needed for connected sortable lists
-			this.$el.addClass( "collection-list" );
+			this.$el.addClass( "collection-view collection-list" ); // collection-list is in there for legacy purposes
 			if( this.selectable ) this.$el.addClass( "selectable" );
 
 			if( this.processKeyEvents )
@@ -165,7 +165,7 @@
 		},
 
 		getSelectedModel : function( options ) {
-			return _.first( this.getSelectedModels( options ) );
+			return this.selectedItems.length ? _.first( this.getSelectedModels( options ) ) : null;
 		},
 
 		getSelectedModels : function ( options ) {
@@ -272,13 +272,12 @@
 
 				if( ! options.silent )
 				{
-					this.trigger( "selectionChanged", newSelectedModels, oldSelectedModels );
 					if( this._isBackboneCourierAvailable() ) {
 						this.spawn( "selectionChanged", {
 							selectedModels : newSelectedModels,
 							oldSelectedModels : oldSelectedModels
 						} );
-					}
+					} else this.trigger( "selectionChanged", newSelectedModels, oldSelectedModels );
 				}
 
 				this.updateDependentControls();
@@ -344,9 +343,9 @@
 
 			this._showEmptyListCaptionIfAppropriate();
 
-			this.trigger( "render" );
 			if( this._isBackboneCourierAvailable() )
 				this.spawn( "render" );
+			else this.trigger( "render" );
 
 			if( this.selectable ) {
 				this._restoreSelection();
@@ -435,12 +434,11 @@
 		},
 
 		updateDependentControls : function() {
-			this.trigger( "updateDependentControls", this.getSelectedModels() );
 			if( this._isBackboneCourierAvailable() ) {
 				this.spawn( "updateDependentControls", {
 					selectedModels : this.getSelectedModels()
 				} );
-			}
+			} else this.trigger( "updateDependentControls", this.getSelectedModels() );
 		},
 
 		// Override `Backbone.View.remove` to also destroy all Views in `viewManager`
@@ -481,6 +479,7 @@
 
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "add", modelView );
+				else this.trigger( "add", modelView );
 			} );
 
 			this.listenTo( this.collection, "remove", function( model ) {
@@ -493,12 +492,14 @@
 
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "remove" );
+				else this.trigger( "remove" );
 			} );
 
 			this.listenTo( this.collection, "reset", function() {
 				if( this._hasBeenRendered ) this.render();
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "reset" );
+				else else this.trigger( "reset" );
 			} );
 
 			// we should not be listening to change events on the model as a default behavior. the models
@@ -515,6 +516,7 @@
 				if( this._hasBeenRendered && options.add !== true ) this.render();
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "sort" );
+				else else this.trigger( "sort" );
 			} );
 		},
 
@@ -534,7 +536,7 @@
 			// important to use currentTarget as opposed to target, since we could be bubbling
 			// an event that took place within another collectionList
 			var clickedItemEl = $( theEvent.currentTarget );
-			if( clickedItemEl.closest( ".collection-list" ).get(0) !== this.$el.get(0) ) return;
+			if( clickedItemEl.closest( ".collection-view" ).get(0) !== this.$el.get(0) ) return;
 
 			// determine which list item was clicked. If we clicked in the blank area
 			// underneath all the elements, we want to know that too, since in this
@@ -612,13 +614,12 @@
 				// Trigger a selection changed if the previously selected items were not all found
 				if (this.selectedItems.length !== this.savedSelection.items.length)
 				{
-					this.trigger( "selectionChanged", this.getSelectedModels(), [] );
 					if( this._isBackboneCourierAvailable() ) {
 						this.spawn( "selectionChanged", {
 							selectedModels : this.getSelectedModels(),
 							oldSelectedModels : []
 						} );
-					}
+					} else this.trigger( "selectionChanged", this.getSelectedModels(), [] );
 				}
 			}
 
@@ -636,6 +637,10 @@
 
 			_.each( itemsIdsFromWhichSelectedClassNeedsToBeRemoved, function( thisItemId ) {
 				this._getContainerEl().find( "[data-model-cid=" + thisItemId + "]" ).removeClass( "selected" );
+				
+				if( this._isRenderedAsList() ) {
+					this._getContainerEl().find( "li[data-model-cid=" + thisItemId + "] > *" ).removeClass( "selected" );
+				}
 			}, this );
 
 			var itemsIdsFromWhichSelectedClassNeedsToBeAdded = this.selectedItems;
@@ -643,6 +648,10 @@
 
 			_.each( itemsIdsFromWhichSelectedClassNeedsToBeAdded, function( thisItemId ) {
 				this._getContainerEl().find( "[data-model-cid=" + thisItemId + "]" ).addClass( "selected" );
+
+				if( this._isRenderedAsList() ) {
+					this._getContainerEl().find( "li[data-model-cid=" + thisItemId + "] > *" ).addClass( "selected" );
+				}
 			}, this );
 		},
 
@@ -665,9 +674,8 @@
 				}
 			} );
 
-			this.collection.trigger( "reorder" );
-
 			if( this._isBackboneCourierAvailable() ) this.spawn( "reorder" );
+			else this.collection.trigger( "reorder" );
 
 			if( this.collection.comparator ) this.collection.sort();
 
@@ -788,16 +796,17 @@
 
 		_sortStart : function( event, ui ) {
 			var modelBeingSorted = this.collection.get( ui.item.attr( "data-model-cid" ) );
-			this.trigger( "sortStart", modelBeingSorted );
 			if( this._isBackboneCourierAvailable() )
 				this.spawn( "sortStart", { modelBeingSorted : modelBeingSorted } );
+			else this.trigger( "sortStart", modelBeingSorted );
 		},
 
 		_sortChange : function( event, ui ) {
 			var modelBeingSorted = this.collection.get( ui.item.attr( "data-model-cid" ) );
-			this.trigger( "sortChange", modelBeingSorted );
+			
 			if( this._isBackboneCourierAvailable() )
 				this.spawn( "sortChange", { modelBeingSorted : modelBeingSorted } );
+			else this.trigger( "sortChange", modelBeingSorted );
 		},
 
 		_sortStop : function( event, ui ) {
@@ -815,9 +824,10 @@
 
 			this._reorderCollectionBasedOnHTML();
 			this.updateDependentControls();
-			this.trigger( "sortStop", modelBeingSorted, newIndex );
+			
 			if( this._isBackboneCourierAvailable() )
 				this.spawn( "sortStop", { modelBeingSorted : modelBeingSorted, newIndex : newIndex } );
+			else this.trigger( "sortStop", modelBeingSorted, newIndex );
 		},
 
 		_receive : function( event, ui ) {
@@ -942,15 +952,16 @@
 			if( clickedItemId )
 			{
 				var clickedModel = this.collection.get( clickedItemId );
-				this.trigger( "doubleClick", clickedModel );
+				
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "doubleClick", { clickedModel : clickedModel } );
+				else this.trigger( "doubleClick", clickedModel );
 			}
 		},
 
 		_listBackground_onClick : function( theEvent ) {
 			if( ! this.selectable ) return;
-			if( ! $( theEvent.target ).is( ".collection-list" ) ) return;
+			if( ! $( theEvent.target ).is( ".collection-view" ) ) return;
 
 			this.setSelectedModels( [] );
 		}
