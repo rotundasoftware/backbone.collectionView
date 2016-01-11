@@ -1,5 +1,5 @@
 /*!
-* Backbone.CollectionView, v1.0.4
+* Backbone.CollectionView, v1.0.5
 * Copyright (c)2013 Rotunda Software, LLC.
 * Distributed under MIT license
 * http://github.com/rotundasoftware/backbone-collection-view
@@ -298,7 +298,7 @@
 				this.setSelectedModels( [ newSelectedItem ], options );
 		},
 
-		render : function(){
+		render : function() {
 			var _this = this;
 
 			this._hasBeenRendered = true;
@@ -359,8 +359,7 @@
 				this.updateDependentControls();
 			}
 
-			if( _.isFunction( this.onAfterRender ) )
-				this.onAfterRender();
+			this.forceRerenderOnNextSortEvent = false;
 		},
 
 		_showEmptyListCaptionIfAppropriate : function ( ) {
@@ -406,11 +405,19 @@
 			if( parentElOrDocumentFragment.nodeType === 11 ) // if we are inserting into a document fragment, we need to use the DOM appendChild method
 				parentElOrDocumentFragment.appendChild( thisModelViewWrapped.get( 0 ) );
 			else {
-				if( ! _.isUndefined( atIndex ) && atIndex >= 0 && atIndex < parentElOrDocumentFragment.children().length )
+				var numberOfModelViewsCurrentlyInDOM = parentElOrDocumentFragment.children().length;
+				if( ! _.isUndefined( atIndex ) && atIndex >= 0 && atIndex < numberOfModelViewsCurrentlyInDOM )
 					// note this.collection.length might be greater than parentElOrDocumentFragment.children().length here
 					parentElOrDocumentFragment.children().eq( atIndex ).before( thisModelViewWrapped );
-				else
+				else {
+					// if we are attempting to insert a modelView in an position that is beyond what is currently in the
+					// DOM, then make a note that we need to re-render the collection view on the next sort event. If we dont
+					// force this re-render, we can end up with modelViews in the wrong order when the collection defines
+					// a comparator and multiple models are added at once. See https://github.com/rotundasoftware/backbone.collectionView/issues/69
+					if( ! _.isUndefined( atIndex ) && atIndex > numberOfModelViewsCurrentlyInDOM ) this.forceRerenderOnNextSortEvent = true;
+
 					parentElOrDocumentFragment.append( thisModelViewWrapped );
+				}
 			}
 
 			// we have to render the modelView after it has been put in context, as opposed to in the
@@ -520,7 +527,7 @@
 			// } );
 
 			this.listenTo( this.collection, "sort", function( collection, options ) {
-				if( this._hasBeenRendered && options.add !== true ) this.render();
+				if( this._hasBeenRendered && ( options.add !== true || this.forceRerenderOnNextSortEvent ) ) this.render();
 				if( this._isBackboneCourierAvailable() )
 					this.spawn( "sort" );
 				else this.trigger( "sort" );
