@@ -1,5 +1,5 @@
 /*!
-* Backbone.CollectionView, v1.0.3
+* Backbone.CollectionView, v1.0.4
 * Copyright (c)2013 Rotunda Software, LLC.
 * Distributed under MIT license
 * http://github.com/rotundasoftware/backbone-collection-view
@@ -704,8 +704,8 @@
 			if( _.isUndefined( modelViewConstructor ) ) throw "Could not find modelView constructor for model";
 
 			var newModelView = new( modelViewConstructor )( modelViewOptions );
-			newModelView.collectionListView = this;
-
+			newModelView.collectionListView = newModelView.collectionView = this;  // collectionListView for legacy
+			
 			return newModelView;
 		},
 

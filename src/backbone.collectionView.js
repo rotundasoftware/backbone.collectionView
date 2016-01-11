@@ -697,8 +697,8 @@
 			if( _.isUndefined( modelViewConstructor ) ) throw "Could not find modelView constructor for model";
 
 			var newModelView = new( modelViewConstructor )( modelViewOptions );
-			newModelView.collectionListView = this;
-
+			newModelView.collectionListView = newModelView.collectionView = this;  // collectionListView for legacy
+			
 			return newModelView;
 		},
 
