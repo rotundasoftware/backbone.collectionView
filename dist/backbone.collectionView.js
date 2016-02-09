@@ -1,5 +1,5 @@
 /*!
-* Backbone.CollectionView, v1.0.6
+* Backbone.CollectionView, v1.1.0
 * Copyright (c)2013 Rotunda Software, LLC.
 * Distributed under MIT license
 * http://github.com/rotundasoftware/backbone-collection-view
@@ -475,7 +475,7 @@
 
 						thisModelView.$el.toggleClass( "not-visible", notVisible );
 						if( _this._modelViewHasWrapperLI( thisModelView ) ) {
-							thisModelView.$el.closest( "li" ).toggleClass( "not-sortable", notVisible ).toggle( ! notVisible );
+							thisModelView.$el.closest( "li" ).toggleClass( "not-visible", notVisible ).toggle( ! notVisible );
 						} else thisModelView.$el.toggle( ! notVisible );
 					} );
 
@@ -499,9 +499,9 @@
 					_this.viewManager.each( function( thisModelView ) {
 						var notSelectable = _this.selectableModelsFilter && ! _this.selectableModelsFilter.call( _this, thisModelView.model );
 
-						thisModelView.$el.toggleClass( "not-sortable", notSelectable );
+						thisModelView.$el.toggleClass( "not-selectable", notSelectable );
 						if( _this._modelViewHasWrapperLI( thisModelView ) ) {
-							thisModelView.$el.closest( "li" ).toggleClass( "not-sortable", notSelectable );
+							thisModelView.$el.closest( "li" ).toggleClass( "not-selectable", notSelectable );
 						}
 					} );
 
@@ -515,10 +515,8 @@
 			if( this.selectable ) this._saveSelection();
 
 			this.viewManager.remove( modelView ); // Remove the view from the viewManager
-
-			if( this._modelViewHasWrapperLI( modelView ) ) {
-				if( this._isRenderedAsList() ) modelView.$el.parent().remove(); // Remove the li wrapper from the DOM
-			} else modelView.remove(); // Remove the view from the DOM
+			if( this._modelViewHasWrapperLI( modelView ) ) modelView.$el.parent().remove(); // Remove the li wrapper from the DOM
+			modelView.remove(); // Remove the view from the DOM and stop listening to events
 
 			if( this.selectable ) this._restoreSelection();
 
