@@ -120,17 +120,17 @@
 						changedOptions.sortable ? _this._setupSortable() : _this.$el.sortable( "destroy" );
 						break;
 					case "selectableModelsFilter" :
-						this.reapplyFilter( 'selectableModels' );
+						_this.reapplyFilter( 'selectableModels' );
 						break;
 					case "sortableOptions" :
 						_this.$el.sortable( "destroy" );
 						_this._setupSortable();
 						break;
 					case "sortableModelsFilter" :
-						this.reapplyFilter( 'sortableModels' );
+						_this.reapplyFilter( 'sortableModels' );
 						break;
 					case "visibleModelsFilter" :
-						this.reapplyFilter( 'visibleModels' );
+						_this.reapplyFilter( 'visibleModels' );
 						break;
 					case "itemTemplate" :
 						_this._updateItemTemplate();
@@ -467,7 +467,7 @@
 						var notVisible = _this.visibleModelsFilter && ! _this.visibleModelsFilter.call( _this, thisModelView.model );
 
 						thisModelView.$el.toggleClass( "not-visible", notVisible );
-						if( _this._isRenderedAsList() && ! thisModelView.$el.is( "li" ) ) {
+						if( _this._modelViewHasWrapperLI( thisModelView ) ) {
 							thisModelView.$el.closest( "li" ).toggleClass( "not-sortable", notVisible ).toggle( ! notVisible );
 						} else thisModelView.$el.toggle( ! notVisible );
 					} );
@@ -481,7 +481,7 @@
 						var notSortable = _this.sortableModelsFilter && ! _this.sortableModelsFilter.call( _this, thisModelView.model );
 
 						thisModelView.$el.toggleClass( "not-sortable", notSortable );
-						if( _this._isRenderedAsList() && ! thisModelView.$el.is( "li" ) ) {
+						if( _this._modelViewHasWrapperLI( thisModelView ) ) {
 							thisModelView.$el.closest( "li" ).toggleClass( "not-sortable", notSortable );
 						}
 					} );
@@ -493,7 +493,7 @@
 						var notSelectable = _this.selectableModelsFilter && ! _this.selectableModelsFilter.call( _this, thisModelView.model );
 
 						thisModelView.$el.toggleClass( "not-sortable", notSelectable );
-						if( _this._isRenderedAsList() && ! thisModelView.$el.is( "li" ) ) {
+						if( _this._modelViewHasWrapperLI( thisModelView ) ) {
 							thisModelView.$el.closest( "li" ).toggleClass( "not-sortable", notSelectable );
 						}
 					} );
@@ -508,8 +508,10 @@
 			if( this.selectable ) this._saveSelection();
 
 			this.viewManager.remove( modelView ); // Remove the view from the viewManager
-			if( this._isRenderedAsList() ) modelView.$el.parent().remove(); // Remove the li wrapper from the DOM
-			modelView.remove(); // Remove the view from the DOM
+
+			if( this._modelViewHasWrapperLI( modelView ) ) {
+				if( this._isRenderedAsList() ) modelView.$el.parent().remove(); // Remove the li wrapper from the DOM
+			} else modelView.remove(); // Remove the view from the DOM
 
 			if( this.selectable ) this._restoreSelection();
 
@@ -760,36 +762,37 @@
 
 			// we use items client ids as opposed to real ids, since we may not have a representation
 			// of these models on the server
-			var wrappedModelView;
+			var modelViewWrapperEl;
 
 			if( this._isRenderedAsTable() ) {
 				// if we are rendering the collection in a table, the template $el is a tr so we just need to set the data-model-cid
-				wrappedModelView = modelView.$el.attr( "data-model-cid", modelView.model.cid );
+				modelViewWrapperEl = modelView.$el;
+				modelView.$el.attr( "data-model-cid", modelView.model.cid );
 			}
 			else if( this._isRenderedAsList() ) {
 				// if we are rendering the collection in a list, we need wrap each item in an <li></li> (if its not already an <li>)
 				// and set the data-model-cid
 				if( modelView.$el.is( "li" ) ) {
-					wrappedModelView = modelView;
+					modelViewWrapperEl = modelView.$el;
 					modelView.$el.attr( "data-model-cid", modelView.model.cid );
 				} else {
-					wrappedModelView = modelView.$el.wrapAll( "<li data-model-cid='" + modelView.model.cid + "'></li>" ).parent();
+					modelViewWrapperEl = modelView.$el.wrapAll( "<li data-model-cid='" + modelView.model.cid + "'></li>" ).parent();
 				}
 			}
 
 			if( _.isFunction( this.sortableModelsFilter ) )
 				if( ! this.sortableModelsFilter.call( _this, modelView.model ) ) {
-					wrappedModelView.addClass( "not-sortable" );
-					modelView.addClass( "not-selectable" );
+					modelViewWrapperEl.addClass( "not-sortable" );
+					modelView.$el.addClass( "not-selectable" );
 				}
 
 			if( _.isFunction( this.selectableModelsFilter ) )
 				if( ! this.selectableModelsFilter.call( _this, modelView.model ) ) {
-					wrappedModelView.addClass( "not-selectable" );
-					modelView.addClass( "not-selectable" );
+					modelViewWrapperEl.addClass( "not-selectable" );
+					modelView.$el.addClass( "not-selectable" );
 				}
 
-			return wrappedModelView;
+			return modelViewWrapperEl;
 		},
 
 		_convertStringsToInts : function( theArray ) {
@@ -812,6 +815,10 @@
 
 		_isRenderedAsList : function() {
 			return ! this._isRenderedAsTable();
+		},
+
+		_modelViewHasWrapperLI : function( modelView ) {
+			return this._isRenderedAsList() && ! modelView.$el.is( "li" );
 		},
 
 		// Returns the wrapper HTML element for each visible modelView.
