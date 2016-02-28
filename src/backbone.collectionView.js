@@ -206,6 +206,9 @@
 						items.push( _this.viewManager.findByModel( _this.collection.get( item ) ) );
 					} );
 					break;
+				default :
+					throw new Error( "Invalid referenceBy option: " + referenceBy );
+					break;
 			}
 
 			return items;
@@ -252,6 +255,9 @@
 							newSelectedCids.push( thisItemEl.attr( "data-model-cid" ) );
 						curLineNumber++;
 					} );
+					break;
+				default :
+					throw new Error( "Invalid referenceBy option: " + referenceBy );
 					break;
 			}
 
