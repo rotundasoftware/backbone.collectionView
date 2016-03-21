@@ -416,6 +416,8 @@
 				}
 			}
 
+			this.viewManager.add( modelView );
+	
 			// we have to render the modelView after it has been put in context, as opposed to in the
 			// initialize function of the modelView, because some rendering might be dependent on
 			// the modelView's context in the DOM tree. For example, if the modelView stretch()'s itself,
@@ -439,8 +441,6 @@
 			thisModelViewWrapped.toggleClass( "not-visible", hideThisModelView );
 
 			if( ! hideThisModelView && this.emptyListCaption ) this._removeEmptyListCaption();
-
-			this.viewManager.add( modelView );
 		},
 
 		updateDependentControls : function() {
