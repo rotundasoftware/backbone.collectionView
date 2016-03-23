@@ -1036,7 +1036,7 @@
 		},
 
 		_listBackground_onClick : function( theEvent ) {
-			if( ! this.selectable ) return;
+			if( ! this.selectable || ! this.clickToSelect ) return;
 			if( ! $( theEvent.target ).is( ".collection-view" ) ) return;
 
 			this.setSelectedModels( [] );
