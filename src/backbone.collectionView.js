@@ -94,7 +94,7 @@
 			this.viewManager = new ChildViewContainer();
 		},
 
-		onOptionsChanged : function( changedOptions, originalOptions ) {
+		_onOptionsChanged : function( changedOptions, originalOptions ) {
 			var _this = this;
 			var rerender = false;
 

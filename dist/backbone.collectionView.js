@@ -1,5 +1,5 @@
 /*!
-* Backbone.CollectionView, v1.1.3
+* Backbone.CollectionView, v1.1.4
 * Copyright (c)2013 Rotunda Software, LLC.
 * Distributed under MIT license
 * http://github.com/rotundasoftware/backbone-collection-view
@@ -101,7 +101,7 @@
 			this.viewManager = new ChildViewContainer();
 		},
 
-		onOptionsChanged : function( changedOptions, originalOptions ) {
+		_onOptionsChanged : function( changedOptions, originalOptions ) {
 			var _this = this;
 			var rerender = false;
 
