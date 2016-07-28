@@ -1,5 +1,9 @@
 # Change log
 
+### v1.2.0
+
+* Added 'click' event
+
 ### v0.11.0
 
 * Added `reuseModelViews` option. Set to false to completely recreate model views on each render.

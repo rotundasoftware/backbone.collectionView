@@ -97,6 +97,7 @@ CollectionViews `trigger` the following events on themselves. If [Backbone.Couri
  is available, these events are also "spawned".
 * __"selectionChanged"__ ( _newSelectedModels, oldSelectedModels_ )  Fired whenever the selection is changed, either by the user or by a programmatic call to `setSelectedModel(s)`.
 * __"updateDependentControls"__ ( _selectedModels_ ) Fired whenever controls that are dependent on the selection should be updated (e.g. buttons that should be disabled on no selection). This event is always fired just after `selectionChanged` is fired. In addition, it is fired after rendering and sorting.
+* __"click"__ ( _clickedModel_ ) Fired when a model view is clicked.
 * __"doubleClick"__ ( _clickedModel_ ) Fired when a model view is double clicked.
 
 In addition, sortable CollectionViews fire these events:
