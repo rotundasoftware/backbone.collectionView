@@ -945,10 +945,17 @@
 		},
 
 		_listItem_onMousedown : function( theEvent ) {
-			if( ! this.selectable || ! this.clickToSelect ) return;
-
 			var clickedItemId = this._getClickedItemId( theEvent );
 
+			if( clickedItemId ) {
+				var clickedModel = this.collection.get( clickedItemId );
+				if( this._isBackboneCourierAvailable() )
+					this.spawn( "click", { clickedModel : clickedModel } );
+				else this.trigger( "click", clickedModel );
+			}
+
+			if( ! this.selectable || ! this.clickToSelect ) return;
+		
 			if( clickedItemId )
 			{
 				// Exit if an unselectable item was clicked
