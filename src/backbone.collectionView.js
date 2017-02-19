@@ -950,7 +950,7 @@
 			if( clickedItemId ) {
 				var clickedModel = this.collection.get( clickedItemId );
 				if( this._isBackboneCourierAvailable() )
-					this.spawn( "click", { clickedModel : clickedModel } );
+					this.spawn( "click", { clickedModel : clickedModel, metaKeyPressed : theEvent.ctrlKey || theEvent.metaKey } );
 				else this.trigger( "click", clickedModel );
 			}
 
@@ -1030,7 +1030,7 @@
 				var clickedModel = this.collection.get( clickedItemId );
 				
 				if( this._isBackboneCourierAvailable() )
-					this.spawn( "doubleClick", { clickedModel : clickedModel } );
+					this.spawn( "doubleClick", { clickedModel : clickedModel, metaKeyPressed : theEvent.ctrlKey || theEvent.metaKey } );
 				else this.trigger( "doubleClick", clickedModel );
 			}
 		},
