@@ -301,6 +301,30 @@
 				this.setSelectedModels( [ newSelectedItem ], options );
 		},
 
+		getView : function( reference, options ) {
+			options = _.extend( {}, {
+				by : kDefaultReferenceBy
+			}, options );
+
+			switch( options.by ) {
+				case "id" :
+				case "cid" :
+					var model = this.collection.get( reference ) || null;
+					return model && this.viewManager.findByModel( model );
+					break;
+				case "offset" :
+					var itemElements = this._getVisibleItemEls();
+					return $( itemElements.get( reference ) );
+					break;
+				case "model" :
+					return this.viewManager.findByModel( reference );
+					break;
+				default :
+					throw new Error( "Invalid referenceBy option: " + referenceBy );
+					break;
+			}
+		},
+
 		render : function() {
 			var _this = this;
 
