@@ -1,5 +1,5 @@
 /*!
-* Backbone.CollectionView, v1.3.0
+* Backbone.CollectionView, v1.3.1
 * Copyright (c)2013 Rotunda Software, LLC.
 * Distributed under MIT license
 * http://github.com/rotundasoftware/backbone-collection-view
@@ -88,7 +88,7 @@
 			this.$el.addClass( "collection-view collection-list" ); // collection-list is in there for legacy purposes
 			if( this.selectable ) this.$el.addClass( "selectable" );
 
-			if( this.processKeyEvents )
+			if( this.selectable && this.processKeyEvents )
 				this.$el.attr( "tabindex", 0 ); // so we get keyboard events
 
 			this.selectedItems = [];
@@ -122,6 +122,9 @@
 					case "selectable" :
 						if( ! newVal && _this.selectedItems.length > 0 )
 							_this.setSelectedModels( [] );
+
+						if( newVal && this.processKeyEvents ) _this.$el.attr( "tabindex", 0 ); // so we get keyboard events
+						else _this.$el.removeAttr( "tabindex", 0 );
 						break;
 					case "sortable" :
 						changedOptions.sortable ? _this._setupSortable() : _this.$el.sortable( "destroy" );
@@ -143,7 +146,8 @@
 						_this._updateItemTemplate();
 						break;
 					case "processKeyEvents" :
-						if( newVal ) _this.$el.attr( "tabindex", 0 ); // so we get keyboard events
+						if( newVal && this.selectable ) _this.$el.attr( "tabindex", 0 ); // so we get keyboard events
+						else _this.$el.removeAttr( "tabindex", 0 );
 						break;
 					case "modelView" :
 						//need to remove all old view instances
