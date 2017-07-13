@@ -716,8 +716,6 @@
 					} else this.trigger( "selectionChanged", this.getSelectedModels(), [] );
 				}
 			}
-
-			delete this.savedSelection;
 		},
 
 		_addSelectedClassToSelectedItems : function( oldItemsIdsWithSelectedClass ) {
