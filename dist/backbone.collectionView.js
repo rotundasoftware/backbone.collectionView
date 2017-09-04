@@ -1,5 +1,5 @@
 /*!
-* Backbone.CollectionView, v1.3.3
+* Backbone.CollectionView, v1.3.4
 * Copyright (c)2013 Rotunda Software, LLC.
 * Distributed under MIT license
 * http://github.com/rotundasoftware/backbone-collection-view
