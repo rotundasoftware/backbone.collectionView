@@ -975,8 +975,20 @@
 
 			if( clickedItemId ) {
 				var clickedModel = this.collection.get( clickedItemId );
-				if( this._isBackboneCourierAvailable() )
-					this.spawn( "click", { clickedModel : clickedModel, metaKeyPressed : theEvent.ctrlKey || theEvent.metaKey } );
+				if( this._isBackboneCourierAvailable() ) {
+					var data = {
+						clickedModel : clickedModel,
+						metaKeyPressed : theEvent.ctrlKey || theEvent.metaKey
+					};
+
+					_.each( [ 'preventDefault', 'stopPropagation', 'stopImmediatePropagation' ], function( thisMethod ) {
+						data[ thisMethod ] = function() {
+							theEvent[ thisMethod ]();
+						};
+					} );
+
+					this.spawn( "click", data );
+				}
 				else this.trigger( "click", clickedModel );
 			}
 

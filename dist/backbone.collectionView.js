@@ -1,5 +1,5 @@
 /*!
-* Backbone.CollectionView, v1.3.2
+* Backbone.CollectionView, v1.3.3
 * Copyright (c)2013 Rotunda Software, LLC.
 * Distributed under MIT license
 * http://github.com/rotundasoftware/backbone-collection-view
@@ -982,8 +982,20 @@
 
 			if( clickedItemId ) {
 				var clickedModel = this.collection.get( clickedItemId );
-				if( this._isBackboneCourierAvailable() )
-					this.spawn( "click", { clickedModel : clickedModel, metaKeyPressed : theEvent.ctrlKey || theEvent.metaKey } );
+				if( this._isBackboneCourierAvailable() ) {
+					var data = {
+						clickedModel : clickedModel,
+						metaKeyPressed : theEvent.ctrlKey || theEvent.metaKey
+					};
+
+					_.each( [ 'preventDefault', 'stopPropagation', 'stopImmediatePropagation' ], function( thisMethod ) {
+						data[ thisMethod ] = function() {
+							theEvent[ thisMethod ]();
+						};
+					} );
+
+					this.spawn( "click", data );
+				}
 				else this.trigger( "click", clickedModel );
 			}
 
