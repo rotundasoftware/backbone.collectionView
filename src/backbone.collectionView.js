@@ -41,7 +41,7 @@
 		},
 
 		//only used if Backbone.Courier is available
-		passMessages : { "*" : "." },
+		passMessages : true,
 		
 		// viewOption definitions with default values.
 		initializationOptions : [

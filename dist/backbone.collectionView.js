@@ -1,5 +1,5 @@
 /*!
-* Backbone.CollectionView, v1.3.4
+* Backbone.CollectionView, v2.0.0
 * Copyright (c)2013 Rotunda Software, LLC.
 * Distributed under MIT license
 * http://github.com/rotundasoftware/backbone-collection-view
@@ -48,7 +48,7 @@
 		},
 
 		//only used if Backbone.Courier is available
-		passMessages : { "*" : "." },
+		passMessages : true,
 		
 		// viewOption definitions with default values.
 		initializationOptions : [
