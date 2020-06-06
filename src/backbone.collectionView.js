@@ -62,7 +62,8 @@
 			{ "sortableOptions" : null },
 			{ "reuseModelViews" : true },
 			{ "detachedRendering" : false },
-			{ "emptyListCaption" : null }
+			{ "emptyListCaption" : null },
+			{ "class" : 'selected' }
 		],
 
 		initialize : function( options ) {
@@ -712,6 +713,8 @@
 		},
 
 		_addSelectedClassToSelectedItems : function( oldItemsIdsWithSelectedClass ) {
+			var options = this.getOptions();
+
 			if( _.isUndefined( oldItemsIdsWithSelectedClass ) ) oldItemsIdsWithSelectedClass = [];
 
 			// oldItemsIdsWithSelectedClass is used for optimization purposes only. If this info is supplied then we
@@ -721,10 +724,10 @@
 			itemsIdsFromWhichSelectedClassNeedsToBeRemoved = _.without( itemsIdsFromWhichSelectedClassNeedsToBeRemoved, this.selectedItems );
 
 			_.each( itemsIdsFromWhichSelectedClassNeedsToBeRemoved, function( thisItemId ) {
-				this._getContainerEl().find( "[data-model-cid=" + thisItemId + "]" ).removeClass( "selected" );
+				this._getContainerEl().find( "[data-model-cid=" + thisItemId + "]" ).removeClass( options.class );
 				
 				if( this._isRenderedAsList() ) {
-					this._getContainerEl().find( "li[data-model-cid=" + thisItemId + "] > *" ).removeClass( "selected" );
+					this._getContainerEl().find( "li[data-model-cid=" + thisItemId + "] > *" ).removeClass( options.class );
 				}
 			}, this );
 
@@ -732,10 +735,10 @@
 			itemsIdsFromWhichSelectedClassNeedsToBeAdded = _.without( itemsIdsFromWhichSelectedClassNeedsToBeAdded, oldItemsIdsWithSelectedClass );
 
 			_.each( itemsIdsFromWhichSelectedClassNeedsToBeAdded, function( thisItemId ) {
-				this._getContainerEl().find( "[data-model-cid=" + thisItemId + "]" ).addClass( "selected" );
+				this._getContainerEl().find( "[data-model-cid=" + thisItemId + "]" ).addClass( options.class );
 
 				if( this._isRenderedAsList() ) {
-					this._getContainerEl().find( "li[data-model-cid=" + thisItemId + "] > *" ).addClass( "selected" );
+					this._getContainerEl().find( "li[data-model-cid=" + thisItemId + "] > *" ).addClass( options.class );
 				}
 			}, this );
 		},
